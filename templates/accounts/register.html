@@ -1,0 +1,78 @@
+{% extends "base_public.html" %}
+{% block title %}Create Account — WorkHub{% endblock %}
+
+{% block content %}
+<div class="auth-bg d-flex align-items-center justify-content-center py-5 px-3" style="min-height:100vh;">
+  <div style="width:100%;max-width:460px;position:relative;z-index:1;">
+
+    <div class="text-center mb-4">
+      <div class="d-inline-flex align-items-center justify-content-center mb-3"
+           style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 8px 24px rgba(99,102,241,.4);">
+        <i class="bi bi-grid-fill text-white fs-5"></i>
+      </div>
+      <h2 class="text-white fw-bold mb-1" style="letter-spacing:-.03em;">Join WorkHub</h2>
+      <p class="mb-0" style="color:rgba(255,255,255,.5);font-size:.875rem;">Create your free account today</p>
+    </div>
+
+    <div class="auth-card p-4 p-md-5">
+      <h4 class="fw-bold mb-1" style="letter-spacing:-.02em;">Create account</h4>
+      <p class="text-muted mb-4" style="font-size:.875rem;">Fill in your details to get started</p>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="form-label fw-semibold small">First Name</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}<div class="invalid-feedback d-block">{{ form.first_name.errors|join:", " }}</div>{% endif %}
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold small">Last Name</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}<div class="invalid-feedback d-block">{{ form.last_name.errors|join:", " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">Username</label>
+          {{ form.username }}
+          {% if form.username.errors %}<div class="invalid-feedback d-block">{{ form.username.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">Work Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">Password</label>
+          {{ form.password1 }}
+          {% if form.password1.errors %}<div class="invalid-feedback d-block">{{ form.password1.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold small">Confirm Password</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}<div class="invalid-feedback d-block">{{ form.password2.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger py-2" style="font-size:.875rem;"><i class="bi bi-exclamation-circle me-2"></i>{{ form.non_field_errors|join:", " }}</div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-1">
+          Create Account
+        </button>
+      </form>
+
+      <div class="auth-divider my-4">already have an account?</div>
+      <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary w-100 py-2 fw-semibold">
+        Sign In Instead
+      </a>
+    </div>
+    <p class="text-center mt-4" style="font-size:.75rem;color:rgba(255,255,255,.3);">\u00a9 2026 WorkHub · All rights reserved</p>
+  </div>
+</div>
+{% endblock %}

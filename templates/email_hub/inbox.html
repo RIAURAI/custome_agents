@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Inbox — WorkHub{% endblock %}
+{% block page_title %}Inbox{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="d-flex align-items-center gap-2">
+    <div style="width:32px;height:32px;border-radius:9px;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
+      <i class="bi bi-envelope" style="color:#6366f1;"></i>
+    </div>
+    <h5 class="mb-0">Inbox</h5>
+  </div>
+  <a href="{% url 'email_hub:compose' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-pencil-square me-1"></i>Compose
+  </a>
+</div>
+
+{% if error %}
+<div class="alert alert-warning">
+  <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-body p-0">
+    {% if emails %}
+    <div class="list-group list-group-flush">
+      {% for email in emails %}
+      <a href="{% url 'email_hub:detail' email.id %}"
+         class="list-group-item list-group-item-action email-row {% if not email.isRead %}unread{% endif %} px-4 py-3">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <div class="flex-grow-1" style="min-width:0;">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              {% if not email.isRead %}
+              <span class="badge" style="background:#6366f1;font-size:.63rem;">New</span>
+              {% endif %}
+              <span class="fw-semibold text-truncate" style="font-size:.84rem;">
+                {{ email.from.emailAddress.name|default:email.from.emailAddress.address }}
+              </span>
+            </div>
+            <div class="text-truncate {% if not email.isRead %}fw-semibold{% else %}text-muted{% endif %}"
+                 style="font-size:.84rem;">{{ email.subject|default:"(no subject)" }}</div>
+            <div class="text-truncate text-muted" style="font-size:.77rem;">{{ email.bodyPreview }}</div>
+          </div>
+          <small class="text-muted text-nowrap" style="font-size:.75rem;flex-shrink:0;">
+            {{ email.receivedDateTime|slice:":10" }}
+          </small>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-inbox"></i>
+      {% if not ms_connected %}
+      <p class="mb-3">Connect your Microsoft account to see your inbox</p>
+      <a href="{% url 'integrations:microsoft_connect' %}" class="btn btn-primary">
+        <i class="bi bi-microsoft me-1"></i>Connect Microsoft
+      </a>
+      {% else %}
+      <p>Your inbox is empty</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

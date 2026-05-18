@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}{{ email.subject|default:"Email" }} — WorkHub{% endblock %}
+{% block page_title %}Email Detail{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+  <div class="d-flex align-items-center gap-2">
+    <div style="width:32px;height:32px;border-radius:9px;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
+      <i class="bi bi-envelope-open" style="color:#6366f1;"></i>
+    </div>
+    <h5 class="mb-0" style="font-size:.95rem;">Email Detail</h5>
+  </div>
+  <a href="{% url 'email_hub:inbox' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Back to Inbox
+  </a>
+</div>
+
+{% if error %}
+  <div class="alert alert-warning">{{ error }}</div>
+{% elif email %}
+
+<div class="card mb-4">
+  <div class="card-body p-4">
+    <h5 class="fw-bold mb-3" style="font-size:1.05rem;">{{ email.subject|default:"(no subject)" }}</h5>
+    <div class="d-flex align-items-center gap-3 mb-3 pb-3 flex-wrap" style="border-bottom:1px solid var(--border);">
+      <div class="d-flex align-items-center gap-2">
+        <div class="avatar-circle avatar-circle-sm">
+          {{ email.from.emailAddress.name|first|upper }}
+        </div>
+        <div>
+          <div class="fw-semibold" style="font-size:.88rem;">{{ email.from.emailAddress.name }}</div>
+          <div class="text-muted" style="font-size:.78rem;">{{ email.from.emailAddress.address }}</div>
+        </div>
+      </div>
+      <small class="text-muted ms-auto" style="font-size:.78rem;">{{ email.receivedDateTime|slice:":16" }}</small>
+    </div>
+    <div class="email-body" style="max-height:60vh;overflow-y:auto;font-size:.88rem;line-height:1.7;">
+      {% if email.body.contentType == "html" %}
+        {{ email.body.content|safe }}
+      {% else %}
+        <pre style="white-space:pre-wrap;font-family:inherit;">{{ email.body.content }}</pre>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- AI Panel -->
+<div class="card">
+  <div class="card-header d-flex align-items-center">
+    <div class="d-flex align-items-center gap-2 flex-grow-1">
+      <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;">
+        <i class="bi bi-stars text-white" style="font-size:.75rem;"></i>
+      </div>
+      <span class="fw-semibold" style="font-size:.9rem;">AI Assistant</span>
+    </div>
+    <a href="{% url 'email_hub:compose' %}?to={{ email.from.emailAddress.address }}&subject=Re: {{ email.subject|urlencode }}"
+       class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-reply me-1"></i>Reply
+    </a>
+  </div>
+  <div class="card-body p-4">
+    <div class="d-flex gap-2 flex-wrap mb-3">
+      <button id="ai-btn" class="btn btn-primary btn-sm">
+        <i class="bi bi-list-task me-1"></i>Summarize
+      </button>
+      <button class="btn btn-outline-primary btn-sm" id="ai-reply-btn">
+        <i class="bi bi-reply me-1"></i>Draft Reply
+      </button>
+    </div>
+    <div id="ai-response-box" class="d-none" style="background:#f8fafc;border-radius:10px;padding:16px;">
+      <div class="d-flex align-items-center mb-2">
+        <i class="bi bi-stars me-2" style="color:#6366f1;"></i>
+        <span class="fw-semibold" style="font-size:.85rem;">AI Response</span>
+      </div>
+      <p id="ai-content" class="mb-0" style="white-space:pre-wrap;font-size:.85rem;line-height:1.7;"></p>
+    </div>
+  </div>
+</div>
+
+<script id="email-body" type="application/json">{{ email.body.content|escapejs }}</script>
+<script>
+  document.getElementById("ai-btn").onclick = function() {
+    const text = document.getElementById("email-body").textContent;
+    runAI("summarize", text, "{{ csrf_token }}");
+  };
+  document.getElementById("ai-reply-btn").onclick = function() {
+    const text = document.getElementById("email-body").textContent;
+    runAI("reply", text, "{{ csrf_token }}");
+  };
+</script>
+{% endif %}
+{% endblock %}
