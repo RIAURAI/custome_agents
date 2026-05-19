@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "email_hub",
     "meetings",
     "ai_assistant",
+    "slack_hub",
 ]
 
 MIDDLEWARE = [
@@ -118,6 +119,14 @@ MS_SCOPES = [
     "OnlineMeetings.Read",
 ]
 MS_REDIRECT_URI = "http://localhost:8000/integrations/callback/"
+
+# ── Slack App ─────────────────────────────────────────────────────────────────
+SLACK_CLIENT_ID = config("SLACK_CLIENT_ID", default="")
+SLACK_CLIENT_SECRET = config("SLACK_CLIENT_SECRET", default="")
+SLACK_BOT_TOKEN = config("SLACK_BOT_TOKEN", default="")
+SLACK_SIGNING_SECRET = config("SLACK_SIGNING_SECRET", default="")
+SLACK_SCOPES = "channels:read,channels:history,chat:write,users:read,groups:read,groups:history,im:read,im:history"
+SLACK_REDIRECT_URI = "http://localhost:8000/integrations/slack/callback/"
 
 # ── OpenAI ────────────────────────────────────────────────────────────────────
 OPENAI_API_KEY = config("OPENAI_API_KEY", default="")

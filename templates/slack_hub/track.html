@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Tracked Messages — Slack — WorkHub{% endblock %}
+{% block page_title %}Tracked Slack Messages{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-10">
+
+    <div class="d-flex align-items-center mb-4">
+      <a href="{% url 'slack_hub:channels' %}" class="btn btn-sm btn-outline-secondary me-3">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h5 class="mb-0 fw-bold"><i class="bi bi-eye me-2"></i>Tracked Messages</h5>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0 fw-semibold">AI-Analyzed Messages ({{ tracked_messages|length }})</h6>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th style="font-size:.8rem;">Channel</th>
+              <th style="font-size:.8rem;">Sender</th>
+              <th style="font-size:.8rem;">Message</th>
+              <th style="font-size:.8rem;">Classification</th>
+              <th style="font-size:.8rem;">Summary</th>
+              <th style="font-size:.8rem;">Auto-Replied</th>
+              <th style="font-size:.8rem;">Tracked At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for msg in tracked_messages %}
+            <tr>
+              <td><span class="badge bg-dark">#{{ msg.channel_name }}</span></td>
+              <td style="font-size:.85rem;">{{ msg.sender_name }}</td>
+              <td style="font-size:.85rem;max-width:200px;" class="text-truncate">{{ msg.text }}</td>
+              <td>
+                {% if msg.ai_classification == "urgent" %}
+                <span class="badge bg-danger">{{ msg.ai_classification }}</span>
+                {% elif msg.ai_classification == "question" %}
+                <span class="badge bg-warning text-dark">{{ msg.ai_classification }}</span>
+                {% elif msg.ai_classification == "request" %}
+                <span class="badge bg-info">{{ msg.ai_classification }}</span>
+                {% else %}
+                <span class="badge bg-secondary">{{ msg.ai_classification }}</span>
+                {% endif %}
+              </td>
+              <td style="font-size:.85rem;max-width:200px;" class="text-truncate">{{ msg.ai_summary }}</td>
+              <td>
+                {% if msg.is_auto_replied %}
+                <span class="badge bg-success">Yes</span>
+                {% else %}
+                <span class="badge bg-secondary">No</span>
+                {% endif %}
+              </td>
+              <td style="font-size:.8rem;">{{ msg.tracked_at|date:"M d, H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">No tracked messages yet. Go to a channel and click "AI Analyze" on messages.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

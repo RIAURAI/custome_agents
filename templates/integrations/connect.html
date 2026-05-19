@@ -72,6 +72,56 @@
     </div>
   </div>
 
+  <!-- Slack Integration Card -->
+  <div class="col-md-6 col-xl-4">
+    <div class="card h-100" style="{% if integrations.slack %}border-color:#10b981 !important;{% endif %}">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-4">
+          <div class="rounded-3 me-3" style="background:#f0f4ff;padding:10px;">
+            <i class="bi bi-slack" style="font-size:1.4rem;color:#4a154b;"></i>
+          </div>
+          <div class="flex-grow-1">
+            <h6 class="mb-0 fw-bold">Slack</h6>
+            <small class="text-muted">Messages + AI Auto-Reply</small>
+          </div>
+          {% if integrations.slack %}
+            <span style="background:#d1fae5;color:#065f46;font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:600;">
+              <i class="bi bi-check-circle-fill me-1"></i>Connected
+            </span>
+          {% else %}
+            <span style="background:#fee2e2;color:#991b1b;font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:600;">
+              <i class="bi bi-x-circle-fill me-1"></i>Not connected
+            </span>
+          {% endif %}
+        </div>
+
+        {% if integrations.slack %}
+          <div class="mb-4 rounded-2 p-3" style="background:#f0fdf4;border:1px solid #a7f3d0;">
+            <div class="fw-semibold" style="font-size:.88rem;">{{ integrations.slack.slack_team_name }}</div>
+            <div class="text-muted" style="font-size:.8rem;">Workspace connected</div>
+            <div class="text-muted mt-1" style="font-size:.75rem;">
+              <i class="bi bi-clock me-1"></i>Connected {{ integrations.slack.connected_at|date:"N j, Y" }}
+            </div>
+          </div>
+          <form method="post" action="{% url 'integrations:slack_disconnect' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger btn-sm w-100"
+                    onclick="return confirm('Disconnect Slack account?')">
+              <i class="bi bi-slash-circle me-1"></i>Disconnect Slack
+            </button>
+          </form>
+        {% else %}
+          <p class="text-muted mb-4" style="font-size:.85rem;line-height:1.6;">
+            Connect your Slack workspace to track messages, AI auto-detect intent, and generate smart replies.
+          </p>
+          <a href="{% url 'integrations:slack_connect' %}" class="btn btn-primary w-100">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Connect Slack Workspace
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
   <!-- Coming Soon cards -->
   {% for service, icon, name in coming_soon %}
   <div class="col-md-6 col-xl-4">

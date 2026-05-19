@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}#{{ channel_name }} — Slack — WorkHub{% endblock %}
+{% block page_title %}#{{ channel_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-10">
+
+    <!-- Channel header -->
+    <div class="d-flex align-items-center mb-4">
+      <a href="{% url 'slack_hub:channels' %}" class="btn btn-sm btn-outline-secondary me-3">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h5 class="mb-0 fw-bold"><i class="bi bi-hash me-1"></i>{{ channel_name }}</h5>
+      <button class="btn btn-sm btn-outline-primary ms-auto" onclick="summarizeChannel()">
+        <i class="bi bi-stars me-1"></i>AI Summarize Channel
+      </button>
+    </div>
+
+    <!-- AI Summary box (hidden by default) -->
+    <div id="channel-summary-box" class="card mb-4 d-none border-primary">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center mb-2">
+          <i class="bi bi-stars text-primary me-2"></i>
+          <span class="fw-semibold" style="font-size:.9rem;">Channel Summary</span>
+        </div>
+        <p id="channel-summary-content" class="mb-0" style="white-space:pre-wrap;font-size:.88rem;"></p>
+      </div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger"><i class="bi bi-x-circle me-2"></i>{{ error }}</div>
+    {% endif %}
+
+    <!-- Messages -->
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0 fw-semibold">Recent Messages ({{ messages|length }})</h6>
+      </div>
+      <div class="list-group list-group-flush" id="message-list">
+        {% for msg in messages %}
+        <div class="list-group-item py-3" data-ts="{{ msg.ts }}" data-text="{{ msg.text }}"
+             data-sender="{{ msg.sender_name }}" data-sender-id="{{ msg.user }}">
+          <div class="d-flex align-items-start">
+            <div class="avatar-circle me-3" style="width:36px;height:36px;font-size:.75rem;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;border-radius:50%;">
+              {{ msg.sender_name|make_list|first|upper }}
+            </div>
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <strong style="font-size:.88rem;">{{ msg.sender_name }}</strong>
+                <small class="text-muted">{{ msg.ts }}</small>
+              </div>
+              <p class="mb-2" style="font-size:.88rem;">{{ msg.text }}</p>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" onclick="analyzeMsg(this)">
+                  <i class="bi bi-cpu me-1"></i>AI Analyze
+                </button>
+                <button class="btn btn-sm btn-outline-primary" onclick="generateReply(this)">
+                  <i class="bi bi-reply me-1"></i>AI Reply
+                </button>
+                <button class="btn btn-sm btn-success d-none send-btn" onclick="sendReply(this)">
+                  <i class="bi bi-send me-1"></i>Send to Slack
+                </button>
+              </div>
+              <!-- AI result area -->
+              <div class="ai-result mt-2 d-none p-2 rounded" style="background:#f8f9fa;font-size:.85rem;"></div>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="list-group-item text-muted text-center py-4">No messages in this channel.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CHANNEL_ID = "{{ channel_id }}";
+const CHANNEL_NAME = "{{ channel_name }}";
+const CSRF = "{{ csrf_token }}";
+
+function apiPost(url, body) {
+  return fetch(url, {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "X-CSRFToken": CSRF},
+    body: JSON.stringify(body),
+  }).then(r => r.json());
+}
+
+function analyzeMsg(btn) {
+  const item = btn.closest("[data-ts]");
+  const resultDiv = item.querySelector(".ai-result");
+  resultDiv.classList.remove("d-none");
+  resultDiv.innerHTML = '<i class="bi bi-hourglass-split"></i> Analyzing...';
+
+  apiPost("{% url 'slack_hub:ai_analyze' %}", {
+    text: item.dataset.text,
+    channel_id: CHANNEL_ID,
+    channel_name: CHANNEL_NAME,
+    sender_id: item.dataset.senderId,
+    sender_name: item.dataset.sender,
+    ts: item.dataset.ts,
+  }).then(data => {
+    if (data.error) {
+      resultDiv.innerHTML = `<span class="text-danger">${data.error}</span>`;
+    } else {
+      resultDiv.innerHTML = `<span class="badge bg-info me-2">${data.classification}</span>${data.summary}`;
+    }
+  });
+}
+
+function generateReply(btn) {
+  const item = btn.closest("[data-ts]");
+  const resultDiv = item.querySelector(".ai-result");
+  const sendBtn = item.querySelector(".send-btn");
+  resultDiv.classList.remove("d-none");
+  resultDiv.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating reply...';
+
+  apiPost("{% url 'slack_hub:ai_reply' %}", {
+    text: item.dataset.text,
+    channel_id: CHANNEL_ID,
+    ts: item.dataset.ts,
+    send: false,
+  }).then(data => {
+    if (data.error) {
+      resultDiv.innerHTML = `<span class="text-danger">${data.error}</span>`;
+    } else {
+      resultDiv.innerHTML = `<strong>AI Reply:</strong><br>${data.reply}`;
+      resultDiv.dataset.reply = data.reply;
+      sendBtn.classList.remove("d-none");
+    }
+  });
+}
+
+function sendReply(btn) {
+  const item = btn.closest("[data-ts]");
+  const resultDiv = item.querySelector(".ai-result");
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending...';
+
+  apiPost("{% url 'slack_hub:ai_reply' %}", {
+    text: item.dataset.text,
+    channel_id: CHANNEL_ID,
+    ts: item.dataset.ts,
+    send: true,
+  }).then(data => {
+    if (data.sent) {
+      btn.classList.add("d-none");
+      resultDiv.innerHTML += '<br><span class="badge bg-success mt-1">✓ Sent to Slack</span>';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-send me-1"></i>Send to Slack';
+      resultDiv.innerHTML += `<br><span class="text-danger">${data.error || "Failed"}</span>`;
+    }
+  });
+}
+
+function summarizeChannel() {
+  const box = document.getElementById("channel-summary-box");
+  const content = document.getElementById("channel-summary-content");
+  box.classList.remove("d-none");
+  content.textContent = "Summarizing...";
+
+  apiPost("{% url 'slack_hub:ai_summarize' %}", {channel_id: CHANNEL_ID}).then(data => {
+    if (data.error) {
+      content.innerHTML = `<span class="text-danger">${data.error}</span>`;
+    } else {
+      content.textContent = data.summary;
+    }
+  });
+}
+</script>
+{% endblock %}

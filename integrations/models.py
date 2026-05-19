@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 class UserIntegration(models.Model):
     SERVICE_CHOICES = [
         ("microsoft", "Microsoft (Outlook + Teams)"),
+        ("slack", "Slack"),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="integrations")
@@ -15,6 +16,10 @@ class UserIntegration(models.Model):
     token_expiry = models.DateTimeField(null=True, blank=True)
     ms_account_name = models.CharField(max_length=255, blank=True)
     ms_account_email = models.CharField(max_length=255, blank=True)
+    # Slack-specific fields
+    slack_team_id = models.CharField(max_length=100, blank=True)
+    slack_team_name = models.CharField(max_length=255, blank=True)
+    slack_user_id = models.CharField(max_length=100, blank=True)
     connected_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

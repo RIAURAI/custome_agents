@@ -100,3 +100,66 @@ def microsoft_disconnect(request):
     UserIntegration.objects.filter(user=request.user, service="microsoft").delete()
     messages.info(request, "Microsoft account disconnected.")
     return redirect("integrations:connect")
+
+
+# ── Slack OAuth ───────────────────────────────────────────────────────────────
+
+from .slack_utils import get_slack_auth_url, exchange_slack_code
+
+
+@login_required
+def slack_connect(request):
+    """Redirect user to Slack OAuth consent screen."""
+    state = secrets.token_urlsafe(16)
+    request.session["slack_oauth_state"] = state
+    auth_url = get_slack_auth_url(state)
+    return redirect(auth_url)
+
+
+@login_required
+def slack_callback(request):
+    """Handle OAuth callback from Slack."""
+    error = request.GET.get("error")
+    if error:
+        messages.error(request, f"Slack login failed: {error}")
+        return redirect("integrations:connect")
+
+    state = request.GET.get("state")
+    if state != request.session.pop("slack_oauth_state", None):
+        messages.error(request, "Invalid OAuth state. Please try again.")
+        return redirect("integrations:connect")
+
+    code = request.GET.get("code")
+    if not code:
+        messages.error(request, "No authorization code received.")
+        return redirect("integrations:connect")
+
+    result = exchange_slack_code(code)
+
+    if not result.get("ok"):
+        messages.error(request, f"Slack token exchange failed: {result.get('error', 'unknown')}")
+        return redirect("integrations:connect")
+
+    access_token = result.get("access_token", "")
+    team = result.get("team", {})
+    authed_user = result.get("authed_user", {})
+
+    integration, _ = UserIntegration.objects.get_or_create(
+        user=request.user, service="slack"
+    )
+    integration.access_token_enc = encrypt_token(access_token)
+    integration.slack_team_id = team.get("id", "")
+    integration.slack_team_name = team.get("name", "")
+    integration.slack_user_id = authed_user.get("id", "")
+    integration.save()
+
+    messages.success(request, f"Slack connected! Workspace: {team.get('name', 'Unknown')}")
+    return redirect("integrations:connect")
+
+
+@login_required
+def slack_disconnect(request):
+    """Remove stored Slack tokens for this user."""
+    UserIntegration.objects.filter(user=request.user, service="slack").delete()
+    messages.info(request, "Slack account disconnected.")
+    return redirect("integrations:connect")

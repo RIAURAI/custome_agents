@@ -28,4 +28,5 @@ urlpatterns = [
     path("email/", include("email_hub.urls", namespace="email_hub")),
     path("meetings/", include("meetings.urls", namespace="meetings")),
     path("ai/", include("ai_assistant.urls", namespace="ai_assistant")),
+    path("slack/", include("slack_hub.urls", namespace="slack_hub")),
 ]

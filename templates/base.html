@@ -47,6 +47,12 @@
         </a>
       </li>
       <li>
+        <a href="{% url 'slack_hub:channels' %}"
+           class="nav-link text-white {% if request.resolver_match.app_name == 'slack_hub' %}active{% endif %}">
+          <i class="bi bi-slack me-2"></i>Slack
+        </a>
+      </li>
+      <li>
         <a href="{% url 'integrations:connect' %}"
            class="nav-link text-white {% if request.resolver_match.app_name == 'integrations' %}active{% endif %}">
           <i class="bi bi-plug me-2"></i>Connections

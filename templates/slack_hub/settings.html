@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Auto-Reply Settings — Slack — WorkHub{% endblock %}
+{% block page_title %}Slack Auto-Reply Settings{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-10">
+
+    <div class="d-flex align-items-center mb-4">
+      <a href="{% url 'slack_hub:channels' %}" class="btn btn-sm btn-outline-secondary me-3">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h5 class="mb-0 fw-bold"><i class="bi bi-gear me-2"></i>Auto-Reply Settings</h5>
+    </div>
+
+    <!-- Existing rules -->
+    {% if rules %}
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6 class="mb-0 fw-semibold">Active Rules</h6>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Channel</th>
+              <th>Enabled</th>
+              <th>Auto-Send</th>
+              <th>Keywords</th>
+              <th>Instructions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ch_id, rule in rules.items %}
+            <tr>
+              <td><span class="badge bg-dark">#{{ rule.channel_name }}</span></td>
+              <td>
+                {% if rule.is_enabled %}
+                <span class="badge bg-success">ON</span>
+                {% else %}
+                <span class="badge bg-secondary">OFF</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if rule.auto_send %}
+                <span class="badge bg-warning text-dark">Auto</span>
+                {% else %}
+                <span class="badge bg-info">Draft</span>
+                {% endif %}
+              </td>
+              <td style="font-size:.85rem;">{{ rule.keywords|default:"All messages" }}</td>
+              <td style="font-size:.85rem;max-width:200px;" class="text-truncate">{{ rule.custom_instructions|default:"Default" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Add/Update rule form -->
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0 fw-semibold">Add / Update Auto-Reply Rule</h6>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Channel</label>
+            <select name="channel_id" class="form-select" required onchange="updateChannelName(this)">
+              <option value="">Select a channel...</option>
+              {% for ch in channels %}
+              <option value="{{ ch.id }}" data-name="{{ ch.name }}">
+                #{{ ch.name }}
+              </option>
+              {% endfor %}
+            </select>
+            <input type="hidden" name="channel_name" id="channel_name_input" value="">
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="is_enabled" id="is_enabled" checked>
+                <label class="form-check-label fw-semibold small" for="is_enabled">Enable Auto-Reply</label>
+              </div>
+              <small class="text-muted">AI will analyze messages and generate replies</small>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="auto_send" id="auto_send">
+                <label class="form-check-label fw-semibold small" for="auto_send">Auto-Send Replies</label>
+              </div>
+              <small class="text-muted text-warning">⚠️ Replies will be sent without confirmation</small>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Trigger Keywords (optional)</label>
+            <input type="text" name="keywords" class="form-control"
+                   placeholder="help, urgent, question, bug (comma-separated)">
+            <small class="text-muted">Leave empty to reply to all messages in the channel</small>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Custom AI Instructions (optional)</label>
+            <textarea name="custom_instructions" class="form-control" rows="3"
+                      placeholder="E.g.: Reply as a helpful DevOps engineer. Be technical and concise."></textarea>
+            <small class="text-muted">Custom personality/tone for AI replies in this channel</small>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle me-2"></i>Save Rule
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateChannelName(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  document.getElementById("channel_name_input").value = opt.dataset.name || "";
+}
+</script>
+{% endblock %}
