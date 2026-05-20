@@ -90,14 +90,25 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STORAGES = {
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-}
+
+if DEBUG:
+    STORAGES = {
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+    }
+else:
+    STORAGES = {
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+    }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -125,7 +136,9 @@ SLACK_CLIENT_ID = config("SLACK_CLIENT_ID", default="")
 SLACK_CLIENT_SECRET = config("SLACK_CLIENT_SECRET", default="")
 SLACK_BOT_TOKEN = config("SLACK_BOT_TOKEN", default="")
 SLACK_SIGNING_SECRET = config("SLACK_SIGNING_SECRET", default="")
-SLACK_SCOPES = "channels:read,channels:history,chat:write,users:read,groups:read,groups:history,im:read,im:history"
+SLACK_APP_TOKEN = config("SLACK_APP_TOKEN", default="")  # xapp- token for Socket Mode
+SLACK_BOT_AUTOSTART = config("SLACK_BOT_AUTOSTART", default="false")
+SLACK_SCOPES = "channels:read,channels:history,channels:join,chat:write,users:read,groups:read,groups:history,im:read,im:history"
 SLACK_REDIRECT_URI = "http://localhost:8000/integrations/slack/callback/"
 
 # ── OpenAI ────────────────────────────────────────────────────────────────────
