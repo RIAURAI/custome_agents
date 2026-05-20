@@ -2,69 +2,221 @@
 {% block title %}Tracked Messages — Slack — WorkHub{% endblock %}
 {% block page_title %}Tracked Slack Messages{% endblock %}
 
+{% block extra_head %}
+<style>
+  .track-header {
+    background: linear-gradient(135deg, #1e1b4b, #312e81);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .msg-row:hover { background: #f8f9ff !important; }
+  .incoming-bubble {
+    background: #f1f5f9;
+    border-left: 3px solid #6366f1;
+    border-radius: 0 8px 8px 0;
+    padding: 6px 10px;
+    font-size: .83rem;
+    line-height: 1.5;
+  }
+  .reply-bubble {
+    background: #f0fdf4;
+    border-left: 3px solid #22c55e;
+    border-radius: 0 8px 8px 0;
+    padding: 6px 10px;
+    font-size: .83rem;
+    line-height: 1.5;
+    color: #166534;
+  }
+  .draft-bubble {
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 8px 8px 0;
+    padding: 6px 10px;
+    font-size: .83rem;
+    line-height: 1.5;
+    color: #92400e;
+  }
+  .avatar-sm {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff; display: flex; align-items: center;
+    justify-content: center; font-size: .8rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .stat-card {
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: .9rem 1.2rem;
+    background: #fff;
+  }
+  .stat-num { font-size: 1.6rem; font-weight: 700; line-height: 1; }
+  .stat-label { font-size: .75rem; color: #6b7280; margin-top: 2px; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row">
-  <div class="col-lg-10">
+  <div class="col-12">
 
-    <div class="d-flex align-items-center mb-4">
-      <a href="{% url 'slack_hub:channels' %}" class="btn btn-sm btn-outline-secondary me-3">
+    <!-- Header -->
+    <div class="track-header d-flex align-items-center gap-3">
+      <a href="{% url 'slack_hub:channels' %}" class="btn btn-sm btn-outline-light me-1">
         <i class="bi bi-arrow-left"></i>
       </a>
-      <h5 class="mb-0 fw-bold"><i class="bi bi-eye me-2"></i>Tracked Messages</h5>
+      <div>
+        <h5 class="text-white fw-bold mb-0"><i class="bi bi-robot me-2"></i>AI Auto-Reply Tracker</h5>
+        <p class="mb-0" style="color:rgba(255,255,255,.55);font-size:.82rem;">Every Slack message received + what AI replied</p>
+      </div>
+      <div class="ms-auto d-flex gap-2">
+        <a href="{% url 'slack_hub:settings' %}" class="btn btn-sm" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);">
+          <i class="bi bi-gear me-1"></i>Settings
+        </a>
+        <a href="{% url 'slack_hub:auto_reply_history' %}" class="btn btn-sm" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);">
+          <i class="bi bi-clock-history me-1"></i>History
+        </a>
+      </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <h6 class="mb-0 fw-semibold">AI-Analyzed Messages ({{ tracked_messages|length }})</h6>
+    <!-- Stats row -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-num text-primary">{{ tracked_messages|length }}</div>
+          <div class="stat-label">Total Messages</div>
+        </div>
       </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-num text-success">{{ tracked_messages|length }}</div>
+          <div class="stat-label">AI Analyzed</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          {% with replied=tracked_messages|length %}
+          <div class="stat-num" style="color:#6366f1;">{{ tracked_messages|dictsort:"is_auto_replied"|length }}</div>
+          {% endwith %}
+          <div class="stat-label">Auto-Replied</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-num text-warning">—</div>
+          <div class="stat-label">Pending</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages Table -->
+    <div class="card" style="border-radius:16px;overflow:hidden;">
+      <div class="card-header d-flex align-items-center" style="background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.25rem;">
+        <i class="bi bi-table me-2 text-primary"></i>
+        <span class="fw-semibold" style="font-size:.9rem;">Messages + AI Replies</span>
+        <span class="badge bg-primary ms-2">{{ tracked_messages|length }}</span>
+      </div>
+
+      {% if tracked_messages %}
       <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
+        <table class="table mb-0" style="border-collapse:separate;">
+          <thead style="background:#f8f9fa;">
             <tr>
-              <th style="font-size:.8rem;">Channel</th>
-              <th style="font-size:.8rem;">Sender</th>
-              <th style="font-size:.8rem;">Message</th>
-              <th style="font-size:.8rem;">Classification</th>
-              <th style="font-size:.8rem;">Summary</th>
-              <th style="font-size:.8rem;">Auto-Replied</th>
-              <th style="font-size:.8rem;">Tracked At</th>
+              <th style="font-size:.75rem;font-weight:600;color:#6b7280;padding:.75rem 1rem;border-bottom:2px solid #e5e7eb;">SENDER</th>
+              <th style="font-size:.75rem;font-weight:600;color:#6b7280;padding:.75rem 1rem;border-bottom:2px solid #e5e7eb;">CHANNEL</th>
+              <th style="font-size:.75rem;font-weight:600;color:#6b7280;padding:.75rem 1rem;border-bottom:2px solid #e5e7eb;">INCOMING MESSAGE</th>
+              <th style="font-size:.75rem;font-weight:600;color:#6b7280;padding:.75rem 1rem;border-bottom:2px solid #e5e7eb;">TYPE</th>
+              <th style="font-size:.75rem;font-weight:600;color:#6b7280;padding:.75rem 1rem;border-bottom:2px solid #e5e7eb;">AI REPLY SENT</th>
+              <th style="font-size:.75rem;font-weight:600;color:#6b7280;padding:.75rem 1rem;border-bottom:2px solid #e5e7eb;">STATUS</th>
+              <th style="font-size:.75rem;font-weight:600;color:#6b7280;padding:.75rem 1rem;border-bottom:2px solid #e5e7eb;">TIME</th>
             </tr>
           </thead>
           <tbody>
             {% for msg in tracked_messages %}
-            <tr>
-              <td><span class="badge bg-dark">#{{ msg.channel_name }}</span></td>
-              <td style="font-size:.85rem;">{{ msg.sender_name }}</td>
-              <td style="font-size:.85rem;max-width:200px;" class="text-truncate">{{ msg.text }}</td>
-              <td>
+            <tr class="msg-row" style="border-bottom:1px solid #f1f5f9;">
+              <!-- Sender -->
+              <td style="padding:.85rem 1rem;vertical-align:top;">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar-sm">{{ msg.sender_name|make_list|first|upper }}</div>
+                  <span style="font-size:.85rem;font-weight:600;">{{ msg.sender_name }}</span>
+                </div>
+              </td>
+              <!-- Channel -->
+              <td style="padding:.85rem 1rem;vertical-align:top;">
+                <span class="badge" style="background:#1e1b4b;font-size:.75rem;">
+                  <i class="bi bi-hash me-1"></i>{{ msg.channel_name }}
+                </span>
+              </td>
+              <!-- Incoming message -->
+              <td style="padding:.85rem 1rem;vertical-align:top;max-width:260px;">
+                <div class="incoming-bubble" title="{{ msg.text }}">{{ msg.text|truncatechars:120 }}</div>
+                {% if msg.ai_summary %}
+                <div class="mt-1" style="font-size:.75rem;color:#6b7280;">
+                  <i class="bi bi-cpu me-1"></i>{{ msg.ai_summary|truncatechars:80 }}
+                </div>
+                {% endif %}
+              </td>
+              <!-- Classification -->
+              <td style="padding:.85rem 1rem;vertical-align:top;">
                 {% if msg.ai_classification == "urgent" %}
-                <span class="badge bg-danger">{{ msg.ai_classification }}</span>
+                <span class="badge bg-danger">🔴 URGENT</span>
                 {% elif msg.ai_classification == "question" %}
-                <span class="badge bg-warning text-dark">{{ msg.ai_classification }}</span>
+                <span class="badge bg-warning text-dark">❓ QUESTION</span>
                 {% elif msg.ai_classification == "request" %}
-                <span class="badge bg-info">{{ msg.ai_classification }}</span>
+                <span class="badge bg-info text-dark">📋 REQUEST</span>
+                {% elif msg.ai_classification == "fyi" %}
+                <span class="badge bg-primary">📢 FYI</span>
                 {% else %}
-                <span class="badge bg-secondary">{{ msg.ai_classification }}</span>
+                <span class="badge bg-secondary">💬 GENERAL</span>
                 {% endif %}
               </td>
-              <td style="font-size:.85rem;max-width:200px;" class="text-truncate">{{ msg.ai_summary }}</td>
-              <td>
+              <!-- AI Reply -->
+              <td style="padding:.85rem 1rem;vertical-align:top;max-width:280px;">
+                {% if msg.ai_reply %}
+                  {% if msg.is_auto_replied %}
+                  <div class="reply-bubble" title="{{ msg.ai_reply }}">
+                    <i class="bi bi-robot me-1"></i>{{ msg.ai_reply|truncatechars:140 }}
+                  </div>
+                  {% else %}
+                  <div class="draft-bubble" title="{{ msg.ai_reply }}">
+                    <i class="bi bi-pencil me-1"></i>{{ msg.ai_reply|truncatechars:140 }}
+                  </div>
+                  {% endif %}
+                {% else %}
+                <span class="text-muted" style="font-size:.82rem;">—</span>
+                {% endif %}
+              </td>
+              <!-- Status -->
+              <td style="padding:.85rem 1rem;vertical-align:top;">
                 {% if msg.is_auto_replied %}
-                <span class="badge bg-success">Yes</span>
+                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Sent</span>
+                {% if msg.reply_sent_at %}
+                <div style="font-size:.72rem;color:#6b7280;margin-top:3px;">{{ msg.reply_sent_at|date:"H:i" }}</div>
+                {% endif %}
+                {% elif msg.ai_reply %}
+                <span class="badge bg-warning text-dark"><i class="bi bi-pencil me-1"></i>Draft</span>
                 {% else %}
-                <span class="badge bg-secondary">No</span>
+                <span class="badge bg-secondary">Pending</span>
                 {% endif %}
               </td>
-              <td style="font-size:.8rem;">{{ msg.tracked_at|date:"M d, H:i" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="7" class="text-center text-muted py-4">No tracked messages yet. Go to a channel and click "AI Analyze" on messages.</td>
+              <!-- Time -->
+              <td style="padding:.85rem 1rem;vertical-align:top;white-space:nowrap;">
+                <div style="font-size:.82rem;color:#374151;">{{ msg.tracked_at|date:"M d" }}</div>
+                <div style="font-size:.78rem;color:#9ca3af;">{{ msg.tracked_at|date:"H:i" }}</div>
+              </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+      {% else %}
+      <div class="text-center text-muted py-5">
+        <div style="width:64px;height:64px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+          <i class="bi bi-inbox" style="font-size:1.8rem;color:#9ca3af;"></i>
+        </div>
+        <h6 style="color:#374151;">No messages tracked yet</h6>
+        <p style="font-size:.85rem;">Enable auto-reply in <a href="{% url 'slack_hub:settings' %}">Settings</a>, then send a message in Slack.</p>
+      </div>
+      {% endif %}
     </div>
 
   </div>
