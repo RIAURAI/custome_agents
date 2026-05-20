@@ -3,17 +3,29 @@
 {% block page_title %}Meetings{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div class="d-flex align-items-center gap-2">
-    <div style="width:32px;height:32px;border-radius:9px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;">
-      <i class="bi bi-camera-video" style="color:#10b981;"></i>
+
+<!-- Page Header -->
+<div class="mtg-page-header mb-4">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <div class="mtg-header-icon">
+        <i class="bi bi-camera-video-fill"></i>
+      </div>
+      <div>
+        <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">Upcoming Meetings</h4>
+        <p class="mb-0" style="color:#64748b;font-size:.85rem;">Next 7 days · Microsoft Teams &amp; Calendar</p>
+      </div>
     </div>
-    <h5 class="mb-0">Upcoming Meetings <span class="text-muted fw-normal" style="font-size:.875rem;">— Next 7 Days</span></h5>
+    {% if meetings %}
+    <div class="mtg-count-pill">
+      <i class="bi bi-calendar-check me-2"></i>{{ meetings|length }} meeting{{ meetings|length|pluralize }} scheduled
+    </div>
+    {% endif %}
   </div>
 </div>
 
 {% if error %}
-<div class="alert alert-warning">
+<div class="alert alert-warning mb-4" style="font-size:.875rem;border-radius:12px;">
   <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
 </div>
 {% endif %}
@@ -21,58 +33,86 @@
 {% if meetings %}
 <div class="row g-3">
   {% for mtg in meetings %}
-  <div class="col-md-6 col-xl-4">
-    <div class="card meeting-card h-100">
-      <div class="card-body p-4 d-flex flex-column">
-        <h6 class="fw-bold mb-3 text-truncate" title="{{ mtg.subject }}">{{ mtg.subject|default:"(no title)" }}</h6>
-        <div class="d-flex flex-wrap gap-2 mb-3">
-          <span class="time-badge"><i class="bi bi-clock"></i>{{ mtg.start.dateTime|slice:":16"|default:"" }}</span>
-        </div>
-        <div class="text-muted mb-2" style="font-size:.8rem;">
-          <i class="bi bi-calendar3 me-1"></i>Ends {{ mtg.end.dateTime|slice:":16"|default:"" }}
-        </div>
-        {% if mtg.organizer %}
-        <div class="text-muted mb-3" style="font-size:.8rem;">
-          <i class="bi bi-person me-1"></i>{{ mtg.organizer.emailAddress.name }}
-        </div>
+  <div class="col-md-6 col-xl-4 d-flex flex-column">
+    <div class="mtg-card flex-grow-1 {% if mtg.onlineMeeting.joinUrl %}mtg-card--teams{% endif %}">
+
+      <!-- Card top: time strip -->
+      <div class="mtg-card-time">
+        <span class="mtg-time-pill">
+          <i class="bi bi-clock me-1"></i>{{ mtg.start.dateTime|slice:"11:16" }}
+        </span>
+        <span class="mtg-date-text">{{ mtg.start.dateTime|slice:":10" }}</span>
+        {% if mtg.onlineMeeting.joinUrl %}
+        <span class="mtg-teams-chip ms-auto"><i class="bi bi-camera-video-fill me-1"></i>Teams</span>
         {% endif %}
-        {% if mtg.bodyPreview %}
-        <p class="text-muted mb-3 text-truncate" style="font-size:.8rem;">{{ mtg.bodyPreview }}</p>
-        {% endif %}
-        <div class="mt-auto d-flex gap-2">
-          {% if mtg.onlineMeeting.joinUrl %}
-          <a href="{{ mtg.onlineMeeting.joinUrl }}" target="_blank" rel="noopener noreferrer"
-             class="btn btn-primary btn-sm flex-fill">
-            <i class="bi bi-camera-video-fill me-1"></i>Join
-          </a>
+      </div>
+
+      <!-- Card body -->
+      <div class="mtg-card-body">
+        <h6 class="mtg-card-title" title="{{ mtg.subject }}">{{ mtg.subject|default:"(No title)" }}</h6>
+
+        <div class="mtg-meta">
+          <div class="mtg-meta-row">
+            <i class="bi bi-hourglass-split"></i>
+            <span>Ends {{ mtg.end.dateTime|slice:"11:16" }}</span>
+          </div>
+          {% if mtg.organizer %}
+          <div class="mtg-meta-row">
+            <i class="bi bi-person-circle"></i>
+            <span>{{ mtg.organizer.emailAddress.name }}</span>
+          </div>
           {% endif %}
-          {% if mtg.webLink %}
-          <a href="{{ mtg.webLink }}" target="_blank" rel="noopener noreferrer"
-             class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-calendar3"></i>
-          </a>
+          {% if mtg.bodyPreview %}
+          <div class="mtg-meta-row mtg-preview">
+            <i class="bi bi-text-left"></i>
+            <span>{{ mtg.bodyPreview|truncatechars:80 }}</span>
+          </div>
           {% endif %}
         </div>
       </div>
+
+      <!-- Card footer -->
+      <div class="mtg-card-footer">
+        {% if mtg.onlineMeeting.joinUrl %}
+        <a href="{{ mtg.onlineMeeting.joinUrl }}" target="_blank" rel="noopener noreferrer"
+           class="btn mtg-btn-join flex-fill">
+          <i class="bi bi-camera-video-fill me-2"></i>Join Meeting
+        </a>
+        {% endif %}
+        {% if mtg.webLink %}
+        <a href="{{ mtg.webLink }}" target="_blank" rel="noopener noreferrer"
+           class="btn mtg-btn-calendar" title="Open in Calendar">
+          <i class="bi bi-box-arrow-up-right"></i>
+        </a>
+        {% endif %}
+      </div>
+
     </div>
   </div>
   {% endfor %}
 </div>
+
 {% else %}
-<div class="card">
-  <div class="card-body">
-    <div class="empty-state">
-      <i class="bi bi-calendar-check"></i>
-      {% if not ms_connected %}
-        <p class="mb-3">Connect your Microsoft account to see your meetings</p>
-        <a href="{% url 'integrations:microsoft_connect' %}" class="btn btn-primary">
-          <i class="bi bi-microsoft me-1"></i>Connect Microsoft
-        </a>
-      {% else %}
-        <p>No upcoming meetings in the next 7 days</p>
-      {% endif %}
-    </div>
+
+<!-- Empty state -->
+<div class="mtg-empty-wrap">
+  {% if not ms_connected %}
+  <div class="mtg-empty-icon mtg-empty-icon--connect">
+    <i class="bi bi-microsoft"></i>
   </div>
+  <h5 class="mtg-empty-title">Connect Microsoft to see your meetings</h5>
+  <p class="mtg-empty-sub">Link your Microsoft 365 account to sync Teams meetings and Outlook calendar events directly into WorkHub.</p>
+  <a href="{% url 'integrations:microsoft_connect' %}" class="btn mtg-btn-connect">
+    <i class="bi bi-box-arrow-in-right me-2"></i>Connect Microsoft Account
+  </a>
+  {% else %}
+  <div class="mtg-empty-icon">
+    <i class="bi bi-calendar-check"></i>
+  </div>
+  <h5 class="mtg-empty-title">All clear for the next 7 days</h5>
+  <p class="mtg-empty-sub">No upcoming meetings scheduled. Enjoy the focus time!</p>
+  {% endif %}
 </div>
+
 {% endif %}
 {% endblock %}

@@ -3,146 +3,183 @@
 {% block page_title %}Connections{% endblock %}
 
 {% block content %}
-<div class="page-header mb-4">
-  <div class="d-flex align-items-center gap-2">
-    <div style="width:32px;height:32px;border-radius:9px;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
-      <i class="bi bi-plug" style="color:#6366f1;"></i>
+
+<!-- Page Header -->
+<div class="int-page-header mb-5">
+  <div class="d-flex align-items-center gap-3">
+    <div class="int-header-icon">
+      <i class="bi bi-plug-fill"></i>
     </div>
     <div>
-      <h5 class="mb-0" style="font-size:.95rem;">Connections</h5>
-      <p class="mb-0 text-muted" style="font-size:.78rem;">Manage your service integrations</p>
+      <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">Connections</h4>
+      <p class="mb-0" style="color:#64748b;font-size:.85rem;">Manage your service integrations and connected accounts</p>
     </div>
   </div>
 </div>
 
 <div class="row g-4">
 
-  <!-- Microsoft Integration Card -->
-  <div class="col-md-6 col-xl-4">
-    <div class="card h-100" style="{% if integrations.microsoft %}border-color:#10b981 !important;{% endif %}">
-      <div class="card-body p-4">
-        <div class="d-flex align-items-center mb-4">
-          <div class="rounded-3 me-3" style="background:#f0fdf4;padding:10px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 23 23">
-              <rect x="1" y="1" width="10" height="10" fill="#f25022"/>
-              <rect x="12" y="1" width="10" height="10" fill="#7fba00"/>
-              <rect x="1" y="12" width="10" height="10" fill="#00a4ef"/>
+  <!-- ── Microsoft 365 ─────────────────────────────────────────────────── -->
+  <div class="col-md-6 col-xl-4 d-flex flex-column">
+    <div class="int-card {% if integrations.microsoft %}int-card--connected{% endif %} flex-grow-1">
+      <div class="int-card-inner">
+
+        <!-- Header row -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="int-logo-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 23 23">
+              <rect x="1"  y="1"  width="10" height="10" fill="#f25022"/>
+              <rect x="12" y="1"  width="10" height="10" fill="#7fba00"/>
+              <rect x="1"  y="12" width="10" height="10" fill="#00a4ef"/>
               <rect x="12" y="12" width="10" height="10" fill="#ffb900"/>
             </svg>
           </div>
-          <div class="flex-grow-1">
-            <h6 class="mb-0 fw-bold">Microsoft 365</h6>
-            <small class="text-muted">Outlook + Teams</small>
+          <div class="flex-grow-1 min-w-0">
+            <div class="int-card-name">Microsoft 365</div>
+            <div class="int-card-sub">Outlook · Teams · Calendar</div>
           </div>
           {% if integrations.microsoft %}
-            <span style="background:#d1fae5;color:#065f46;font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:600;">
-              <i class="bi bi-check-circle-fill me-1"></i>Connected
-            </span>
+            <span class="int-badge int-badge--connected"><i class="bi bi-check-circle-fill me-1"></i>Connected</span>
           {% else %}
-            <span style="background:#fee2e2;color:#991b1b;font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:600;">
-              <i class="bi bi-x-circle-fill me-1"></i>Not connected
-            </span>
+            <span class="int-badge int-badge--disconnected"><i class="bi bi-x-circle-fill me-1"></i>Not connected</span>
           {% endif %}
         </div>
 
+        <!-- Body -->
         {% if integrations.microsoft %}
-          <div class="mb-4 rounded-2 p-3" style="background:#f0fdf4;border:1px solid #a7f3d0;">
-            <div class="fw-semibold" style="font-size:.88rem;">{{ integrations.microsoft.ms_account_name }}</div>
+          <div class="int-account-box mb-4">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi bi-person-circle" style="color:#6366f1;font-size:1rem;"></i>
+              <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">{{ integrations.microsoft.ms_account_name }}</span>
+            </div>
             <div class="text-muted" style="font-size:.8rem;">{{ integrations.microsoft.ms_account_email }}</div>
-            <div class="text-muted mt-1" style="font-size:.75rem;">
+            <div class="mt-2" style="font-size:.75rem;color:#94a3b8;">
               <i class="bi bi-clock me-1"></i>Connected {{ integrations.microsoft.connected_at|date:"N j, Y" }}
             </div>
           </div>
-          <form method="post" action="{% url 'integrations:microsoft_disconnect' %}">
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-envelope me-1"></i>Outlook Mail</span>
+            <span class="int-feature-chip"><i class="bi bi-camera-video me-1"></i>Teams</span>
+            <span class="int-feature-chip"><i class="bi bi-calendar3 me-1"></i>Calendar</span>
+          </div>
+          <form method="post" action="{% url 'integrations:microsoft_disconnect' %}" class="mt-auto">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger btn-sm w-100"
+            <button type="submit" class="btn int-btn-disconnect w-100"
                     onclick="return confirm('Disconnect Microsoft account?')">
-              <i class="bi bi-slash-circle me-1"></i>Disconnect Account
+              <i class="bi bi-slash-circle me-2"></i>Disconnect Account
             </button>
           </form>
         {% else %}
-          <p class="text-muted mb-4" style="font-size:.85rem;line-height:1.6;">
-            Connect your Microsoft 365 account to read Outlook emails and join Teams meetings directly in WorkHub.
+          <p class="int-card-desc mb-4">
+            Connect your Microsoft 365 account to read <strong>Outlook emails</strong> and join
+            <strong>Teams meetings</strong> directly in WorkHub.
           </p>
-          <a href="{% url 'integrations:microsoft_connect' %}" class="btn btn-primary w-100">
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-envelope me-1"></i>Outlook Mail</span>
+            <span class="int-feature-chip"><i class="bi bi-camera-video me-1"></i>Teams</span>
+            <span class="int-feature-chip"><i class="bi bi-calendar3 me-1"></i>Calendar</span>
+          </div>
+          <a href="{% url 'integrations:microsoft_connect' %}" class="btn int-btn-connect w-100 mt-auto">
             <i class="bi bi-box-arrow-in-right me-2"></i>Connect Microsoft Account
           </a>
         {% endif %}
+
       </div>
     </div>
   </div>
 
-  <!-- Slack Integration Card -->
-  <div class="col-md-6 col-xl-4">
-    <div class="card h-100" style="{% if integrations.slack %}border-color:#10b981 !important;{% endif %}">
-      <div class="card-body p-4">
-        <div class="d-flex align-items-center mb-4">
-          <div class="rounded-3 me-3" style="background:#f0f4ff;padding:10px;">
+  <!-- ── Slack ──────────────────────────────────────────────────────────── -->
+  <div class="col-md-6 col-xl-4 d-flex flex-column">
+    <div class="int-card {% if integrations.slack %}int-card--connected{% endif %} flex-grow-1">
+      <div class="int-card-inner">
+
+        <!-- Header row -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="int-logo-box">
             <i class="bi bi-slack" style="font-size:1.4rem;color:#4a154b;"></i>
           </div>
-          <div class="flex-grow-1">
-            <h6 class="mb-0 fw-bold">Slack</h6>
-            <small class="text-muted">Messages + AI Auto-Reply</small>
+          <div class="flex-grow-1 min-w-0">
+            <div class="int-card-name">Slack</div>
+            <div class="int-card-sub">Messages + AI Auto-Reply</div>
           </div>
           {% if integrations.slack %}
-            <span style="background:#d1fae5;color:#065f46;font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:600;">
-              <i class="bi bi-check-circle-fill me-1"></i>Connected
-            </span>
+            <span class="int-badge int-badge--connected"><i class="bi bi-check-circle-fill me-1"></i>Connected</span>
           {% else %}
-            <span style="background:#fee2e2;color:#991b1b;font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:600;">
-              <i class="bi bi-x-circle-fill me-1"></i>Not connected
-            </span>
+            <span class="int-badge int-badge--disconnected"><i class="bi bi-x-circle-fill me-1"></i>Not connected</span>
           {% endif %}
         </div>
 
+        <!-- Body -->
         {% if integrations.slack %}
-          <div class="mb-4 rounded-2 p-3" style="background:#f0fdf4;border:1px solid #a7f3d0;">
-            <div class="fw-semibold" style="font-size:.88rem;">{{ integrations.slack.slack_team_name }}</div>
-            <div class="text-muted" style="font-size:.8rem;">Workspace connected</div>
-            <div class="text-muted mt-1" style="font-size:.75rem;">
+          <div class="int-account-box mb-4">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi bi-slack" style="color:#4a154b;font-size:1rem;"></i>
+              <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">{{ integrations.slack.slack_team_name }}</span>
+            </div>
+            <div class="text-muted" style="font-size:.8rem;">User ID: {{ integrations.slack.slack_user_id }}</div>
+            <div class="mt-2" style="font-size:.75rem;color:#94a3b8;">
               <i class="bi bi-clock me-1"></i>Connected {{ integrations.slack.connected_at|date:"N j, Y" }}
             </div>
           </div>
-          <form method="post" action="{% url 'integrations:slack_disconnect' %}">
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-chat-dots me-1"></i>Messages</span>
+            <span class="int-feature-chip"><i class="bi bi-robot me-1"></i>AI Auto-Reply</span>
+          </div>
+          <form method="post" action="{% url 'integrations:slack_disconnect' %}" class="mt-auto">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger btn-sm w-100"
+            <button type="submit" class="btn int-btn-disconnect w-100"
                     onclick="return confirm('Disconnect Slack account?')">
-              <i class="bi bi-slash-circle me-1"></i>Disconnect Slack
+              <i class="bi bi-slash-circle me-2"></i>Disconnect Account
             </button>
           </form>
         {% else %}
-          <p class="text-muted mb-4" style="font-size:.85rem;line-height:1.6;">
-            Connect your Slack workspace to track messages, AI auto-detect intent, and generate smart replies.
+          <p class="int-card-desc mb-4">
+            Connect your Slack workspace to track messages, AI auto-detect intent, and generate
+            <strong>smart replies</strong> directly in WorkHub.
           </p>
-          <a href="{% url 'integrations:slack_connect' %}" class="btn btn-primary w-100">
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-chat-dots me-1"></i>Messages</span>
+            <span class="int-feature-chip"><i class="bi bi-robot me-1"></i>AI Auto-Reply</span>
+          </div>
+          <a href="{% url 'integrations:slack_connect' %}" class="btn int-btn-connect w-100 mt-auto">
             <i class="bi bi-box-arrow-in-right me-2"></i>Connect Slack Workspace
           </a>
         {% endif %}
+
       </div>
     </div>
   </div>
 
   <!-- Coming Soon cards -->
+  <!-- ── Coming Soon cards ─────────────────────────────────────────────── -->
   {% for service, icon, name in coming_soon %}
-  <div class="col-md-6 col-xl-4">
-    <div class="card h-100" style="opacity:.65;">
-      <div class="card-body p-4">
-        <div class="d-flex align-items-center mb-4">
-          <div class="rounded-3 me-3 bg-light" style="padding:10px;">
-            <i class="{{ icon }}" style="font-size:1.4rem;color:#9ca3af;"></i>
+  <div class="col-md-6 col-xl-4 d-flex flex-column">
+    <div class="int-card int-card--soon flex-grow-1">
+      <div class="int-card-inner">
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="int-logo-box int-logo-box--muted">
+            <i class="{{ icon }}" style="font-size:1.3rem;color:#94a3b8;"></i>
           </div>
-          <div class="flex-grow-1">
-            <h6 class="mb-0 fw-bold">{{ name }}</h6>
-            <small class="text-muted">Integration</small>
+          <div class="flex-grow-1 min-w-0">
+            <div class="int-card-name" style="color:#64748b;">{{ name }}</div>
+            <div class="int-card-sub">Integration</div>
           </div>
-          <span style="background:#fef3c7;color:#92400e;font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:600;">Soon</span>
+          <span class="int-badge int-badge--soon">Coming Soon</span>
         </div>
-        <p class="text-muted mb-4" style="font-size:.85rem;line-height:1.6;">
-          This integration is coming soon. Stay tuned for updates.
+
+        <p class="int-card-desc mb-4">
+          This integration is on our roadmap. Stay tuned — we'll notify you when it's ready.
         </p>
-        <button class="btn btn-outline-secondary w-100" disabled>
-          <i class="bi bi-lock me-1"></i>Not Available Yet
+
+        <div class="int-features mb-4">
+          <span class="int-feature-chip int-feature-chip--muted"><i class="bi bi-lock me-1"></i>Locked</span>
+        </div>
+
+        <button class="btn int-btn-soon w-100 mt-auto" disabled>
+          <i class="bi bi-hourglass-split me-2"></i>Not Available Yet
         </button>
+
       </div>
     </div>
   </div>

@@ -1,10 +1,42 @@
 // ── Sidebar toggle ──────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.getElementById("sidebarToggle");
+  const toggle  = document.getElementById("sidebarToggle");
   const sidebar = document.getElementById("sidebar");
-  if (toggle && sidebar) {
-    toggle.addEventListener("click", () => sidebar.classList.toggle("collapsed"));
+
+  // Create backdrop for mobile overlay
+  const backdrop = document.createElement("div");
+  backdrop.className = "sb-backdrop";
+  document.body.appendChild(backdrop);
+
+  const mq = window.matchMedia("(max-width: 991.98px)");
+
+  function openSidebar() {
+    if (!sidebar) return;
+    sidebar.classList.remove("collapsed");
+    if (mq.matches) backdrop.classList.add("active");
   }
+  function closeSidebar() {
+    if (!sidebar) return;
+    sidebar.classList.add("collapsed");
+    backdrop.classList.remove("active");
+  }
+
+  if (toggle && sidebar) {
+    toggle.addEventListener("click", () => {
+      sidebar.classList.contains("collapsed") ? openSidebar() : closeSidebar();
+    });
+  }
+
+  // Tap backdrop → close
+  backdrop.addEventListener("click", closeSidebar);
+
+  // Auto-collapse on resize to mobile; remove backdrop when going back to desktop
+  function handleBreakpoint(e) {
+    if (e.matches) { closeSidebar(); }
+    else            { backdrop.classList.remove("active"); }
+  }
+  handleBreakpoint(mq);  // run immediately on page load
+  mq.addEventListener("change", handleBreakpoint);
 
   // Auto-dismiss alerts after 5 s
   document.querySelectorAll(".alert").forEach(el => {
