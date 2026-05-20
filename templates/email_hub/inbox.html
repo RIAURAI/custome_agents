@@ -3,65 +3,98 @@
 {% block page_title %}Inbox{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div class="d-flex align-items-center gap-2">
-    <div style="width:32px;height:32px;border-radius:9px;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
-      <i class="bi bi-envelope" style="color:#6366f1;"></i>
+
+<!-- Top toolbar -->
+<div class="ibx-toolbar mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <div class="ibx-toolbar-icon"><i class="bi bi-envelope-fill"></i></div>
+    <div>
+      <h4 class="ibx-toolbar-title">Inbox</h4>
+      <p class="ibx-toolbar-sub">Microsoft Outlook · {% if emails %}{{ emails|length }} message{{ emails|length|pluralize }}{% else %}No messages{% endif %}</p>
     </div>
-    <h5 class="mb-0">Inbox</h5>
   </div>
-  <a href="{% url 'email_hub:compose' %}" class="btn btn-primary btn-sm">
-    <i class="bi bi-pencil-square me-1"></i>Compose
+  <a href="{% url 'email_hub:compose' %}" class="btn ibx-compose-btn">
+    <i class="bi bi-pencil-square me-2"></i>Compose
   </a>
 </div>
 
 {% if error %}
-<div class="alert alert-warning">
+<div class="alert alert-warning mb-3" style="font-size:.875rem;border-radius:12px;">
   <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
 </div>
 {% endif %}
 
-<div class="card">
-  <div class="card-body p-0">
-    {% if emails %}
-    <div class="list-group list-group-flush">
-      {% for email in emails %}
-      <a href="{% url 'email_hub:detail' email.id %}"
-         class="list-group-item list-group-item-action email-row {% if not email.isRead %}unread{% endif %} px-4 py-3">
-        <div class="d-flex justify-content-between align-items-start gap-2">
-          <div class="flex-grow-1" style="min-width:0;">
-            <div class="d-flex align-items-center gap-2 mb-1">
-              {% if not email.isRead %}
-              <span class="badge" style="background:#6366f1;font-size:.63rem;">New</span>
-              {% endif %}
-              <span class="fw-semibold text-truncate" style="font-size:.84rem;">
-                {{ email.from.emailAddress.name|default:email.from.emailAddress.address }}
-              </span>
-            </div>
-            <div class="text-truncate {% if not email.isRead %}fw-semibold{% else %}text-muted{% endif %}"
-                 style="font-size:.84rem;">{{ email.subject|default:"(no subject)" }}</div>
-            <div class="text-truncate text-muted" style="font-size:.77rem;">{{ email.bodyPreview }}</div>
-          </div>
-          <small class="text-muted text-nowrap" style="font-size:.75rem;flex-shrink:0;">
-            {{ email.receivedDateTime|slice:":10" }}
-          </small>
-        </div>
-      </a>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <i class="bi bi-inbox"></i>
-      {% if not ms_connected %}
-      <p class="mb-3">Connect your Microsoft account to see your inbox</p>
-      <a href="{% url 'integrations:microsoft_connect' %}" class="btn btn-primary">
-        <i class="bi bi-microsoft me-1"></i>Connect Microsoft
-      </a>
-      {% else %}
-      <p>Your inbox is empty</p>
-      {% endif %}
-    </div>
-    {% endif %}
-  </div>
+{% if emails %}
+
+<!-- Filter strip -->
+<div class="ibx-filters mb-3">
+  <span class="ibx-filter-pill ibx-filter-pill--active">All mail</span>
+  <span class="ibx-filter-pill">Unread</span>
+  <span class="ibx-filter-pill">Recent</span>
 </div>
+
+<!-- Email list -->
+<div class="ibx-list">
+  <div class="ibx-list-header">
+    <span>From</span>
+    <span class="ibx-list-header-subject">Subject &amp; Preview</span>
+    <span>Date</span>
+  </div>
+
+  {% for email in emails %}
+  <a href="{% url 'email_hub:detail' email.id %}"
+     class="ibx-row {% if not email.isRead %}ibx-row--unread{% endif %}">
+
+    <!-- Avatar -->
+    <div class="ibx-avatar {% if not email.isRead %}ibx-avatar--unread{% endif %}">
+      {{ email.from.emailAddress.name|first|upper|default:"?" }}
+    </div>
+
+    <!-- Sender name -->
+    <div class="ibx-sender">{{ email.from.emailAddress.name|default:email.from.emailAddress.address|truncatechars:22 }}</div>
+
+    <!-- Subject + preview -->
+    <div class="ibx-body">
+      <span class="ibx-subject {% if not email.isRead %}ibx-subject--unread{% endif %}">
+        {% if not email.isRead %}<span class="ibx-dot"></span>{% endif %}
+        {{ email.subject|default:"(no subject)" }}
+      </span>
+      <span class="ibx-preview">&nbsp;— {{ email.bodyPreview|truncatechars:60 }}</span>
+    </div>
+
+    <!-- Meta -->
+    <div class="ibx-meta">
+      {% if not email.isRead %}<span class="ibx-unread-badge">New</span>{% endif %}
+      <span class="ibx-date">{{ email.receivedDateTime|slice:":10" }}</span>
+    </div>
+
+  </a>
+  {% endfor %}
+</div>
+
+{% else %}
+<!-- Empty state -->
+<div class="ibx-empty">
+  {% if not ms_connected %}
+  <div class="ibx-empty-visual">
+    <div class="ibx-empty-ring"></div>
+    <div class="ibx-empty-ring ibx-empty-ring--2"></div>
+    <div class="ibx-empty-circle"><i class="bi bi-microsoft"></i></div>
+  </div>
+  <h5 class="ibx-empty-title">Connect Microsoft to access your inbox</h5>
+  <p class="ibx-empty-sub">Read Outlook emails, reply, and compose — all without leaving WorkHub.</p>
+  <a href="{% url 'integrations:microsoft_connect' %}" class="btn ibx-connect-btn">
+    <i class="bi bi-box-arrow-in-right me-2"></i>Connect Microsoft Account
+  </a>
+  {% else %}
+  <div class="ibx-empty-visual">
+    <div class="ibx-empty-ring"></div>
+    <div class="ibx-empty-circle"><i class="bi bi-inbox"></i></div>
+  </div>
+  <h5 class="ibx-empty-title">You’re all caught up!</h5>
+  <p class="ibx-empty-sub">No messages in your inbox. New emails will appear here.</p>
+  {% endif %}
+</div>
+{% endif %}
+
 {% endblock %}

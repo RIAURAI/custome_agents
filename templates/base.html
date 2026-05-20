@@ -70,7 +70,7 @@
           {{ user.get_full_name|default:user.username }}
         </small>
       </a>
-      <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+      <ul class="dropdown-menu text-small shadow">
         <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person me-2"></i>Profile</a></li>
         <li><a class="dropdown-item" href="{% url 'integrations:connect' %}"><i class="bi bi-plug me-2"></i>Connections</a></li>
         <li><hr class="dropdown-divider"></li>
