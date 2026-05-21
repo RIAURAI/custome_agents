@@ -1,5 +1,6 @@
 import secrets
 from datetime import datetime, timezone
+from functools import wraps
 
 from django.conf import settings
 from django.contrib import messages
@@ -10,23 +11,43 @@ from django.views.decorators.http import require_POST
 
 import requests as http_requests
 
-from .models import UserIntegration
+from .models import CompanyIntegration
 from .utils import (
     encrypt_token,
     exchange_code_for_tokens,
     get_auth_url,
     graph_get,
 )
+from companies.middleware import log_activity
+
+
+def company_admin_required(view_func):
+    """Decorator: user must be logged in AND be a company owner/admin."""
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        membership = getattr(request, "membership", None)
+        if not membership or not membership.is_admin:
+            messages.error(request, "Only company admins can manage integrations.")
+            return redirect("integrations:connect")
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 
 @login_required
 def connect_view(request):
     """Show all integration cards with connect / disconnect status."""
-    integrations = {
-        i.service: i for i in request.user.integrations.all()
-    }
+    company = getattr(request, "company", None)
+    integrations = {}
+    if company:
+        integrations = {
+            i.service: i for i in company.integrations.all()
+        }
+    membership = getattr(request, "membership", None)
+    is_admin = membership.is_admin if membership else False
     return render(request, "integrations/connect.html", {
         "integrations": integrations,
+        "is_admin": is_admin,
         "coming_soon": [
             ("calendly", "bi bi-calendar-event", "Calendly"),
             ("onedrive", "bi bi-cloud", "OneDrive"),
@@ -35,7 +56,7 @@ def connect_view(request):
     })
 
 
-@login_required
+@company_admin_required
 def microsoft_connect(request):
     """Redirect user to Microsoft OAuth consent screen."""
     state = secrets.token_urlsafe(16)
@@ -44,7 +65,7 @@ def microsoft_connect(request):
     return redirect(auth_url)
 
 
-@login_required
+@company_admin_required
 def microsoft_callback(request):
     """Handle OAuth callback from Microsoft Identity Platform."""
     error = request.GET.get("error")
@@ -84,24 +105,29 @@ def microsoft_callback(request):
     except Exception:
         display_name, email = "", ""
 
-    integration, _ = UserIntegration.objects.get_or_create(
-        user=request.user, service="microsoft"
+    company = request.company
+    integration, _ = CompanyIntegration.objects.get_or_create(
+        company=company, service="microsoft"
     )
     integration.access_token_enc = encrypt_token(access_token)
     integration.refresh_token_enc = encrypt_token(refresh_token) if refresh_token else integration.refresh_token_enc
     integration.token_expiry = expiry
     integration.ms_account_name = display_name
     integration.ms_account_email = email
+    integration.connected_by = request.user
+    integration.status = "active"
     integration.save()
 
-    messages.success(request, f"Microsoft account connected! ({email})")
+    messages.success(request, f"Microsoft account connected for {company.name}! ({email})")
+    log_activity(request, "integration_connected", "microsoft", f"Account: {email}")
     return redirect("integrations:connect")
 
 
-@login_required
+@company_admin_required
 def microsoft_disconnect(request):
-    """Remove stored Microsoft tokens for this user."""
-    UserIntegration.objects.filter(user=request.user, service="microsoft").delete()
+    """Remove stored Microsoft tokens for this company."""
+    CompanyIntegration.objects.filter(company=request.company, service="microsoft").delete()
+    log_activity(request, "integration_disconnected", "microsoft")
     messages.info(request, "Microsoft account disconnected.")
     return redirect("integrations:connect")
 
@@ -111,7 +137,7 @@ def microsoft_disconnect(request):
 from .slack_utils import get_slack_auth_url, exchange_slack_code
 
 
-@login_required
+@company_admin_required
 def slack_connect(request):
     """Redirect user to Slack OAuth consent screen."""
     state = secrets.token_urlsafe(16)
@@ -120,7 +146,7 @@ def slack_connect(request):
     return redirect(auth_url)
 
 
-@login_required
+@company_admin_required
 def slack_callback(request):
     """Handle OAuth callback from Slack."""
     error = request.GET.get("error")
@@ -148,23 +174,28 @@ def slack_callback(request):
     team = result.get("team", {})
     authed_user = result.get("authed_user", {})
 
-    integration, _ = UserIntegration.objects.get_or_create(
-        user=request.user, service="slack"
+    company = request.company
+    integration, _ = CompanyIntegration.objects.get_or_create(
+        company=company, service="slack"
     )
     integration.access_token_enc = encrypt_token(access_token)
     integration.slack_team_id = team.get("id", "")
     integration.slack_team_name = team.get("name", "")
     integration.slack_user_id = authed_user.get("id", "")
+    integration.connected_by = request.user
+    integration.status = "active"
     integration.save()
 
-    messages.success(request, f"Slack connected! Workspace: {team.get('name', 'Unknown')}")
+    messages.success(request, f"Slack connected for {company.name}! Workspace: {team.get('name', 'Unknown')}")
+    log_activity(request, "integration_connected", "slack", f"Workspace: {team.get('name', '')}")
     return redirect("integrations:connect")
 
 
-@login_required
+@company_admin_required
 def slack_disconnect(request):
-    """Remove stored Slack tokens for this user."""
-    UserIntegration.objects.filter(user=request.user, service="slack").delete()
+    """Remove stored Slack tokens for this company."""
+    CompanyIntegration.objects.filter(company=request.company, service="slack").delete()
+    log_activity(request, "integration_disconnected", "slack")
     messages.info(request, "Slack account disconnected.")
     return redirect("integrations:connect")
 

@@ -3,13 +3,13 @@ from datetime import datetime, timezone, timedelta
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
-from integrations.models import UserIntegration
-from integrations.utils import get_valid_access_token, graph_get
+from companies.middleware import log_activity, platform_access_required
+from integrations.utils import get_company_integration, get_valid_access_token, graph_get
 
 
-@login_required
+@platform_access_required("microsoft")
 def meetings_list(request):
-    ms = UserIntegration.objects.filter(user=request.user, service="microsoft").first()
+    ms = get_company_integration(request, "microsoft")
     meetings = []
     error = None
 
@@ -38,6 +38,7 @@ def meetings_list(request):
             "$orderby": "start/dateTime",
         })
         meetings = data.get("value", [])
+        log_activity(request, "meetings_viewed", "microsoft", f"{len(meetings)} upcoming")
     except Exception as e:
         error = str(e)
 

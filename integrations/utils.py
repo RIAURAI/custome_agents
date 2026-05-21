@@ -121,3 +121,34 @@ def graph_post(access_token: str, endpoint: str, json_body: dict) -> dict:
     resp = requests.post(url, headers=headers, json=json_body, timeout=15)
     resp.raise_for_status()
     return resp.json() if resp.content else {}
+
+
+# ── Company integration helpers ───────────────────────────────────────────────
+
+def get_company_integration(request, service: str):
+    """
+    Return the CompanyIntegration for the current company + service, or None.
+    """
+    from integrations.models import CompanyIntegration
+    company = getattr(request, "company", None)
+    if not company:
+        return None
+    return CompanyIntegration.objects.filter(company=company, service=service).first()
+
+
+def get_company_ms_token(request) -> str | None:
+    """Get a valid Microsoft access token for the current company."""
+    integration = get_company_integration(request, "microsoft")
+    if not integration:
+        return None
+    return get_valid_access_token(integration)
+
+
+def get_company_slack_token(request) -> str | None:
+    """Get a valid Slack token for the current company."""
+    integration = get_company_integration(request, "slack")
+    if not integration:
+        return None
+    if not integration.access_token_enc:
+        return None
+    return decrypt_token(integration.access_token_enc)
