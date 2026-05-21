@@ -192,6 +192,81 @@
   </div>
 
   <!-- Coming Soon cards -->
+  <!-- ── Calendly ──────────────────────────────────────────────────────── -->
+  <div class="col-md-6 col-xl-4 d-flex flex-column">
+    <div class="int-card {% if integrations.calendly %}int-card--connected{% endif %} flex-grow-1">
+      <div class="int-card-inner">
+
+        <!-- Header row -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="int-logo-box">
+            <i class="bi bi-calendar-event" style="font-size:1.4rem;color:#006bff;"></i>
+          </div>
+          <div class="flex-grow-1 min-w-0">
+            <div class="int-card-name">Calendly</div>
+            <div class="int-card-sub">Scheduling + Meetings</div>
+          </div>
+          {% if integrations.calendly %}
+            <span class="int-badge int-badge--connected"><i class="bi bi-check-circle-fill me-1"></i>Connected</span>
+          {% else %}
+            <span class="int-badge int-badge--disconnected"><i class="bi bi-x-circle-fill me-1"></i>Not connected</span>
+          {% endif %}
+        </div>
+
+        <!-- Body -->
+        {% if integrations.calendly %}
+          <div class="int-account-box mb-4">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi bi-calendar-check" style="color:#006bff;font-size:1rem;"></i>
+              <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">Calendly Account</span>
+            </div>
+            {% if integrations.calendly.calendly_user_uri %}
+              <div class="text-muted" style="font-size:.8rem;">{{ integrations.calendly.calendly_user_uri|truncatechars:50 }}</div>
+            {% endif %}
+            <div class="mt-2" style="font-size:.75rem;color:#94a3b8;">
+              <i class="bi bi-clock me-1"></i>Connected {{ integrations.calendly.connected_at|date:"N j, Y" }}
+            </div>
+          </div>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-calendar-plus me-1"></i>Event Types</span>
+            <span class="int-feature-chip"><i class="bi bi-people me-1"></i>Scheduling</span>
+            <span class="int-feature-chip"><i class="bi bi-bell me-1"></i>Notifications</span>
+          </div>
+          <div class="d-flex gap-2 mt-auto">
+            <button type="button" class="btn int-btn-connect flex-grow-1"
+                    data-bs-toggle="modal" data-bs-target="#calendlyConnectModal"
+                    style="font-size:.82rem;">
+              <i class="bi bi-arrow-repeat me-1"></i>Update Credentials
+            </button>
+            <form method="post" action="{% url 'integrations:calendly_disconnect' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn int-btn-disconnect"
+                      onclick="return confirm('Disconnect Calendly account?')"
+                      style="font-size:.82rem;">
+                <i class="bi bi-slash-circle me-1"></i>Disconnect
+              </button>
+            </form>
+          </div>
+        {% else %}
+          <p class="int-card-desc mb-4">
+            Connect your Calendly account to manage <strong>event scheduling</strong> and view
+            <strong>upcoming meetings</strong> directly in WorkHub.
+          </p>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-calendar-plus me-1"></i>Event Types</span>
+            <span class="int-feature-chip"><i class="bi bi-people me-1"></i>Scheduling</span>
+            <span class="int-feature-chip"><i class="bi bi-bell me-1"></i>Notifications</span>
+          </div>
+          <button type="button" class="btn int-btn-connect w-100 mt-auto"
+                  data-bs-toggle="modal" data-bs-target="#calendlyConnectModal">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Connect Calendly Account
+          </button>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
   <!-- ── Coming Soon cards ─────────────────────────────────────────────── -->
   {% for service, icon, name in coming_soon %}
   <div class="col-md-6 col-xl-4 d-flex flex-column">
@@ -229,5 +304,6 @@
 </div>
 
 {% include "integrations/_slack_connect_modal.html" %}
+{% include "integrations/_calendly_connect_modal.html" %}
 
 {% endblock %}

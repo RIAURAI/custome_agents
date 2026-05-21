@@ -14,4 +14,9 @@ urlpatterns = [
     path("slack/disconnect/", views.slack_disconnect, name="slack_disconnect"),
     # Slack — dynamic manual credential entry (per-user, no OAuth app required)
     path("slack/manual-connect/", views.slack_manual_connect, name="slack_manual_connect"),
+    # Calendly
+    path("calendly/save-credentials/", views.calendly_save_credentials, name="calendly_save_credentials"),
+    path("calendly/connect/", views.calendly_connect, name="calendly_connect"),
+    path("calendly/callback/", views.calendly_callback, name="calendly_callback"),
+    path("calendly/disconnect/", views.calendly_disconnect, name="calendly_disconnect"),
 ]

@@ -1,0 +1,233 @@
+<!-- Calendly Dynamic Credentials Modal — reusable partial -->
+<div class="modal fade" id="calendlyConnectModal" tabindex="-1" aria-labelledby="calendlyConnectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="border-radius:18px;border:none;box-shadow:0 24px 80px rgba(0,0,0,.18);">
+
+      <!-- Header -->
+      <div class="modal-header border-0 pb-0 px-4 pt-4">
+        <div class="d-flex align-items-center gap-3">
+          <div style="background:linear-gradient(135deg,#006bff,#0052cc);border-radius:12px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="bi bi-calendar-event" style="color:#fff;font-size:1.25rem;"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="calendlyConnectModalLabel" style="color:#1e1b4b;letter-spacing:-.02em;">
+              Connect Calendly
+            </h5>
+            <p class="mb-0" style="font-size:.78rem;color:#64748b;">Enter your Calendly OAuth app credentials — each company connects its own Calendly app</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body px-4 pt-3 pb-0">
+
+        <!-- Step-by-step guide accordion -->
+        <div class="accordion accordion-flush mb-4" id="calendlyGuideAccordion">
+          <div class="accordion-item" style="border:1px solid #e2e8f0;border-radius:12px!important;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2 px-3" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#calendlyGuideBody"
+                      style="font-size:.82rem;font-weight:600;color:#006bff;background:#eff6ff;border-radius:12px!important;">
+                <i class="bi bi-list-check me-2"></i>How to get your Calendly OAuth credentials — step-by-step guide
+              </button>
+            </h2>
+            <div id="calendlyGuideBody" class="accordion-collapse collapse">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.8rem;color:#334155;">
+                <ol class="mb-0 ps-3" style="line-height:2;">
+                  <li>Go to <strong><a href="https://developer.calendly.com/" target="_blank" rel="noopener">developer.calendly.com</a></strong> → Sign in with your Calendly account.</li>
+                  <li>Navigate to <strong>My Apps</strong> → Click <em>Create New App</em>.</li>
+                  <li>Fill in: <strong>App Name</strong>, <strong>Company URL</strong>, choose <em>OAuth 2.0</em> as auth type.</li>
+                  <li>Set the <strong>Redirect URI</strong> to:<br>
+                    <code style="font-size:.75rem;background:#e2e8f0;padding:2px 8px;border-radius:4px;">{{ calendly_redirect_uri }}</code>
+                  </li>
+                  <li>After creation, copy the <strong>Client ID</strong> and <strong>Client Secret</strong> from the app settings.</li>
+                  <li>Paste them below and click <strong>Save &amp; Connect</strong>. You'll be redirected to Calendly to authorize.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form id="calendlyCredentialsForm" novalidate>
+          {% csrf_token %}
+
+          <div class="row g-3">
+
+            <!-- Client ID — required -->
+            <div class="col-12">
+              <label for="calendlyClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
+                <i class="bi bi-key-fill me-1" style="color:#006bff;"></i>Client ID <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="calendlyClientId" name="client_id"
+                       placeholder="Enter your Calendly OAuth Client ID"
+                       autocomplete="off" required
+                       style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
+                <button class="btn btn-outline-secondary" type="button" id="toggleCalendlyClientId"
+                        title="Show / hide" style="border-radius:0 10px 10px 0;">
+                  <i class="bi bi-eye" id="eyeIconCalendlyId"></i>
+                </button>
+              </div>
+              <div class="form-text" style="font-size:.73rem;">
+                <strong>My Apps → Your App → Client ID</strong>
+              </div>
+            </div>
+
+            <!-- Client Secret — required -->
+            <div class="col-12">
+              <label for="calendlyClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
+                <i class="bi bi-shield-lock-fill me-1" style="color:#10b981;"></i>Client Secret <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="calendlyClientSecret" name="client_secret"
+                       placeholder="Enter your Calendly OAuth Client Secret"
+                       autocomplete="off" required
+                       style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
+                <button class="btn btn-outline-secondary" type="button" id="toggleCalendlySecret"
+                        title="Show / hide" style="border-radius:0 10px 10px 0;">
+                  <i class="bi bi-eye" id="eyeIconCalendlySecret"></i>
+                </button>
+              </div>
+              <div class="form-text" style="font-size:.73rem;">
+                <strong>My Apps → Your App → Client Secret</strong>
+              </div>
+            </div>
+
+          </div><!-- /row -->
+
+          <!-- What this enables -->
+          <div class="mt-4 mb-3 p-3" style="background:#eff6ff;border-radius:10px;border:1px solid #bfdbfe;">
+            <div class="fw-semibold mb-1" style="font-size:.78rem;color:#1d4ed8;">
+              <i class="bi bi-check2-all me-1"></i>What gets enabled after connecting:
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <span style="font-size:.72rem;background:#dbeafe;color:#1e40af;border-radius:20px;padding:2px 10px;">
+                <i class="bi bi-calendar-plus me-1"></i>Event Types
+              </span>
+              <span style="font-size:.72rem;background:#dbeafe;color:#1e40af;border-radius:20px;padding:2px 10px;">
+                <i class="bi bi-people me-1"></i>Scheduled Meetings
+              </span>
+              <span style="font-size:.72rem;background:#dbeafe;color:#1e40af;border-radius:20px;padding:2px 10px;">
+                <i class="bi bi-bell me-1"></i>Notifications
+              </span>
+              <span style="font-size:.72rem;background:#dbeafe;color:#1e40af;border-radius:20px;padding:2px 10px;">
+                <i class="bi bi-link-45deg me-1"></i>Booking Links
+              </span>
+            </div>
+          </div>
+
+          <!-- Alert feedback -->
+          <div id="calendlyConnectAlert" class="alert d-none py-2 px-3 mb-3" style="border-radius:10px;font-size:.83rem;"></div>
+
+          <div class="d-flex gap-2 pb-4">
+            <button type="submit" class="btn flex-grow-1 fw-semibold" id="calendlyConnectBtn"
+                    style="background:linear-gradient(135deg,#006bff,#0052cc);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-size:.88rem;">
+              <span id="calendlyBtnText"><i class="bi bi-plug-fill me-2"></i>Save &amp; Connect</span>
+              <span id="calendlyBtnSpinner" class="d-none">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving credentials…
+              </span>
+            </button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"
+                    style="border-radius:10px;font-size:.88rem;">Cancel</button>
+          </div>
+
+        </form>
+      </div><!-- /modal-body -->
+
+    </div>
+  </div>
+</div>
+
+<!-- Calendly Success toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1100">
+  <div id="calendlySuccessToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive">
+    <div class="d-flex">
+      <div class="toast-body" id="calendlyToastMsg">
+        <i class="bi bi-check-circle-fill me-2"></i>Calendly credentials saved! Redirecting to authorize…
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  function makeToggle(btnId, inputId, iconId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      const inp = document.getElementById(inputId);
+      const ico = document.getElementById(iconId);
+      if (inp.type === "password") {
+        inp.type = "text";
+        ico.className = "bi bi-eye-slash";
+      } else {
+        inp.type = "password";
+        ico.className = "bi bi-eye";
+      }
+    });
+  }
+  makeToggle("toggleCalendlyClientId",  "calendlyClientId",     "eyeIconCalendlyId");
+  makeToggle("toggleCalendlySecret",    "calendlyClientSecret", "eyeIconCalendlySecret");
+
+  const form    = document.getElementById("calendlyCredentialsForm");
+  const alertEl = document.getElementById("calendlyConnectAlert");
+  const btnText = document.getElementById("calendlyBtnText");
+  const spinner = document.getElementById("calendlyBtnSpinner");
+  const btn     = document.getElementById("calendlyConnectBtn");
+
+  if (!form) return;
+
+  function showAlert(type, msg) {
+    alertEl.className = `alert alert-${type} py-2 px-3`;
+    alertEl.innerHTML = msg;
+    alertEl.classList.remove("d-none");
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    alertEl.classList.add("d-none");
+
+    const clientId     = document.getElementById("calendlyClientId").value.trim();
+    const clientSecret = document.getElementById("calendlyClientSecret").value.trim();
+
+    if (!clientId) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client ID is required."); return; }
+    if (!clientSecret) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client Secret is required."); return; }
+
+    // Disable button + show spinner
+    btn.disabled = true;
+    btnText.classList.add("d-none");
+    spinner.classList.remove("d-none");
+
+    try {
+      const fd = new FormData(form);
+      const resp = await fetch("{% url 'integrations:calendly_save_credentials' %}", {
+        method: "POST",
+        body: fd,
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      const data = await resp.json();
+
+      if (data.ok) {
+        showAlert("success", "<i class='bi bi-check-circle-fill me-1'></i>" + data.message);
+        // Show toast and redirect to OAuth
+        const toast = new bootstrap.Toast(document.getElementById("calendlySuccessToast"));
+        toast.show();
+        setTimeout(() => {
+          window.location.href = data.redirect_url;
+        }, 1200);
+      } else {
+        showAlert("danger", "<i class='bi bi-x-circle-fill me-1'></i>" + data.error);
+      }
+    } catch (err) {
+      showAlert("danger", "<i class='bi bi-wifi-off me-1'></i>Network error — please try again.");
+    } finally {
+      btn.disabled = false;
+      btnText.classList.remove("d-none");
+      spinner.classList.add("d-none");
+    }
+  });
+})();
+</script>
