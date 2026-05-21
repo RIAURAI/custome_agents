@@ -12,4 +12,6 @@ urlpatterns = [
     path("slack/connect/", views.slack_connect, name="slack_connect"),
     path("slack/callback/", views.slack_callback, name="slack_callback"),
     path("slack/disconnect/", views.slack_disconnect, name="slack_disconnect"),
+    # Slack — dynamic manual credential entry (per-user, no OAuth app required)
+    path("slack/manual-connect/", views.slack_manual_connect, name="slack_manual_connect"),
 ]
