@@ -11,7 +11,7 @@ from django.conf import settings
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
-from integrations.models import UserIntegration
+from integrations.models import CompanyIntegration
 from integrations.slack_utils import get_valid_slack_token
 from .models import SlackMessage, AutoReplyRule
 from .ai_service import classify_message, generate_reply
@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 def _get_integration_and_token():
-    """Return (integration, token) for the first connected Slack user."""
-    integration = UserIntegration.objects.filter(service="slack").first()
+    """Return (integration, token) for the first connected Slack company."""
+    integration = CompanyIntegration.objects.filter(service="slack", status="active").first()
     if not integration:
         return None, None
     token = get_valid_slack_token(integration)
@@ -79,12 +79,12 @@ def _process_message(event: dict, say, client):
     # ── Check auto-reply rule ───────────────────────────────────────────────
     # First: channel-specific rule
     rule = AutoReplyRule.objects.filter(
-        user=integration.user, channel_id=channel_id, is_enabled=True
+        company=integration.company, channel_id=channel_id, is_enabled=True
     ).first()
     # Fallback: wildcard rule for all channels/DMs
     if not rule:
         rule = AutoReplyRule.objects.filter(
-            user=integration.user, channel_id="*", is_enabled=True
+            company=integration.company, channel_id="*", is_enabled=True
         ).first()
     if not rule:
         return  # No rule, skip silently
@@ -120,7 +120,7 @@ def _process_message(event: dict, say, client):
 
     # ── Save to database ────────────────────────────────────────────────────
     msg, _ = SlackMessage.objects.get_or_create(
-        user=integration.user,
+        company=integration.company,
         channel_id=channel_id,
         timestamp=ts,
         defaults={
@@ -210,7 +210,7 @@ def create_slack_app():
             sender_name = _get_sender_name(client, user_id)
             channel_id = event.get("channel", "")
             SlackMessage.objects.get_or_create(
-                user=integration.user,
+                company=integration.company,
                 channel_id=channel_id,
                 timestamp=ts,
                 defaults={

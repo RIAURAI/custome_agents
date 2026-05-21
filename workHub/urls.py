@@ -25,6 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", lambda request: redirect("dashboard:home"), name="root"),
     path("accounts/", include("accounts.urls", namespace="accounts")),
+    path("company/", include("companies.urls", namespace="companies")),
     path("integrations/", include("integrations.urls", namespace="integrations")),
     path("dashboard/", include("dashboard.urls", namespace="dashboard")),
     path("email/", include("email_hub.urls", namespace="email_hub")),

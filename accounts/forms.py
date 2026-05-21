@@ -4,6 +4,10 @@ from django.contrib.auth.models import User
 
 
 class RegisterForm(UserCreationForm):
+    company_name = forms.CharField(max_length=120, required=True, widget=forms.TextInput(attrs={
+        "class": "form-control",
+        "placeholder": "Company Name",
+    }))
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
         "class": "form-control",
         "placeholder": "Work Email",
@@ -19,7 +23,7 @@ class RegisterForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ["username", "first_name", "last_name", "email", "password1", "password2"]
+        fields = ["company_name", "username", "first_name", "last_name", "email", "password1", "password2"]
         widgets = {
             "username": forms.TextInput(attrs={"class": "form-control", "placeholder": "Username"}),
         }
@@ -37,6 +41,7 @@ class RegisterForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
 
 
 class LoginForm(AuthenticationForm):
