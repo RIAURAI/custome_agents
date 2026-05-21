@@ -2,12 +2,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import redirect, render
 
-from integrations.models import UserIntegration
-from integrations.utils import get_valid_access_token, graph_get, graph_post
+from companies.middleware import log_activity, platform_access_required
+from integrations.utils import get_company_integration, get_valid_access_token, graph_get, graph_post
 
 
 def _get_token_or_redirect(request):
-    ms = UserIntegration.objects.filter(user=request.user, service="microsoft").first()
+    ms = get_company_integration(request, "microsoft")
     if not ms:
         messages.warning(request, "Please connect your Microsoft account first.")
         return None, None
@@ -18,12 +18,12 @@ def _get_token_or_redirect(request):
     return ms, token
 
 
-@login_required
+@platform_access_required("microsoft")
 def inbox(request):
     _, token = _get_token_or_redirect(request)
     emails = []
     error = None
-    ms_connected = UserIntegration.objects.filter(user=request.user, service="microsoft").exists()
+    ms_connected = get_company_integration(request, "microsoft") is not None
     if token:
         try:
             data = graph_get(token, "/me/messages", {
@@ -37,7 +37,7 @@ def inbox(request):
     return render(request, "email_hub/inbox.html", {"emails": emails, "error": error, "ms_connected": ms_connected})
 
 
-@login_required
+@platform_access_required("microsoft")
 def email_detail(request, email_id):
     _, token = _get_token_or_redirect(request)
     email = None
@@ -47,12 +47,13 @@ def email_detail(request, email_id):
             email = graph_get(token, f"/me/messages/{email_id}")
             # Mark as read
             graph_post(token, f"/me/messages/{email_id}", {"isRead": True})
+            log_activity(request, "email_viewed", "microsoft", email.get("subject", "")[:200])
         except Exception as e:
             error = str(e)
     return render(request, "email_hub/email_detail.html", {"email": email, "error": error})
 
 
-@login_required
+@platform_access_required("microsoft", "reply")
 def compose(request):
     _, token = _get_token_or_redirect(request)
     if not token:
@@ -78,6 +79,7 @@ def compose(request):
         }
         try:
             graph_post(token, "/me/sendMail", payload)
+            log_activity(request, "email_sent", "microsoft", f"To: {to_email}, Subject: {subject}"[:200])
             messages.success(request, f"Email sent to {to_email}!")
             return redirect("email_hub:inbox")
         except Exception as e:

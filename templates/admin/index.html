@@ -1,0 +1,65 @@
+{% extends 'admin/base.html' %}
+{% load i18n %}
+
+{% block title %}Dashboard | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+<div style="padding: 1.5rem;">
+    <!-- Stats Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <div style="background: var(--color-base-50, #f8fafc); border: 1px solid var(--color-base-200, #e2e8f0); border-radius: 8px; padding: 1.5rem;">
+            <div style="font-size: 0.875rem; color: var(--color-base-500, #64748b); margin-bottom: 0.5rem;">{% trans "Companies" %}</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--color-base-900, #0f172a);">{{ total_companies|default:"0" }}</div>
+        </div>
+        <div style="background: var(--color-base-50, #f8fafc); border: 1px solid var(--color-base-200, #e2e8f0); border-radius: 8px; padding: 1.5rem;">
+            <div style="font-size: 0.875rem; color: var(--color-base-500, #64748b); margin-bottom: 0.5rem;">{% trans "Users" %}</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--color-base-900, #0f172a);">{{ total_users|default:"0" }}</div>
+        </div>
+        <div style="background: var(--color-base-50, #f8fafc); border: 1px solid var(--color-base-200, #e2e8f0); border-radius: 8px; padding: 1.5rem;">
+            <div style="font-size: 0.875rem; color: var(--color-base-500, #64748b); margin-bottom: 0.5rem;">{% trans "Memberships" %}</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--color-base-900, #0f172a);">{{ total_memberships|default:"0" }}</div>
+        </div>
+        <div style="background: var(--color-base-50, #f8fafc); border: 1px solid var(--color-base-200, #e2e8f0); border-radius: 8px; padding: 1.5rem;">
+            <div style="font-size: 0.875rem; color: var(--color-base-500, #64748b); margin-bottom: 0.5rem;">{% trans "Slack Messages" %}</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--color-base-900, #0f172a);">{{ total_slack_messages|default:"0" }}</div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div style="background: var(--color-base-50, #f8fafc); border: 1px solid var(--color-base-200, #e2e8f0); border-radius: 8px; padding: 1.5rem;">
+        <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--color-base-900, #0f172a);">{% trans "Recent Activity" %}</h2>
+        {% if recent_activity %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--color-base-200, #e2e8f0);">
+                        <th style="padding: 0.75rem 1rem; text-align: left; color: var(--color-base-500, #64748b); font-weight: 500;">{% trans "Time" %}</th>
+                        <th style="padding: 0.75rem 1rem; text-align: left; color: var(--color-base-500, #64748b); font-weight: 500;">{% trans "User" %}</th>
+                        <th style="padding: 0.75rem 1rem; text-align: left; color: var(--color-base-500, #64748b); font-weight: 500;">{% trans "Company" %}</th>
+                        <th style="padding: 0.75rem 1rem; text-align: left; color: var(--color-base-500, #64748b); font-weight: 500;">{% trans "Action" %}</th>
+                        <th style="padding: 0.75rem 1rem; text-align: left; color: var(--color-base-500, #64748b); font-weight: 500;">{% trans "Platform" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_activity %}
+                    <tr style="border-bottom: 1px solid var(--color-base-100, #f1f5f9);">
+                        <td style="padding: 0.75rem 1rem; color: var(--color-base-700, #334155);">{{ log.created_at|timesince }} ago</td>
+                        <td style="padding: 0.75rem 1rem; color: var(--color-base-700, #334155);">{{ log.user|default:"-" }}</td>
+                        <td style="padding: 0.75rem 1rem; color: var(--color-base-700, #334155);">{{ log.company }}</td>
+                        <td style="padding: 0.75rem 1rem; color: var(--color-base-700, #334155);">{{ log.action }}</td>
+                        <td style="padding: 0.75rem 1rem; color: var(--color-base-700, #334155);">{{ log.platform|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: var(--color-base-500, #64748b);">{% trans "No recent activity." %}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

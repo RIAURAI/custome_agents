@@ -1,0 +1,23 @@
+{% extends "base_public.html" %}
+{% block title %}Invitation Invalid — WorkHub{% endblock %}
+
+{% block content %}
+<div class="auth-bg d-flex align-items-center justify-content-center py-5 px-3" style="min-height:100vh;">
+  <div style="width:100%;max-width:460px;position:relative;z-index:1;">
+    <div class="auth-card p-4 p-md-5 text-center">
+      <i class="bi bi-exclamation-circle text-danger" style="font-size:3rem;"></i>
+      <h4 class="fw-bold mt-3 mb-2">Invitation Invalid</h4>
+      {% if reason == "expired" %}
+        <p class="text-muted">This invitation has expired. Please ask the admin to send a new one.</p>
+      {% elif reason == "revoked" %}
+        <p class="text-muted">This invitation has been revoked by the admin.</p>
+      {% elif reason == "accepted" %}
+        <p class="text-muted">This invitation has already been used.</p>
+      {% else %}
+        <p class="text-muted">This invitation is no longer valid.</p>
+      {% endif %}
+      <a href="{% url 'accounts:login' %}" class="btn btn-primary mt-3">Go to Login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

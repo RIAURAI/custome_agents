@@ -4,6 +4,10 @@ Django settings for WorkHub — Unified Business Workspace.
 
 from pathlib import Path
 from decouple import config
+import dj_database_url
+from django.templatetags.static import static
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -13,6 +17,10 @@ ALLOWED_HOSTS = ["*"]
 
 # ── Apps ──────────────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
+    "unfold.contrib.inlines",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -20,6 +28,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # WorkHub apps
+    "companies",
     "accounts",
     "integrations",
     "dashboard",
@@ -38,6 +47,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "companies.middleware.CompanyMiddleware",
 ]
 
 ROOT_URLCONF = "workHub.urls"
@@ -55,6 +65,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "companies.middleware.company_context",
             ],
         },
     },
@@ -64,14 +75,7 @@ WSGI_APPLICATION = "workHub.wsgi.application"
 
 # ── Database ──────────────────────────────────────────────────────────────────
 DATABASES = {
-    "default": {
-        "ENGINE": config("DB_ENGINE", default="django.db.backends.sqlite3"),
-        "NAME": config("DB_NAME", default=str(BASE_DIR / "db.sqlite3")),
-        "USER": config("DB_USER", default=""),
-        "PASSWORD": config("DB_PASSWORD", default=""),
-        "HOST": config("DB_HOST", default=""),
-        "PORT": config("DB_PORT", default=""),
-    }
+    "default": dj_database_url.config(default=config("DATABASE_URL"))
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -130,6 +134,131 @@ MS_SCOPES = [
     "OnlineMeetings.Read",
 ]
 MS_REDIRECT_URI = "http://localhost:8000/integrations/callback/"
+
+# ── Unfold Admin ──────────────────────────────────────────────────────────────
+UNFOLD = {
+    "SITE_TITLE": "WorkHub Admin",
+    "SITE_HEADER": "WorkHub",
+    "SITE_SUBHEADER": "Unified Business Workspace",
+    "SITE_URL": "/dashboard/",
+    "SITE_SYMBOL": "hub",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "SHOW_BACK_BUTTON": True,
+    "BORDER_RADIUS": "6px",
+    "COLORS": {
+        "primary": {
+            "50": "oklch(97.5% .014 254)",
+            "100": "oklch(94.5% .03 254)",
+            "200": "oklch(88% .06 254)",
+            "300": "oklch(80% .1 254)",
+            "400": "oklch(70% .16 254)",
+            "500": "oklch(60% .22 254)",
+            "600": "oklch(52% .24 254)",
+            "700": "oklch(45% .22 254)",
+            "800": "oklch(39% .18 254)",
+            "900": "oklch(33% .14 254)",
+            "950": "oklch(25% .11 254)",
+        },
+    },
+    "DASHBOARD_CALLBACK": "dashboard.admin.dashboard_callback",
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": _("Overview"),
+                "separator": True,
+                "collapsible": False,
+                "items": [
+                    {
+                        "title": _("Dashboard"),
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                    },
+                ],
+            },
+            {
+                "title": _("Companies"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Companies"),
+                        "icon": "business",
+                        "link": reverse_lazy("admin:companies_company_changelist"),
+                    },
+                    {
+                        "title": _("Memberships"),
+                        "icon": "group",
+                        "link": reverse_lazy("admin:companies_membership_changelist"),
+                    },
+                    {
+                        "title": _("Invitations"),
+                        "icon": "mail",
+                        "link": reverse_lazy("admin:companies_invitation_changelist"),
+                    },
+                    {
+                        "title": _("Platform Access"),
+                        "icon": "key",
+                        "link": reverse_lazy("admin:companies_platformaccess_changelist"),
+                    },
+                    {
+                        "title": _("Activity Logs"),
+                        "icon": "history",
+                        "link": reverse_lazy("admin:companies_activitylog_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Users & Auth"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Users"),
+                        "icon": "person",
+                        "link": reverse_lazy("admin:auth_user_changelist"),
+                    },
+                    {
+                        "title": _("Groups"),
+                        "icon": "groups",
+                        "link": reverse_lazy("admin:auth_group_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Integrations"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Company Integrations"),
+                        "icon": "cable",
+                        "link": reverse_lazy("admin:integrations_companyintegration_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Slack"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Messages"),
+                        "icon": "chat",
+                        "link": reverse_lazy("admin:slack_hub_slackmessage_changelist"),
+                    },
+                    {
+                        "title": _("Auto Reply Rules"),
+                        "icon": "smart_toy",
+                        "link": reverse_lazy("admin:slack_hub_autoreplyrule_changelist"),
+                    },
+                ],
+            },
+        ],
+    },
+}
 
 # ── Slack App ─────────────────────────────────────────────────────────────────
 SLACK_CLIENT_ID = config("SLACK_CLIENT_ID", default="")

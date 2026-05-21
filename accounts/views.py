@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import transaction
+
+from companies.models import Company, Membership
 from .forms import RegisterForm, LoginForm
 
 
@@ -11,9 +14,19 @@ def register_view(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            with transaction.atomic():
+                user = form.save()
+                company = Company.objects.create(name=form.cleaned_data["company_name"])
+                Membership.objects.create(
+                    user=user,
+                    company=company,
+                    role=Membership.Role.OWNER,
+                )
             login(request, user)
-            messages.success(request, f"Welcome to WorkHub, {user.first_name}!")
+            messages.success(
+                request,
+                f"Welcome to WorkHub, {user.first_name}! Your company '{company.name}' is ready.",
+            )
             return redirect("dashboard:home")
     else:
         form = RegisterForm()

@@ -13,7 +13,9 @@ class SlackMessage(models.Model):
         ("general", "General"),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="slack_messages")
+    company = models.ForeignKey(
+        "companies.Company", on_delete=models.CASCADE, related_name="slack_messages"
+    )
     channel_id = models.CharField(max_length=100)
     channel_name = models.CharField(max_length=255, blank=True)
     sender_id = models.CharField(max_length=100)
@@ -35,16 +37,18 @@ class SlackMessage(models.Model):
 
     class Meta:
         ordering = ["-tracked_at"]
-        unique_together = ("user", "channel_id", "timestamp")
+        unique_together = ("company", "channel_id", "timestamp")
 
     def __str__(self):
         return f"[{self.channel_name}] {self.sender_name}: {self.text[:50]}"
 
 
 class AutoReplyRule(models.Model):
-    """User-configurable auto-reply rules for Slack channels."""
+    """Company-configurable auto-reply rules for Slack channels."""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="slack_auto_rules")
+    company = models.ForeignKey(
+        "companies.Company", on_delete=models.CASCADE, related_name="slack_auto_rules"
+    )
     channel_id = models.CharField(max_length=100)
     channel_name = models.CharField(max_length=255, blank=True)
     is_enabled = models.BooleanField(default=False)
@@ -61,8 +65,8 @@ class AutoReplyRule(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ("user", "channel_id")
+        unique_together = ("company", "channel_id")
 
     def __str__(self):
         status = "ON" if self.is_enabled else "OFF"
-        return f"[{status}] {self.channel_name} ({self.user.username})"
+        return f"[{status}] {self.channel_name} ({self.company.name})"

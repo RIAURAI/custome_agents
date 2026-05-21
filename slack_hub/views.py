@@ -13,8 +13,11 @@ from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from integrations.models import UserIntegration
+from integrations.models import CompanyIntegration
+from integrations.utils import get_company_slack_token, get_company_integration
 from integrations.slack_utils import get_valid_slack_token
+
+from companies.middleware import log_activity, platform_access_required
 
 from .models import SlackMessage, AutoReplyRule
 from .slack_service import (
@@ -29,16 +32,10 @@ logger = logging.getLogger(__name__)
 
 
 def _get_slack_token(request):
-    """Get valid Slack token or return None with message."""
-    integration = UserIntegration.objects.filter(
-        user=request.user, service="slack"
-    ).first()
-    if not integration:
-        messages.warning(request, "Please connect your Slack account first.")
-        return None
-    token = get_valid_slack_token(integration)
+    """Get valid Slack token for the current company, or return None with message."""
+    token = get_company_slack_token(request)
     if not token:
-        messages.error(request, "Slack token invalid. Please reconnect.")
+        messages.warning(request, "Please connect your Slack account first.")
         return None
     return token
 
@@ -134,12 +131,12 @@ def _handle_slack_event(event: dict, team_id: str):
     if not text or not channel_id:
         return
 
-    # Find user with this Slack workspace connected
-    integration = UserIntegration.objects.filter(
+    # Find company with this Slack workspace connected
+    integration = CompanyIntegration.objects.filter(
         service="slack", slack_team_id=team_id
     ).first()
     if not integration:
-        integration = UserIntegration.objects.filter(service="slack").first()
+        integration = CompanyIntegration.objects.filter(service="slack").first()
     if not integration:
         return
 
@@ -149,12 +146,12 @@ def _handle_slack_event(event: dict, team_id: str):
 
     # Check auto-reply rules for this channel
     rule = AutoReplyRule.objects.filter(
-        user=integration.user, channel_id=channel_id, is_enabled=True
+        company=integration.company, channel_id=channel_id, is_enabled=True
     ).first()
     if not rule:
         # Check for global rule (channel_id="*" means all channels)
         rule = AutoReplyRule.objects.filter(
-            user=integration.user, channel_id="*", is_enabled=True
+            company=integration.company, channel_id="*", is_enabled=True
         ).first()
     if not rule:
         return
@@ -186,7 +183,7 @@ def _handle_slack_event(event: dict, team_id: str):
 
     # Save to DB
     msg, _ = SlackMessage.objects.get_or_create(
-        user=integration.user,
+        company=integration.company,
         channel_id=channel_id,
         timestamp=ts,
         defaults={
@@ -217,15 +214,13 @@ def _handle_slack_event(event: dict, team_id: str):
 # ── Page Views ────────────────────────────────────────────────────────────────
 
 
-@login_required
+@platform_access_required("slack")
 def channels_view(request):
     """List all Slack channels."""
     token = _get_slack_token(request)
     channels = []
     error = None
-    slack_connected = UserIntegration.objects.filter(
-        user=request.user, service="slack"
-    ).exists()
+    slack_connected = get_company_integration(request, "slack") is not None
 
     if token:
         try:
@@ -240,7 +235,6 @@ def channels_view(request):
     })
 
 
-@login_required
 def _clean_slack_text(text, user_cache, token, get_user_name_fn):
     """Convert Slack mrkdwn to plain readable text."""
     import re
@@ -274,6 +268,7 @@ def _clean_slack_text(text, user_cache, token, get_user_name_fn):
     return text
 
 
+@platform_access_required("slack")
 def channel_messages_view(request, channel_id):
     """Show messages from a specific channel with tracking."""
     import datetime
@@ -333,14 +328,15 @@ def channel_messages_view(request, channel_id):
     })
 
 
-@login_required
+@platform_access_required("slack")
 def track_view(request):
     """Dashboard of all tracked/analyzed messages."""
-    tracked = SlackMessage.objects.filter(user=request.user)[:50]
+    company = getattr(request, "company", None)
+    tracked = SlackMessage.objects.filter(company=company)[:50] if company else []
     return render(request, "slack_hub/track.html", {"tracked_messages": tracked})
 
 
-@login_required
+@platform_access_required("slack", "manage")
 def auto_reply_settings_view(request):
     """Configure auto-reply rules per channel."""
     token = _get_slack_token(request)
@@ -351,7 +347,7 @@ def auto_reply_settings_view(request):
         except Exception:
             pass
 
-    rules = {r.channel_id: r for r in AutoReplyRule.objects.filter(user=request.user)}
+    rules = {r.channel_id: r for r in AutoReplyRule.objects.filter(company=request.company)}
 
     if request.method == "POST":
         channel_id = request.POST.get("channel_id", "").strip()
@@ -363,7 +359,7 @@ def auto_reply_settings_view(request):
 
         if channel_id:
             rule, _ = AutoReplyRule.objects.get_or_create(
-                user=request.user, channel_id=channel_id
+                company=request.company, channel_id=channel_id
             )
             rule.channel_name = channel_name
             rule.is_enabled = is_enabled
@@ -380,10 +376,11 @@ def auto_reply_settings_view(request):
     })
 
 
-@login_required
+@platform_access_required("slack")
 def auto_reply_history_view(request):
     """Show all auto-replied and pending messages."""
-    tracked = SlackMessage.objects.filter(user=request.user).order_by("-tracked_at")[:100]
+    company = getattr(request, "company", None)
+    tracked = SlackMessage.objects.filter(company=company).order_by("-tracked_at")[:100] if company else SlackMessage.objects.none()
     stats = {
         "total": tracked.count(),
         "replied": sum(1 for m in tracked if m.is_auto_replied),
@@ -395,7 +392,7 @@ def auto_reply_history_view(request):
     })
 
 
-@login_required
+@platform_access_required("slack", "reply")
 @require_POST
 def ai_analyze_view(request):
     """
@@ -420,7 +417,7 @@ def ai_analyze_view(request):
 
     # Store tracked message
     msg, created = SlackMessage.objects.get_or_create(
-        user=request.user,
+        company=request.company,
         channel_id=payload.get("channel_id", ""),
         timestamp=payload.get("ts", ""),
         defaults={
@@ -437,6 +434,8 @@ def ai_analyze_view(request):
         msg.ai_summary = result["summary"]
         msg.save()
 
+    log_activity(request, "ai_summarize", "slack", f"Classified message in {payload.get('channel_name', '')}")
+
     return JsonResponse({
         "classification": result["classification"],
         "summary": result["summary"],
@@ -444,7 +443,7 @@ def ai_analyze_view(request):
     })
 
 
-@login_required
+@platform_access_required("slack", "reply")
 @require_POST
 def ai_reply_view(request):
     """
@@ -468,7 +467,7 @@ def ai_reply_view(request):
     # Check for custom instructions from auto-reply rule
     custom_instructions = ""
     rule = AutoReplyRule.objects.filter(
-        user=request.user, channel_id=channel_id
+        company=request.company, channel_id=channel_id
     ).first()
     if rule:
         custom_instructions = rule.custom_instructions
@@ -486,9 +485,10 @@ def ai_reply_view(request):
             try:
                 send_message(token, channel_id, reply_text, thread_ts=ts)
                 sent = True
+                log_activity(request, "ai_reply", "slack", f"Sent AI reply in {channel_id}")
                 # Update tracked message
                 SlackMessage.objects.filter(
-                    user=request.user, channel_id=channel_id, timestamp=ts
+                    company=request.company, channel_id=channel_id, timestamp=ts
                 ).update(
                     ai_reply=reply_text,
                     is_auto_replied=True,
@@ -505,7 +505,7 @@ def ai_reply_view(request):
     })
 
 
-@login_required
+@platform_access_required("slack")
 @require_POST
 def ai_summarize_channel_view(request):
     """
@@ -543,6 +543,7 @@ def ai_summarize_channel_view(request):
             })
 
         summary = summarize_channel(enriched)
+        log_activity(request, "ai_summarize", "slack", f"Summarized channel {channel_id}")
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
