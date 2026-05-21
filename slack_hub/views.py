@@ -34,8 +34,15 @@ logger = logging.getLogger(__name__)
 
 
 def _get_slack_token(request):
-    """Get valid Slack token for the current company, or return None with message."""
+    """Get valid Slack token for the current company or user, or return None with message."""
     token = get_company_slack_token(request)
+    if not token:
+        # Fallback: check UserIntegration for users without a company
+        user_integ = UserIntegration.objects.filter(
+            user=request.user, service="slack"
+        ).first()
+        if user_integ:
+            token = get_valid_slack_token(user_integ)
     if not token:
         messages.warning(request, "Please connect your Slack account first.")
         return None
@@ -246,6 +253,11 @@ def channels_view(request):
     channels = []
     error = None
     slack_connected = get_company_integration(request, "slack") is not None
+    # Fallback: check UserIntegration
+    if not slack_connected:
+        slack_connected = UserIntegration.objects.filter(
+            user=request.user, service="slack"
+        ).exclude(access_token_enc=None).exists()
 
     if token:
         try:
@@ -394,6 +406,11 @@ def track_view(request):
 @platform_access_required("slack", "manage")
 def auto_reply_settings_view(request):
     """Configure auto-reply rules per channel."""
+    company = getattr(request, "company", None)
+    if not company:
+        messages.warning(request, "You need to be part of a company to configure auto-reply settings.")
+        return redirect("slack_hub:channels")
+
     token = _get_slack_token(request)
     channels = []
     if token:
@@ -402,7 +419,7 @@ def auto_reply_settings_view(request):
         except Exception:
             pass
 
-    rules = {r.channel_id: r for r in AutoReplyRule.objects.filter(company=request.company)}
+    rules = {r.channel_id: r for r in AutoReplyRule.objects.filter(company=company)}
 
     if request.method == "POST":
         channel_id = request.POST.get("channel_id", "").strip()
@@ -414,7 +431,7 @@ def auto_reply_settings_view(request):
 
         if channel_id:
             rule, _ = AutoReplyRule.objects.get_or_create(
-                company=request.company, channel_id=channel_id
+                company=company, channel_id=channel_id
             )
             rule.channel_name = channel_name
             rule.is_enabled = is_enabled
@@ -471,8 +488,11 @@ def ai_analyze_view(request):
         return JsonResponse({"error": str(e)}, status=500)
 
     # Store tracked message
+    company = getattr(request, "company", None)
+    if not company:
+        return JsonResponse({"error": "No company associated with your account."}, status=403)
     msg, created = SlackMessage.objects.get_or_create(
-        company=request.company,
+        company=company,
         channel_id=payload.get("channel_id", ""),
         timestamp=payload.get("ts", ""),
         defaults={
@@ -520,10 +540,11 @@ def ai_reply_view(request):
         return JsonResponse({"error": "No text provided."}, status=400)
 
     # Check for custom instructions from auto-reply rule
+    company = getattr(request, "company", None)
     custom_instructions = ""
     rule = AutoReplyRule.objects.filter(
-        company=request.company, channel_id=channel_id
-    ).first()
+        company=company, channel_id=channel_id
+    ).first() if company else None
     if rule:
         custom_instructions = rule.custom_instructions
 
@@ -542,13 +563,14 @@ def ai_reply_view(request):
                 sent = True
                 log_activity(request, "ai_reply", "slack", f"Sent AI reply in {channel_id}")
                 # Update tracked message
-                SlackMessage.objects.filter(
-                    company=request.company, channel_id=channel_id, timestamp=ts
-                ).update(
-                    ai_reply=reply_text,
-                    is_auto_replied=True,
-                    reply_sent_at=datetime.now(timezone.utc),
-                )
+                if company:
+                    SlackMessage.objects.filter(
+                        company=company, channel_id=channel_id, timestamp=ts
+                    ).update(
+                        ai_reply=reply_text,
+                        is_auto_replied=True,
+                        reply_sent_at=datetime.now(timezone.utc),
+                    )
             except Exception as e:
                 return JsonResponse({"error": f"Reply generated but send failed: {e}", "reply": reply_text}, status=500)
         else:

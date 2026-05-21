@@ -73,6 +73,9 @@ class CompanyIntegration(models.Model):
     slack_team_id = models.CharField(max_length=100, blank=True)
     slack_team_name = models.CharField(max_length=255, blank=True)
     slack_user_id = models.CharField(max_length=100, blank=True)
+    slack_bot_user_id = models.CharField(max_length=100, blank=True)
+    slack_app_token_enc = models.BinaryField(null=True, blank=True)
+    slack_signing_secret_enc = models.BinaryField(null=True, blank=True)
 
     # Audit
     connected_by = models.ForeignKey(

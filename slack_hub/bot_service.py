@@ -11,14 +11,12 @@ from django.conf import settings
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
-from integrations.models import UserIntegration
+from integrations.models import UserIntegration, CompanyIntegration
 from integrations.slack_utils import (
     get_valid_slack_token,
     get_valid_slack_app_token,
     get_valid_slack_signing_secret,
 )
-from integrations.models import CompanyIntegration
-from integrations.slack_utils import get_valid_slack_token
 from .models import SlackMessage, AutoReplyRule
 from .ai_service import classify_message, generate_reply
 
@@ -58,6 +56,8 @@ def _process_message(event: dict, say, client):
     """
     Core logic: receive message → AI analyze → AI reply → save to DB.
     Works for: public channels, private channels, DMs.
+    - DMs: ALWAYS analyze + reply (no rule needed)
+    - Channels: ALWAYS analyze + track; reply only if matching AutoReplyRule exists
     """
     # ── Guard: skip bot messages and system events ──────────────────────────
     if event.get("bot_id") or event.get("subtype"):
@@ -76,14 +76,13 @@ def _process_message(event: dict, say, client):
 
     logger.info(f"📨 [{channel_type or 'channel'}] {user_id}: {text[:60]}")
 
-    # ── Find connected user ─────────────────────────────────────────────────
+    # ── Find connected integration ──────────────────────────────────────────
     integration, token = _get_integration_and_token()
     if not integration or not token:
         logger.warning("No Slack integration found.")
         return
 
     # ── Check auto-reply rule ───────────────────────────────────────────────
-    # First: channel-specific rule
     rule = AutoReplyRule.objects.filter(
         company=integration.company, channel_id=channel_id, is_enabled=True
     ).first()
@@ -92,14 +91,17 @@ def _process_message(event: dict, say, client):
         rule = AutoReplyRule.objects.filter(
             company=integration.company, channel_id="*", is_enabled=True
         ).first()
-    if not rule:
-        return  # No rule, skip silently
 
-    # ── Keyword filter ──────────────────────────────────────────────────────
-    if rule.keywords:
+    # For DMs: always reply even without a rule
+    should_reply = is_dm or (rule is not None)
+    should_auto_send = is_dm or (rule and rule.auto_send)
+
+    # ── Keyword filter (only for channel rules, not DMs) ────────────────────
+    if rule and rule.keywords and not is_dm:
         kws = [k.strip().lower() for k in rule.keywords.split(",") if k.strip()]
-        if not any(kw in text.lower() for kw in kws):
-            return
+        if kws and not any(kw in text.lower() for kw in kws):
+            should_reply = False
+            should_auto_send = False
 
     # ── Resolve names ───────────────────────────────────────────────────────
     sender_name = _get_sender_name(client, user_id)
@@ -108,7 +110,7 @@ def _process_message(event: dict, say, client):
     else:
         channel_display = _get_channel_name(client, channel_id)
 
-    # ── AI: classify message ────────────────────────────────────────────────
+    # ── AI: classify message (ALWAYS) ──────────────────────────────────────
     try:
         classification = classify_message(text)
         logger.info(f"🧠 {classification['classification'].upper()} — {classification['summary']}")
@@ -117,14 +119,17 @@ def _process_message(event: dict, say, client):
         classification = {"classification": "general", "summary": text[:100]}
 
     # ── AI: generate reply ──────────────────────────────────────────────────
-    try:
-        reply_text = generate_reply(text, custom_instructions=rule.custom_instructions)
-        logger.info(f"💬 Reply: {reply_text[:80]}...")
-    except Exception as e:
-        logger.error(f"AI reply error: {e}")
-        return
+    reply_text = ""
+    if should_reply:
+        custom_instructions = rule.custom_instructions if rule else ""
+        try:
+            reply_text = generate_reply(text, custom_instructions=custom_instructions)
+            logger.info(f"💬 Reply: {reply_text[:80]}...")
+        except Exception as e:
+            logger.error(f"AI reply error: {e}")
+            reply_text = ""
 
-    # ── Save to database ────────────────────────────────────────────────────
+    # ── Save to database (ALWAYS track) ─────────────────────────────────────
     msg, _ = SlackMessage.objects.get_or_create(
         company=integration.company,
         channel_id=channel_id,
@@ -142,13 +147,11 @@ def _process_message(event: dict, say, client):
     )
 
     # ── Send reply to Slack ─────────────────────────────────────────────────
-    if rule.auto_send:
+    if should_auto_send and reply_text:
         try:
             if is_dm:
-                # DMs: reply in the same conversation (no thread)
                 say(text=reply_text)
             else:
-                # Channels/groups: reply in thread to keep it tidy
                 say(text=reply_text, thread_ts=ts)
 
             msg.is_auto_replied = True
@@ -159,9 +162,11 @@ def _process_message(event: dict, say, client):
             logger.error(f"Send reply failed: {e}")
             msg.save()
     else:
-        # Draft mode — save reply but don't send it
         msg.save()
-        logger.info(f"📝 Draft saved for {channel_display}")
+        if reply_text:
+            logger.info(f"📝 Draft saved for {channel_display}")
+        else:
+            logger.info(f"📊 Tracked message in {channel_display} (no reply)")
 
 
 def create_slack_app():
@@ -238,31 +243,45 @@ def create_slack_app():
 def run_bot():
     """
     Start the Socket Mode bot (blocking).
-    Reads app token from the first connected user's DB record — fully dynamic,
+    Reads app token from the company's DB record — fully dynamic,
     no hardcoded settings required.
     """
-    integration = UserIntegration.objects.filter(service="slack").first()
-    if not integration:
-        raise RuntimeError(
-            "No Slack workspace connected yet. "
-            "Go to Connections and add your Bot Token + App Token first."
-        )
+    # Primary: CompanyIntegration (company-level)
+    integration = CompanyIntegration.objects.filter(service="slack", status="active").first()
+    app_token = None
+    if integration:
+        app_token = get_valid_slack_app_token(integration)
 
-    app_token = get_valid_slack_app_token(integration)
+    # Fallback: UserIntegration (per-user legacy)
     if not app_token:
-        # Fallback to settings for backwards compatibility
+        user_integ = UserIntegration.objects.filter(service="slack").first()
+        if user_integ:
+            app_token = get_valid_slack_app_token(user_integ)
+            if not integration:
+                integration = user_integ
+
+    # Final fallback: settings (backwards compat)
+    if not app_token:
         app_token = getattr(settings, "SLACK_APP_TOKEN", "")
+
     if not app_token:
         raise RuntimeError(
             "No App Token (xapp-…) found. "
             "Enter it in the Connections page under 'App Token (Socket Mode)'."
         )
 
+    if not integration:
+        raise RuntimeError(
+            "No Slack workspace connected yet. "
+            "Go to Connections and add your Bot Token + App Token first."
+        )
+
     app = create_slack_app()
     handler = SocketModeHandler(app, app_token)
 
+    team_name = getattr(integration, "slack_team_name", "") or getattr(integration, "slack_team_id", "")
     logger.info("🚀 Slack AI Bot running (Socket Mode — WebSocket)")
-    logger.info(f"   ✓ Workspace: {integration.slack_team_name or integration.slack_team_id}")
+    logger.info(f"   ✓ Workspace: {team_name}")
     logger.info("   ✓ Channels + DMs + threads handled automatically")
     logger.info("   ✓ AI classifies + replies to every message")
     logger.info("   ✓ History at /slack/history/")

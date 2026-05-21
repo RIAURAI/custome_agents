@@ -54,6 +54,14 @@ def company_context(request):
     else:
         ctx["has_ms_access"] = False
         ctx["has_slack_access"] = False
+
+    # Fallback: if user has a UserIntegration with a valid token, grant access
+    if not ctx["has_slack_access"] and hasattr(request, "user") and request.user.is_authenticated:
+        from integrations.models import UserIntegration
+        ctx["has_slack_access"] = UserIntegration.objects.filter(
+            user=request.user, service="slack"
+        ).exclude(access_token_enc=None).exists()
+
     return ctx
 
 
@@ -97,6 +105,15 @@ def platform_access_required(service, min_permission="view"):
         @wraps(view_func)
         @login_required
         def wrapper(request, *args, **kwargs):
+            # Superusers always have access
+            if request.user.is_superuser:
+                return view_func(request, *args, **kwargs)
+            # Users with a direct UserIntegration for this service get access
+            from integrations.models import UserIntegration
+            if UserIntegration.objects.filter(
+                user=request.user, service=service
+            ).exclude(access_token_enc=None).exists():
+                return view_func(request, *args, **kwargs)
             if not has_platform_access(request, service, min_permission):
                 messages.error(request, f"You don't have access to {service}. Contact your admin.")
                 return redirect("dashboard:home")

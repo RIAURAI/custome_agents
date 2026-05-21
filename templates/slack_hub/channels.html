@@ -50,10 +50,13 @@
   </div>
   <h5 class="ibx-empty-title">Connect Slack to see your channels</h5>
   <p class="ibx-empty-sub">Track messages, AI auto-detect intent, and generate smart replies — all from WorkHub.</p>
-  <a href="{% url 'integrations:slack_connect' %}" class="btn ibx-connect-btn">
+  <button type="button" class="btn ibx-connect-btn" data-bs-toggle="modal" data-bs-target="#slackConnectModal">
     <i class="bi bi-box-arrow-in-right me-2"></i>Connect Slack Workspace
-  </a>
+  </button>
 </div>
+
+<!-- Slack Connect Modal (inline) -->
+{% include "integrations/_slack_connect_modal.html" %}
 
 {% elif channels %}
 
