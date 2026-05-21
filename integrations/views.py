@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST
 
 import requests as http_requests
 
-from .models import CompanyIntegration
+from .models import CompanyIntegration, UserIntegration
 from .utils import (
     encrypt_token,
     exchange_code_for_tokens,
@@ -43,6 +43,13 @@ def connect_view(request):
         integrations = {
             i.service: i for i in company.integrations.all()
         }
+    # Fallback: show UserIntegration if no CompanyIntegration exists for Slack
+    if "slack" not in integrations:
+        user_slack = UserIntegration.objects.filter(
+            user=request.user, service="slack"
+        ).first()
+        if user_slack and user_slack.access_token_enc:
+            integrations["slack"] = user_slack
     membership = getattr(request, "membership", None)
     is_admin = membership.is_admin if membership else False
     return render(request, "integrations/connect.html", {
@@ -191,10 +198,15 @@ def slack_callback(request):
     return redirect("integrations:connect")
 
 
-@company_admin_required
+@login_required
+@require_POST
 def slack_disconnect(request):
-    """Remove stored Slack tokens for this company."""
-    CompanyIntegration.objects.filter(company=request.company, service="slack").delete()
+    """Remove stored Slack tokens for this company and user."""
+    company = getattr(request, "company", None)
+    if company:
+        CompanyIntegration.objects.filter(company=company, service="slack").delete()
+    # Also remove UserIntegration
+    UserIntegration.objects.filter(user=request.user, service="slack").delete()
     log_activity(request, "integration_disconnected", "slack")
     messages.info(request, "Slack account disconnected.")
     return redirect("integrations:connect")
@@ -259,25 +271,59 @@ def slack_manual_connect(request):
         }.get(slack_err, f"Slack rejected the token: {slack_err}")
         return JsonResponse({"ok": False, "error": friendly}, status=400)
 
-    # Persist encrypted credentials (unique per user)
-    integration, _ = UserIntegration.objects.get_or_create(
+    # Persist encrypted credentials — per-user (legacy) + per-company (primary)
+
+    # Save to UserIntegration (per-user, backwards-compatible)
+    user_integ, _ = UserIntegration.objects.get_or_create(
         user=request.user, service="slack"
     )
-    integration.access_token_enc = encrypt_token(bot_token)
-    integration.slack_team_id = data.get("team_id", "")
-    integration.slack_team_name = data.get("team", "")
-    integration.slack_user_id = data.get("user_id", "")
-    integration.slack_bot_user_id = data.get("bot_id", "")
+    user_integ.access_token_enc = encrypt_token(bot_token)
+    user_integ.slack_team_id = data.get("team_id", "")
+    user_integ.slack_team_name = data.get("team", "")
+    user_integ.slack_user_id = data.get("user_id", "")
+    user_integ.slack_bot_user_id = data.get("bot_id", "")
     if app_token:
-        integration.slack_app_token_enc = encrypt_token(app_token)
+        user_integ.slack_app_token_enc = encrypt_token(app_token)
     if signing_secret:
-        integration.slack_signing_secret_enc = encrypt_token(signing_secret)
-    integration.save()
+        user_integ.slack_signing_secret_enc = encrypt_token(signing_secret)
+    user_integ.save()
+
+    # Save to CompanyIntegration (company-level — used by Slack pages & bot)
+    company = getattr(request, "company", None)
+    if company:
+        company_integ, _ = CompanyIntegration.objects.get_or_create(
+            company=company, service="slack"
+        )
+        company_integ.access_token_enc = encrypt_token(bot_token)
+        company_integ.slack_team_id = data.get("team_id", "")
+        company_integ.slack_team_name = data.get("team", "")
+        company_integ.slack_user_id = data.get("user_id", "")
+        company_integ.slack_bot_user_id = data.get("bot_id", "")
+        if app_token:
+            company_integ.slack_app_token_enc = encrypt_token(app_token)
+        if signing_secret:
+            company_integ.slack_signing_secret_enc = encrypt_token(signing_secret)
+        company_integ.connected_by = request.user
+        company_integ.status = "active"
+        company_integ.save()
+
+    # Auto-start bot in background thread if app_token provided
+    if app_token:
+        import threading
+        def _auto_start():
+            try:
+                from slack_hub.bot_service import run_bot
+                run_bot()
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(f"Bot auto-start failed: {e}")
+        t = threading.Thread(target=_auto_start, daemon=True, name="slack-bot-connect")
+        t.start()
 
     return JsonResponse({
         "ok": True,
         "team_name": data.get("team", ""),
         "team_id": data.get("team_id", ""),
         "user_id": data.get("user_id", ""),
-        "connected_at": integration.connected_at.strftime("%b %-d, %Y"),
+        "connected_at": user_integ.connected_at.strftime("%b %-d, %Y"),
     })

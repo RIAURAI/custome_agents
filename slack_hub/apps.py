@@ -15,8 +15,8 @@ class SlackHubConfig(AppConfig):
         import os
         from django.conf import settings as django_settings
 
-        # Avoid double-start during Django's autoreload (skip parent process)
-        if os.environ.get("RUN_MAIN") == "false":
+        # Avoid double-start during Django's autoreload (only run in child process)
+        if os.environ.get("RUN_MAIN") != "true":
             return
 
         autostart = str(getattr(django_settings, "SLACK_BOT_AUTOSTART", "false")).lower() == "true"
