@@ -270,6 +270,12 @@ SLACK_BOT_AUTOSTART = config("SLACK_BOT_AUTOSTART", default="false")
 SLACK_SCOPES = "channels:read,channels:history,channels:join,chat:write,users:read,groups:read,groups:history,im:read,im:history"
 SLACK_REDIRECT_URI = "http://localhost:8000/integrations/slack/callback/"
 
+# ── Calendly (OAuth 2.0 — per-company credentials stored in DB) ───────────────
+CALENDLY_REDIRECT_URI = "http://localhost:8000/integrations/calendly/callback/"
+CALENDLY_AUTH_BASE_URL = "https://auth.calendly.com/oauth/authorize"
+CALENDLY_TOKEN_URL = "https://auth.calendly.com/oauth/token"
+CALENDLY_API_BASE_URL = "https://api.calendly.com"
+
 # ── OpenAI ────────────────────────────────────────────────────────────────────
 OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
 

@@ -9,6 +9,7 @@ class UserIntegration(models.Model):
     SERVICE_CHOICES = [
         ("microsoft", "Microsoft (Outlook + Teams)"),
         ("slack", "Slack"),
+        ("calendly", "Calendly"),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="integrations")
@@ -30,6 +31,9 @@ class UserIntegration(models.Model):
     slack_signing_secret_enc = models.BinaryField(null=True, blank=True)
     # User OAuth Token (xoxp-...) — for posting as the user (not the bot)
     slack_user_token_enc = models.BinaryField(null=True, blank=True)
+    # Calendly-specific fields
+    calendly_organization_uri = models.CharField(max_length=500, blank=True)
+    calendly_user_uri = models.CharField(max_length=500, blank=True)
     connected_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -45,6 +49,7 @@ class CompanyIntegration(models.Model):
     SERVICE_CHOICES = [
         ("microsoft", "Microsoft (Outlook + Teams)"),
         ("slack", "Slack"),
+        ("calendly", "Calendly"),
     ]
 
     STATUS_CHOICES = [
@@ -80,6 +85,13 @@ class CompanyIntegration(models.Model):
     slack_signing_secret_enc = models.BinaryField(null=True, blank=True)
     # User OAuth Token (xoxp-...) — for posting as the user (not the bot)
     slack_user_token_enc = models.BinaryField(null=True, blank=True)
+
+    # Calendly-specific
+    calendly_organization_uri = models.CharField(max_length=500, blank=True)
+    calendly_user_uri = models.CharField(max_length=500, blank=True)
+    # Per-company Calendly OAuth app credentials (stored encrypted)
+    calendly_client_id_enc = models.BinaryField(null=True, blank=True)
+    calendly_client_secret_enc = models.BinaryField(null=True, blank=True)
 
     # Audit
     connected_by = models.ForeignKey(
