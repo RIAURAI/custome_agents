@@ -11,6 +11,12 @@ from django.conf import settings
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
+from integrations.models import UserIntegration
+from integrations.slack_utils import (
+    get_valid_slack_token,
+    get_valid_slack_app_token,
+    get_valid_slack_signing_secret,
+)
 from integrations.models import CompanyIntegration
 from integrations.slack_utils import get_valid_slack_token
 from .models import SlackMessage, AutoReplyRule
@@ -230,19 +236,34 @@ def create_slack_app():
 
 
 def run_bot():
-    """Start the Socket Mode bot (blocking). Called from thread or management command."""
-    app_token = settings.SLACK_APP_TOKEN
+    """
+    Start the Socket Mode bot (blocking).
+    Reads app token from the first connected user's DB record — fully dynamic,
+    no hardcoded settings required.
+    """
+    integration = UserIntegration.objects.filter(service="slack").first()
+    if not integration:
+        raise RuntimeError(
+            "No Slack workspace connected yet. "
+            "Go to Connections and add your Bot Token + App Token first."
+        )
+
+    app_token = get_valid_slack_app_token(integration)
+    if not app_token:
+        # Fallback to settings for backwards compatibility
+        app_token = getattr(settings, "SLACK_APP_TOKEN", "")
     if not app_token:
         raise RuntimeError(
-            "SLACK_APP_TOKEN not set in .env. "
-            "Get it from Slack App > Basic Information > App-Level Tokens."
+            "No App Token (xapp-…) found. "
+            "Enter it in the Connections page under 'App Token (Socket Mode)'."
         )
 
     app = create_slack_app()
     handler = SocketModeHandler(app, app_token)
 
     logger.info("🚀 Slack AI Bot running (Socket Mode — WebSocket)")
-    logger.info("   ✓ Channels + DMs handled automatically")
+    logger.info(f"   ✓ Workspace: {integration.slack_team_name or integration.slack_team_id}")
+    logger.info("   ✓ Channels + DMs + threads handled automatically")
     logger.info("   ✓ AI classifies + replies to every message")
     logger.info("   ✓ History at /slack/history/")
 

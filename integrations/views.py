@@ -5,7 +5,11 @@ from functools import wraps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_POST
+
+import requests as http_requests
 
 from .models import CompanyIntegration
 from .utils import (
@@ -194,3 +198,86 @@ def slack_disconnect(request):
     log_activity(request, "integration_disconnected", "slack")
     messages.info(request, "Slack account disconnected.")
     return redirect("integrations:connect")
+
+
+# ── Slack Manual Connect (dynamic credentials per user) ───────────────────────
+
+@login_required
+@require_POST
+def slack_manual_connect(request):
+    """
+    Accept a Bot Token (and optional App Token) entered by the user,
+    validate them against Slack's auth.test API, then encrypt and save
+    per-user.  Returns JSON so the page can update without a full reload.
+    """
+    bot_token = request.POST.get("bot_token", "").strip()
+    app_token = request.POST.get("app_token", "").strip()
+
+    if not bot_token:
+        return JsonResponse({"ok": False, "error": "Bot token is required."}, status=400)
+
+    # Basic format check — bot tokens start with xoxb-
+    if not bot_token.startswith("xoxb-"):
+        return JsonResponse(
+            {"ok": False, "error": "Invalid bot token format. Bot tokens must start with xoxb-"},
+            status=400,
+        )
+
+    if app_token and not app_token.startswith("xapp-"):
+        return JsonResponse(
+            {"ok": False, "error": "Invalid app token format. App tokens must start with xapp-"},
+            status=400,
+        )
+
+    signing_secret = request.POST.get("signing_secret", "").strip()
+    # Signing secret is a 32-char hex string — no specific prefix, just validate length
+    if signing_secret and len(signing_secret) < 16:
+        return JsonResponse(
+            {"ok": False, "error": "Signing secret looks too short. Copy it exactly from Basic Information."},
+            status=400,
+        )
+
+    # Validate bot token with Slack
+    try:
+        resp = http_requests.post(
+            "https://slack.com/api/auth.test",
+            headers={"Authorization": f"Bearer {bot_token}"},
+            timeout=10,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as exc:
+        return JsonResponse({"ok": False, "error": f"Could not reach Slack API: {exc}"}, status=502)
+
+    if not data.get("ok"):
+        slack_err = data.get("error", "unknown")
+        friendly = {
+            "invalid_auth": "The bot token is invalid. Please check and try again.",
+            "account_inactive": "This Slack account is inactive.",
+            "token_revoked": "This token has been revoked.",
+            "not_allowed_token_type": "Wrong token type — please use a Bot Token (xoxb-…).",
+        }.get(slack_err, f"Slack rejected the token: {slack_err}")
+        return JsonResponse({"ok": False, "error": friendly}, status=400)
+
+    # Persist encrypted credentials (unique per user)
+    integration, _ = UserIntegration.objects.get_or_create(
+        user=request.user, service="slack"
+    )
+    integration.access_token_enc = encrypt_token(bot_token)
+    integration.slack_team_id = data.get("team_id", "")
+    integration.slack_team_name = data.get("team", "")
+    integration.slack_user_id = data.get("user_id", "")
+    integration.slack_bot_user_id = data.get("bot_id", "")
+    if app_token:
+        integration.slack_app_token_enc = encrypt_token(app_token)
+    if signing_secret:
+        integration.slack_signing_secret_enc = encrypt_token(signing_secret)
+    integration.save()
+
+    return JsonResponse({
+        "ok": True,
+        "team_name": data.get("team", ""),
+        "team_id": data.get("team_id", ""),
+        "user_id": data.get("user_id", ""),
+        "connected_at": integration.connected_at.strftime("%b %-d, %Y"),
+    })

@@ -71,9 +71,23 @@ def slack_api_post(token: str, method: str, json_body: dict) -> dict:
 
 def get_valid_slack_token(integration) -> str | None:
     """
-    Return the decrypted Slack access token for the given UserIntegration.
+    Return the decrypted Slack bot access token for the given UserIntegration.
     Slack bot tokens don't expire, so no refresh logic needed.
     """
     if not integration.access_token_enc:
         return None
     return decrypt_token(integration.access_token_enc)
+
+
+def get_valid_slack_app_token(integration) -> str | None:
+    """Return the decrypted Slack app-level token (xapp-…) if stored."""
+    if not integration.slack_app_token_enc:
+        return None
+    return decrypt_token(integration.slack_app_token_enc)
+
+
+def get_valid_slack_signing_secret(integration) -> str | None:
+    """Return the decrypted Slack signing secret for webhook verification."""
+    if not integration.slack_signing_secret_enc:
+        return None
+    return decrypt_token(integration.slack_signing_secret_enc)

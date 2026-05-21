@@ -13,6 +13,8 @@ from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from integrations.models import UserIntegration
+from integrations.slack_utils import get_valid_slack_token, get_valid_slack_signing_secret
 from integrations.models import CompanyIntegration
 from integrations.utils import get_company_slack_token, get_company_integration
 from integrations.slack_utils import get_valid_slack_token
@@ -40,9 +42,32 @@ def _get_slack_token(request):
     return token
 
 
-def _verify_slack_signature(request):
-    """Verify the request is genuinely from Slack using signing secret."""
-    signing_secret = django_settings.SLACK_SIGNING_SECRET
+def _verify_slack_signature(request, team_id: str = "") -> bool:
+    """
+    Verify the request is genuinely from Slack using the per-user signing secret.
+    Falls back to settings.SLACK_SIGNING_SECRET if no per-user secret is stored.
+    """
+    # Try to find signing secret from the matching user's integration record
+    signing_secret = ""
+    if team_id:
+        integration = UserIntegration.objects.filter(
+            service="slack", slack_team_id=team_id
+        ).first()
+        if integration:
+            signing_secret = get_valid_slack_signing_secret(integration) or ""
+
+    # Fallback: any connected Slack integration that has a signing secret
+    if not signing_secret:
+        for integ in UserIntegration.objects.filter(service="slack"):
+            s = get_valid_slack_signing_secret(integ)
+            if s:
+                signing_secret = s
+                break
+
+    # Final fallback: global settings (backwards compat)
+    if not signing_secret:
+        signing_secret = django_settings.SLACK_SIGNING_SECRET
+
     if not signing_secret:
         return False
 
@@ -88,15 +113,15 @@ def slack_events_webhook(request):
     if payload.get("type") == "url_verification":
         return JsonResponse({"challenge": payload.get("challenge", "")})
 
-    # Verify request signature
-    if not _verify_slack_signature(request):
+    # Verify request signature (pass team_id for per-user secret lookup)
+    team_id = payload.get("team_id", "")
+    if not _verify_slack_signature(request, team_id=team_id):
         logger.warning("Slack event with invalid signature rejected.")
         return JsonResponse({"error": "Invalid signature"}, status=403)
 
     # Handle event callbacks
     if payload.get("type") == "event_callback":
         event = payload.get("event", {})
-        team_id = payload.get("team_id", "")
         try:
             _handle_slack_event(event, team_id)
         except Exception as e:
@@ -270,8 +295,23 @@ def _clean_slack_text(text, user_cache, token, get_user_name_fn):
 
 @platform_access_required("slack")
 def channel_messages_view(request, channel_id):
-    """Show messages from a specific channel with tracking."""
+    """
+    Show messages from a specific Slack channel.
+
+    Steps:
+      1. Get a valid Slack token for the logged-in user.
+      2. Fetch the last 50 raw messages from the Slack API.
+      3. Filter out non-message events (bot subtypes, etc.).
+      4. Resolve each sender's display name (with a local cache to avoid repeated API calls).
+      5. Convert the raw Unix timestamp to a human-readable format.
+      6. Clean mrkdwn / special tokens from the message text.
+      7. If the cleaned text is empty, fall back to extracting plain text from Slack Block Kit blocks.
+      8. Skip messages that still have no displayable text.
+      9. Render the processed message list to the template.
+    """
     import datetime
+
+    # Step 1 – Retrieve a valid Slack OAuth token; redirect to connect page if missing.
     token = _get_slack_token(request)
     if not token:
         return redirect("integrations:connect")
@@ -281,24 +321,34 @@ def channel_messages_view(request, channel_id):
     error = None
 
     try:
+        # Step 2 – Fetch the latest 50 messages from the requested channel.
         raw_messages = fetch_messages(token, channel_id, limit=50)
+
+        # Local cache: { slack_user_id -> display_name } to avoid redundant API calls.
         user_cache = {}
+
         for msg in raw_messages:
+            # Step 3 – Skip anything that isn't a plain user message.
             if msg.get("type") != "message" or msg.get("subtype"):
                 continue
+
+            # Step 4 – Resolve sender display name.
             user_id = msg.get("user", "")
             if user_id not in user_cache:
                 user_cache[user_id] = get_user_name(token, user_id)
             msg["sender_name"] = user_cache[user_id]
-            # Format timestamp
+
+            # Step 5 – Format the Unix timestamp into a readable string.
             try:
                 ts_float = float(msg.get("ts", 0))
                 msg["ts_display"] = datetime.datetime.fromtimestamp(ts_float).strftime("%b %d, %H:%M")
             except Exception:
                 msg["ts_display"] = msg.get("ts", "")
-            # Clean text
+
+            # Step 6 – Convert Slack mrkdwn / mention tokens to plain text.
             clean = _clean_slack_text(msg.get("text", ""), user_cache, token, get_user_name)
-            # If text is empty, try to extract plain text from blocks
+
+            # Step 7 – If mrkdwn text was empty, extract plain text from Block Kit blocks.
             if not clean and msg.get("blocks"):
                 parts = []
                 for block in msg["blocks"]:
@@ -312,14 +362,19 @@ def channel_messages_view(request, channel_id):
                                     user_cache[uid] = get_user_name(token, uid)
                                 parts.append("@" + user_cache[uid])
                 clean = " ".join(parts).strip()
+
             msg["text"] = clean
-            # Skip messages with no displayable text
+
+            # Step 8 – Drop messages that have no displayable text after all processing.
             if not msg["text"]:
                 continue
+
             msgs.append(msg)
+
     except Exception as e:
         error = str(e)
 
+    # Step 9 – Render the processed messages to the template.
     return render(request, "slack_hub/messages.html", {
         "messages": msgs,
         "channel_id": channel_id,
