@@ -16,6 +16,7 @@ from integrations.slack_utils import (
     get_valid_slack_token,
     get_valid_slack_app_token,
     get_valid_slack_signing_secret,
+    get_valid_slack_user_token,
 )
 from .models import SlackMessage, AutoReplyRule
 from .ai_service import classify_message, generate_reply
@@ -150,14 +151,30 @@ def _process_message(event: dict, say, client):
     if should_auto_send and reply_text:
         try:
             if is_dm:
-                say(text=reply_text)
+                # Try to reply as the user (xoxp- token) — message appears as Ashish
+                user_token = get_valid_slack_user_token(integration)
+                if user_token:
+                    # Open a DM between Ashish and the sender (not bot<->sender)
+                    from slack_sdk import WebClient
+                    user_client = WebClient(token=user_token)
+                    dm_open = user_client.conversations_open(users=[user_id])
+                    user_dm_channel = dm_open["channel"]["id"]
+                    user_client.chat_postMessage(
+                        channel=user_dm_channel,
+                        text=reply_text,
+                    )
+                    logger.info(f"✅ Sent DM reply AS USER in {channel_display}")
+                else:
+                    # Fallback: reply as bot
+                    say(text=reply_text)
+                    logger.info(f"✅ Sent DM reply as bot in {channel_display}")
             else:
                 say(text=reply_text, thread_ts=ts)
+                logger.info(f"✅ Sent channel reply in {channel_display}")
 
             msg.is_auto_replied = True
             msg.reply_sent_at = datetime.now(timezone.utc)
             msg.save()
-            logger.info(f"✅ Sent auto-reply in {channel_display}")
         except Exception as e:
             logger.error(f"Send reply failed: {e}")
             msg.save()
@@ -177,14 +194,10 @@ def create_slack_app():
 
     app = App(token=token)
 
-    # ── Handler: all message types ──────────────────────────────────────────
+    # ── Single handler for ALL messages (channels + groups + DMs) ───────────
     @app.event("message")
     def on_message(event, say, client):
-        _process_message(event, say, client)
-
-    # ── Handler: DMs specifically (message subtype for im) ───────────────────
-    @app.event({"type": "message", "channel_type": "im"})
-    def on_dm(event, say, client):
+        logger.info(f"📩 Event received: type={event.get('channel_type','?')} channel={event.get('channel','?')}")
         _process_message(event, say, client)
 
     # ── Handler: @mentions — always reply ───────────────────────────────────
