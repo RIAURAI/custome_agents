@@ -14,12 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from integrations.models import UserIntegration
-from integrations.slack_utils import get_valid_slack_token, get_valid_slack_signing_secret
-from integrations.models import CompanyIntegration
-from integrations.utils import get_company_slack_token, get_company_integration
 from integrations.slack_utils import get_valid_slack_token
-
-from companies.middleware import log_activity, platform_access_required
 
 from .models import SlackMessage, AutoReplyRule
 from .slack_service import (
@@ -34,47 +29,23 @@ logger = logging.getLogger(__name__)
 
 
 def _get_slack_token(request):
-    """Get valid Slack token for the current company or user, or return None with message."""
-    token = get_company_slack_token(request)
-    if not token:
-        # Fallback: check UserIntegration for users without a company
-        user_integ = UserIntegration.objects.filter(
-            user=request.user, service="slack"
-        ).first()
-        if user_integ:
-            token = get_valid_slack_token(user_integ)
-    if not token:
+    """Get valid Slack token or return None with message."""
+    integration = UserIntegration.objects.filter(
+        user=request.user, service="slack"
+    ).first()
+    if not integration:
         messages.warning(request, "Please connect your Slack account first.")
+        return None
+    token = get_valid_slack_token(integration)
+    if not token:
+        messages.error(request, "Slack token invalid. Please reconnect.")
         return None
     return token
 
 
-def _verify_slack_signature(request, team_id: str = "") -> bool:
-    """
-    Verify the request is genuinely from Slack using the per-user signing secret.
-    Falls back to settings.SLACK_SIGNING_SECRET if no per-user secret is stored.
-    """
-    # Try to find signing secret from the matching user's integration record
-    signing_secret = ""
-    if team_id:
-        integration = UserIntegration.objects.filter(
-            service="slack", slack_team_id=team_id
-        ).first()
-        if integration:
-            signing_secret = get_valid_slack_signing_secret(integration) or ""
-
-    # Fallback: any connected Slack integration that has a signing secret
-    if not signing_secret:
-        for integ in UserIntegration.objects.filter(service="slack"):
-            s = get_valid_slack_signing_secret(integ)
-            if s:
-                signing_secret = s
-                break
-
-    # Final fallback: global settings (backwards compat)
-    if not signing_secret:
-        signing_secret = django_settings.SLACK_SIGNING_SECRET
-
+def _verify_slack_signature(request):
+    """Verify the request is genuinely from Slack using signing secret."""
+    signing_secret = django_settings.SLACK_SIGNING_SECRET
     if not signing_secret:
         return False
 
@@ -120,15 +91,15 @@ def slack_events_webhook(request):
     if payload.get("type") == "url_verification":
         return JsonResponse({"challenge": payload.get("challenge", "")})
 
-    # Verify request signature (pass team_id for per-user secret lookup)
-    team_id = payload.get("team_id", "")
-    if not _verify_slack_signature(request, team_id=team_id):
+    # Verify request signature
+    if not _verify_slack_signature(request):
         logger.warning("Slack event with invalid signature rejected.")
         return JsonResponse({"error": "Invalid signature"}, status=403)
 
     # Handle event callbacks
     if payload.get("type") == "event_callback":
         event = payload.get("event", {})
+        team_id = payload.get("team_id", "")
         try:
             _handle_slack_event(event, team_id)
         except Exception as e:
@@ -163,12 +134,12 @@ def _handle_slack_event(event: dict, team_id: str):
     if not text or not channel_id:
         return
 
-    # Find company with this Slack workspace connected
-    integration = CompanyIntegration.objects.filter(
+    # Find user with this Slack workspace connected
+    integration = UserIntegration.objects.filter(
         service="slack", slack_team_id=team_id
     ).first()
     if not integration:
-        integration = CompanyIntegration.objects.filter(service="slack").first()
+        integration = UserIntegration.objects.filter(service="slack").first()
     if not integration:
         return
 
@@ -178,12 +149,12 @@ def _handle_slack_event(event: dict, team_id: str):
 
     # Check auto-reply rules for this channel
     rule = AutoReplyRule.objects.filter(
-        company=integration.company, channel_id=channel_id, is_enabled=True
+        user=integration.user, channel_id=channel_id, is_enabled=True
     ).first()
     if not rule:
         # Check for global rule (channel_id="*" means all channels)
         rule = AutoReplyRule.objects.filter(
-            company=integration.company, channel_id="*", is_enabled=True
+            user=integration.user, channel_id="*", is_enabled=True
         ).first()
     if not rule:
         return
@@ -215,7 +186,7 @@ def _handle_slack_event(event: dict, team_id: str):
 
     # Save to DB
     msg, _ = SlackMessage.objects.get_or_create(
-        company=integration.company,
+        user=integration.user,
         channel_id=channel_id,
         timestamp=ts,
         defaults={
@@ -246,18 +217,15 @@ def _handle_slack_event(event: dict, team_id: str):
 # ── Page Views ────────────────────────────────────────────────────────────────
 
 
-@platform_access_required("slack")
+@login_required
 def channels_view(request):
     """List all Slack channels."""
     token = _get_slack_token(request)
     channels = []
     error = None
-    slack_connected = get_company_integration(request, "slack") is not None
-    # Fallback: check UserIntegration
-    if not slack_connected:
-        slack_connected = UserIntegration.objects.filter(
-            user=request.user, service="slack"
-        ).exclude(access_token_enc=None).exists()
+    slack_connected = UserIntegration.objects.filter(
+        user=request.user, service="slack"
+    ).exists()
 
     if token:
         try:
@@ -305,7 +273,7 @@ def _clean_slack_text(text, user_cache, token, get_user_name_fn):
     return text
 
 
-@platform_access_required("slack")
+@login_required
 def channel_messages_view(request, channel_id):
     """
     Show messages from a specific Slack channel.
@@ -395,22 +363,40 @@ def channel_messages_view(request, channel_id):
     })
 
 
-@platform_access_required("slack")
+@login_required
 def track_view(request):
     """Dashboard of all tracked/analyzed messages."""
     company = getattr(request, "company", None)
-    tracked = SlackMessage.objects.filter(company=company)[:50] if company else []
-    return render(request, "slack_hub/track.html", {"tracked_messages": tracked})
+    if company:
+        tracked = SlackMessage.objects.filter(company=company).order_by("-tracked_at")[:100]
+    else:
+        tracked = SlackMessage.objects.filter(company__members=request.user).order_by("-tracked_at")[:100]
+
+    tracked_list = list(tracked)
+    total = len(tracked_list)
+    replied = sum(1 for m in tracked_list if m.is_auto_replied)
+    pending = sum(1 for m in tracked_list if m.ai_reply and not m.is_auto_replied)
+    dm_count = sum(1 for m in tracked_list if m.channel_name.startswith("DM"))
+    channel_count = total - dm_count
+
+    stats = {
+        "total": total,
+        "analyzed": sum(1 for m in tracked_list if m.ai_classification),
+        "replied": replied,
+        "pending": pending,
+        "dm_count": dm_count,
+        "channel_count": channel_count,
+    }
+
+    return render(request, "slack_hub/track.html", {
+        "tracked_messages": tracked_list,
+        "stats": stats,
+    })
 
 
-@platform_access_required("slack", "manage")
+@login_required
 def auto_reply_settings_view(request):
     """Configure auto-reply rules per channel."""
-    company = getattr(request, "company", None)
-    if not company:
-        messages.warning(request, "You need to be part of a company to configure auto-reply settings.")
-        return redirect("slack_hub:channels")
-
     token = _get_slack_token(request)
     channels = []
     if token:
@@ -419,7 +405,7 @@ def auto_reply_settings_view(request):
         except Exception:
             pass
 
-    rules = {r.channel_id: r for r in AutoReplyRule.objects.filter(company=company)}
+    rules = {r.channel_id: r for r in AutoReplyRule.objects.filter(user=request.user)}
 
     if request.method == "POST":
         channel_id = request.POST.get("channel_id", "").strip()
@@ -431,7 +417,7 @@ def auto_reply_settings_view(request):
 
         if channel_id:
             rule, _ = AutoReplyRule.objects.get_or_create(
-                company=company, channel_id=channel_id
+                user=request.user, channel_id=channel_id
             )
             rule.channel_name = channel_name
             rule.is_enabled = is_enabled
@@ -448,11 +434,10 @@ def auto_reply_settings_view(request):
     })
 
 
-@platform_access_required("slack")
+@login_required
 def auto_reply_history_view(request):
     """Show all auto-replied and pending messages."""
-    company = getattr(request, "company", None)
-    tracked = SlackMessage.objects.filter(company=company).order_by("-tracked_at")[:100] if company else SlackMessage.objects.none()
+    tracked = SlackMessage.objects.filter(user=request.user).order_by("-tracked_at")[:100]
     stats = {
         "total": tracked.count(),
         "replied": sum(1 for m in tracked if m.is_auto_replied),
@@ -464,7 +449,7 @@ def auto_reply_history_view(request):
     })
 
 
-@platform_access_required("slack", "reply")
+@login_required
 @require_POST
 def ai_analyze_view(request):
     """
@@ -488,11 +473,8 @@ def ai_analyze_view(request):
         return JsonResponse({"error": str(e)}, status=500)
 
     # Store tracked message
-    company = getattr(request, "company", None)
-    if not company:
-        return JsonResponse({"error": "No company associated with your account."}, status=403)
     msg, created = SlackMessage.objects.get_or_create(
-        company=company,
+        user=request.user,
         channel_id=payload.get("channel_id", ""),
         timestamp=payload.get("ts", ""),
         defaults={
@@ -509,8 +491,6 @@ def ai_analyze_view(request):
         msg.ai_summary = result["summary"]
         msg.save()
 
-    log_activity(request, "ai_summarize", "slack", f"Classified message in {payload.get('channel_name', '')}")
-
     return JsonResponse({
         "classification": result["classification"],
         "summary": result["summary"],
@@ -518,7 +498,7 @@ def ai_analyze_view(request):
     })
 
 
-@platform_access_required("slack", "reply")
+@login_required
 @require_POST
 def ai_reply_view(request):
     """
@@ -540,11 +520,10 @@ def ai_reply_view(request):
         return JsonResponse({"error": "No text provided."}, status=400)
 
     # Check for custom instructions from auto-reply rule
-    company = getattr(request, "company", None)
     custom_instructions = ""
     rule = AutoReplyRule.objects.filter(
-        company=company, channel_id=channel_id
-    ).first() if company else None
+        user=request.user, channel_id=channel_id
+    ).first()
     if rule:
         custom_instructions = rule.custom_instructions
 
@@ -561,16 +540,14 @@ def ai_reply_view(request):
             try:
                 send_message(token, channel_id, reply_text, thread_ts=ts)
                 sent = True
-                log_activity(request, "ai_reply", "slack", f"Sent AI reply in {channel_id}")
                 # Update tracked message
-                if company:
-                    SlackMessage.objects.filter(
-                        company=company, channel_id=channel_id, timestamp=ts
-                    ).update(
-                        ai_reply=reply_text,
-                        is_auto_replied=True,
-                        reply_sent_at=datetime.now(timezone.utc),
-                    )
+                SlackMessage.objects.filter(
+                    user=request.user, channel_id=channel_id, timestamp=ts
+                ).update(
+                    ai_reply=reply_text,
+                    is_auto_replied=True,
+                    reply_sent_at=datetime.now(timezone.utc),
+                )
             except Exception as e:
                 return JsonResponse({"error": f"Reply generated but send failed: {e}", "reply": reply_text}, status=500)
         else:
@@ -582,7 +559,7 @@ def ai_reply_view(request):
     })
 
 
-@platform_access_required("slack")
+@login_required
 @require_POST
 def ai_summarize_channel_view(request):
     """
@@ -620,7 +597,6 @@ def ai_summarize_channel_view(request):
             })
 
         summary = summarize_channel(enriched)
-        log_activity(request, "ai_summarize", "slack", f"Summarized channel {channel_id}")
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 

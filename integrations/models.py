@@ -28,6 +28,8 @@ class UserIntegration(models.Model):
     slack_app_token_enc = models.BinaryField(null=True, blank=True)
     # Signing Secret — used to verify incoming Slack webhook requests per user
     slack_signing_secret_enc = models.BinaryField(null=True, blank=True)
+    # User OAuth Token (xoxp-...) — for posting as the user (not the bot)
+    slack_user_token_enc = models.BinaryField(null=True, blank=True)
     connected_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -76,6 +78,8 @@ class CompanyIntegration(models.Model):
     slack_bot_user_id = models.CharField(max_length=100, blank=True)
     slack_app_token_enc = models.BinaryField(null=True, blank=True)
     slack_signing_secret_enc = models.BinaryField(null=True, blank=True)
+    # User OAuth Token (xoxp-...) — for posting as the user (not the bot)
+    slack_user_token_enc = models.BinaryField(null=True, blank=True)
 
     # Audit
     connected_by = models.ForeignKey(

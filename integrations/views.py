@@ -249,6 +249,13 @@ def slack_manual_connect(request):
             status=400,
         )
 
+    user_token = request.POST.get("user_token", "").strip()
+    if user_token and not user_token.startswith("xoxp-"):
+        return JsonResponse(
+            {"ok": False, "error": "Invalid user token format. User OAuth tokens start with xoxp-"},
+            status=400,
+        )
+
     # Validate bot token with Slack
     try:
         resp = http_requests.post(
@@ -286,6 +293,8 @@ def slack_manual_connect(request):
         user_integ.slack_app_token_enc = encrypt_token(app_token)
     if signing_secret:
         user_integ.slack_signing_secret_enc = encrypt_token(signing_secret)
+    if user_token:
+        user_integ.slack_user_token_enc = encrypt_token(user_token)
     user_integ.save()
 
     # Save to CompanyIntegration (company-level — used by Slack pages & bot)
@@ -303,6 +312,8 @@ def slack_manual_connect(request):
             company_integ.slack_app_token_enc = encrypt_token(app_token)
         if signing_secret:
             company_integ.slack_signing_secret_enc = encrypt_token(signing_secret)
+        if user_token:
+            company_integ.slack_user_token_enc = encrypt_token(user_token)
         company_integ.connected_by = request.user
         company_integ.status = "active"
         company_integ.save()

@@ -80,30 +80,40 @@
 
     <!-- Stats row -->
     <div class="row g-3 mb-4">
-      <div class="col-6 col-md-3">
+      <div class="col-6 col-md-2">
         <div class="stat-card">
-          <div class="stat-num text-primary">{{ tracked_messages|length }}</div>
+          <div class="stat-num text-primary">{{ stats.total }}</div>
           <div class="stat-label">Total Messages</div>
         </div>
       </div>
-      <div class="col-6 col-md-3">
+      <div class="col-6 col-md-2">
         <div class="stat-card">
-          <div class="stat-num text-success">{{ tracked_messages|length }}</div>
+          <div class="stat-num text-success">{{ stats.analyzed }}</div>
           <div class="stat-label">AI Analyzed</div>
         </div>
       </div>
-      <div class="col-6 col-md-3">
+      <div class="col-6 col-md-2">
         <div class="stat-card">
-          {% with replied=tracked_messages|length %}
-          <div class="stat-num" style="color:#6366f1;">{{ tracked_messages|dictsort:"is_auto_replied"|length }}</div>
-          {% endwith %}
+          <div class="stat-num" style="color:#6366f1;">{{ stats.replied }}</div>
           <div class="stat-label">Auto-Replied</div>
         </div>
       </div>
-      <div class="col-6 col-md-3">
+      <div class="col-6 col-md-2">
         <div class="stat-card">
-          <div class="stat-num text-warning">—</div>
+          <div class="stat-num text-warning">{{ stats.pending }}</div>
           <div class="stat-label">Pending</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="stat-card">
+          <div class="stat-num" style="color:#8b5cf6;">{{ stats.dm_count }}</div>
+          <div class="stat-label">DMs</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="stat-card">
+          <div class="stat-num" style="color:#0ea5e9;">{{ stats.channel_count }}</div>
+          <div class="stat-label">Channel Msgs</div>
         </div>
       </div>
     </div>
@@ -142,9 +152,15 @@
               </td>
               <!-- Channel -->
               <td style="padding:.85rem 1rem;vertical-align:top;">
+                {% if "DM" in msg.channel_name %}
+                <span class="badge" style="background:#7c3aed;font-size:.75rem;">
+                  <i class="bi bi-chat-dots me-1"></i>{{ msg.channel_name }}
+                </span>
+                {% else %}
                 <span class="badge" style="background:#1e1b4b;font-size:.75rem;">
                   <i class="bi bi-hash me-1"></i>{{ msg.channel_name }}
                 </span>
+                {% endif %}
               </td>
               <!-- Incoming message -->
               <td style="padding:.85rem 1rem;vertical-align:top;max-width:260px;">
@@ -195,7 +211,7 @@
                 {% elif msg.ai_reply %}
                 <span class="badge bg-warning text-dark"><i class="bi bi-pencil me-1"></i>Draft</span>
                 {% else %}
-                <span class="badge bg-secondary">Pending</span>
+                <span class="badge" style="background:#f1f5f9;color:#6b7280;">Tracked</span>
                 {% endif %}
               </td>
               <!-- Time -->

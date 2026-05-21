@@ -130,6 +130,28 @@
 
           </div><!-- /row -->
 
+          <!-- User OAuth Token — for replying as the user -->
+          <div class="mt-3 p-3" style="background:#f5f3ff;border-radius:12px;border:1px solid #ddd6fe;">
+            <label for="slackUserToken" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
+              <i class="bi bi-person-badge-fill me-1" style="color:#8b5cf6;"></i>User OAuth Token
+              <span class="text-muted fw-normal" style="font-size:.75rem;">(reply as YOU in DMs)</span>
+            </label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="slackUserToken" name="user_token"
+                     placeholder="xoxp-xxxxxxxxxxxx-xxxxxxxxxxxx-xxxxxxxxxxxxxxxx"
+                     autocomplete="off"
+                     style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
+              <button class="btn btn-outline-secondary" type="button" id="toggleUserToken"
+                      title="Show / hide" style="border-radius:0 10px 10px 0;">
+                <i class="bi bi-eye" id="eyeIconUser"></i>
+              </button>
+            </div>
+            <div class="form-text" style="font-size:.73rem;">
+              <strong>OAuth &amp; Permissions → User OAuth Token</strong> — Bot replies as your name in DMs (not as the app).
+              Add user scopes: <code>chat:write</code>, <code>im:history</code>, <code>im:read</code> → reinstall app.
+            </div>
+          </div>
+
           <!-- What this enables -->
           <div class="mt-3 mb-3 p-3" style="background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
             <div class="fw-semibold mb-1" style="font-size:.78rem;color:#15803d;">
@@ -210,6 +232,7 @@
   makeToggle("toggleBotToken",       "slackBotToken",       "eyeIconBot");
   makeToggle("toggleSigningSecret",  "slackSigningSecret",  "eyeIconSecret");
   makeToggle("toggleAppToken",       "slackAppToken",       "eyeIconApp");
+  makeToggle("toggleUserToken",      "slackUserToken",      "eyeIconUser");
 
   const form    = document.getElementById("slackManualConnectForm");
   const alertEl = document.getElementById("slackConnectAlert");

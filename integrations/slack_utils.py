@@ -91,3 +91,10 @@ def get_valid_slack_signing_secret(integration) -> str | None:
     if not integration.slack_signing_secret_enc:
         return None
     return decrypt_token(integration.slack_signing_secret_enc)
+
+
+def get_valid_slack_user_token(integration) -> str | None:
+    """Return the decrypted Slack user OAuth token (xoxp-…) for posting as the user."""
+    if not getattr(integration, "slack_user_token_enc", None):
+        return None
+    return decrypt_token(integration.slack_user_token_enc)
