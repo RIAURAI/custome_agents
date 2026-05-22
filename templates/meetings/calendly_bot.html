@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+{% block title %}Calendly Bot — WorkHub{% endblock %}
+{% block page_title %}Calendly Bot{% endblock %}
+
+{% block extra_head %}
+<style>
+  .clb-page { max-width: 1200px; margin: 0 auto; }
+  .clb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 991px) { .clb-grid { grid-template-columns: 1fr; } }
+
+  /* Cards */
+  .clb-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .clb-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .clb-card-header h6 { margin: 0; font-weight: 700; color: #1e293b; }
+  .clb-card-body { padding: 16px 20px; }
+
+  /* Event list */
+  .clb-event {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f8fafc;
+  }
+  .clb-event:last-child { border-bottom: none; }
+  .clb-event-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #006bff;
+    flex-shrink: 0;
+  }
+  .clb-event-name { font-weight: 600; font-size: .85rem; color: #1e293b; }
+  .clb-event-time { font-size: .75rem; color: #64748b; }
+  .clb-event-badge {
+    font-size: .7rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: #dcfce7;
+    color: #166534;
+    font-weight: 500;
+  }
+
+  /* Event type pills */
+  .clb-etype {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: .82rem;
+    color: #475569;
+    margin: 4px;
+    background: #f8fafc;
+  }
+  .clb-etype-dur {
+    font-size: .7rem;
+    background: #eff6ff;
+    color: #006bff;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  /* Chat area */
+  .clb-chat { display: flex; flex-direction: column; height: 420px; }
+  .clb-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #f8fafc;
+  }
+  .clb-msg {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: .85rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+  }
+  .clb-msg--user {
+    align-self: flex-end;
+    background: #006bff;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .clb-msg--bot {
+    align-self: flex-start;
+    background: #fff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-bottom-left-radius: 4px;
+  }
+  .clb-msg--bot a { color: #006bff; text-decoration: underline; }
+  .clb-msg--error { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+  .clb-msg--typing { color: #94a3b8; font-style: italic; align-self: flex-start; }
+  .clb-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #f1f5f9;
+  }
+  .clb-input {
+    flex: 1;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: .85rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .clb-input:focus { border-color: #006bff; }
+  .clb-send {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: #006bff;
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .clb-send:hover { background: #0052cc; }
+  .clb-send:disabled { background: #94a3b8; cursor: not-allowed; }
+
+  /* Suggestions */
+  .clb-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 16px;
+    border-top: 1px solid #f1f5f9;
+  }
+  .clb-chip {
+    padding: 6px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    font-size: .75rem;
+    color: #475569;
+    cursor: pointer;
+    background: #fff;
+    transition: all .15s;
+  }
+  .clb-chip:hover { border-color: #006bff; color: #006bff; background: #eff6ff; }
+
+  /* User info header */
+  .clb-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .clb-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: #006bff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .clb-user-name { font-weight: 700; color: #1e293b; font-size: .9rem; }
+  .clb-user-email { font-size: .75rem; color: #64748b; }
+  .clb-user-tz { font-size: .7rem; color: #94a3b8; }
+
+  /* Not connected */
+  .clb-not-connected {
+    text-align: center;
+    padding: 80px 30px;
+    color: #64748b;
+  }
+  .clb-not-connected i { font-size: 3.5rem; color: #cbd5e1; display: block; margin-bottom: 16px; }
+
+  .clb-empty { text-align: center; padding: 30px; color: #94a3b8; font-size: .85rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="clb-page">
+
+  {% if not calendly_connected %}
+  <!-- Not Connected State -->
+  <div class="clb-card">
+    <div class="clb-not-connected">
+      <i class="bi bi-calendar-x"></i>
+      <h4 class="fw-bold" style="color:#1e293b;">Calendly Not Connected</h4>
+      <p class="mt-2">Connect your Calendly account to use the scheduling bot, view upcoming meetings, and manage your calendar.</p>
+      <a href="{% url 'integrations:connect' %}" class="btn btn-primary mt-3">
+        <i class="bi bi-plug me-2"></i>Connect Calendly
+      </a>
+    </div>
+  </div>
+  {% else %}
+
+  <!-- Connected: User Info Bar -->
+  {% if user_info %}
+  <div class="clb-card mb-4">
+    <div class="clb-user-info">
+      <div class="clb-avatar">
+        {% if user_info.name %}{{ user_info.name|first|upper }}{% else %}<i class="bi bi-person"></i>{% endif %}
+      </div>
+      <div>
+        <div class="clb-user-name">{{ user_info.name|default:"Calendly Account" }}</div>
+        <div class="clb-user-email">{{ user_info.email|default:"" }}</div>
+        {% if user_info.timezone %}<div class="clb-user-tz"><i class="bi bi-globe me-1"></i>{{ user_info.timezone }}</div>{% endif %}
+      </div>
+      <div class="ms-auto">
+        <span style="font-size:.75rem;background:#dcfce7;color:#166534;border-radius:20px;padding:4px 12px;font-weight:500;">
+          <i class="bi bi-check-circle-fill me-1"></i>Active
+        </span>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="alert alert-warning mb-4" style="border-radius:12px;font-size:.85rem;">
+    <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+  </div>
+  {% endif %}
+
+  <!-- Main Grid: Events + Bot Chat -->
+  <div class="clb-grid">
+
+    <!-- LEFT: Scheduled Events + Event Types -->
+    <div>
+      <!-- Upcoming Meetings -->
+      <div class="clb-card mb-4">
+        <div class="clb-card-header">
+          <i class="bi bi-calendar-check" style="color:#006bff;"></i>
+          <h6>Upcoming Meetings</h6>
+          <span class="ms-auto" style="font-size:.72rem;color:#64748b;">Next 7 days</span>
+        </div>
+        <div class="clb-card-body">
+          {% if scheduled_events %}
+            {% for ev in scheduled_events %}
+            <div class="clb-event">
+              <div class="clb-event-dot"></div>
+              <div class="flex-grow-1">
+                <div class="clb-event-name">{{ ev.name }}</div>
+                <div class="clb-event-time">
+                  {% if ev.start_time %}{{ ev.start_time|slice:":16"|cut:"T" }}{% endif %}
+                </div>
+              </div>
+              <span class="clb-event-badge">{{ ev.status|default:"active" }}</span>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="clb-empty">
+              <i class="bi bi-calendar2 d-block mb-2" style="font-size:1.5rem;"></i>
+              No upcoming meetings
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Event Types -->
+      <div class="clb-card">
+        <div class="clb-card-header">
+          <i class="bi bi-bookmark" style="color:#6366f1;"></i>
+          <h6>Meeting Types</h6>
+        </div>
+        <div class="clb-card-body">
+          {% if event_types %}
+            <div class="d-flex flex-wrap">
+              {% for et in event_types %}
+              <div class="clb-etype">
+                <i class="bi bi-calendar-plus"></i>
+                {{ et.name }}
+                <span class="clb-etype-dur">{{ et.duration }} min</span>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="clb-empty">
+              <i class="bi bi-bookmark-x d-block mb-2" style="font-size:1.5rem;"></i>
+              No event types found
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Bot Chat -->
+    <div>
+      <div class="clb-card">
+        <div class="clb-card-header">
+          <i class="bi bi-robot" style="color:#006bff;"></i>
+          <h6>Scheduling Assistant</h6>
+          <span class="ms-auto" style="font-size:.7rem;background:#dcfce7;color:#166534;border-radius:12px;padding:2px 8px;">Online</span>
+        </div>
+        <div class="clb-chat">
+          <div class="clb-messages" id="clbMessages">
+            <div class="clb-msg clb-msg--bot">
+              👋 Hi! I'm your Calendly scheduling assistant. I can help you:
+              <br>• Schedule meetings & create booking links
+              <br>• Check your availability
+              <br>• View upcoming events
+              <br>• Cancel meetings
+              <br><br>What would you like to do?
+            </div>
+          </div>
+          <div class="clb-suggestions" id="clbSuggestions">
+            <span class="clb-chip" data-msg="Schedule a meeting">📅 Schedule meeting</span>
+            <span class="clb-chip" data-msg="Show upcoming meetings">📋 Upcoming</span>
+            <span class="clb-chip" data-msg="Check availability this week">⏰ Availability</span>
+            <span class="clb-chip" data-msg="List my meeting types">🔖 Types</span>
+          </div>
+          <div class="clb-input-row">
+            <input type="text" class="clb-input" id="clbInput" placeholder="Ask me to schedule, check availability..." autocomplete="off" />
+            <button class="clb-send" id="clbSendBtn" title="Send"><i class="bi bi-send-fill"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if calendly_connected %}
+<script>
+(function() {
+  const messagesEl = document.getElementById('clbMessages');
+  const inputEl = document.getElementById('clbInput');
+  const sendBtn = document.getElementById('clbSendBtn');
+  let sending = false;
+
+  function addMessage(text, type) {
+    const div = document.createElement('div');
+    div.className = `clb-msg clb-msg--${type}`;
+    let html = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+      .replace(/\n/g, '<br>');
+    div.innerHTML = html;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function showTyping() {
+    const div = document.createElement('div');
+    div.className = 'clb-msg clb-msg--typing';
+    div.id = 'clbTyping';
+    div.textContent = 'Thinking...';
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('clbTyping');
+    if (el) el.remove();
+  }
+
+  async function sendMessage(text) {
+    if (!text.trim() || sending) return;
+    sending = true;
+    sendBtn.disabled = true;
+    inputEl.value = '';
+
+    addMessage(text, 'user');
+    showTyping();
+
+    try {
+      const resp = await fetch("{% url 'meetings:calendly_bot_send' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({ message: text }),
+      });
+      const data = await resp.json();
+      removeTyping();
+
+      if (data.calendly_connected === false) {
+        addMessage('Calendly is not connected. Please connect it in Settings → Integrations.', 'error');
+      } else if (data.error && !data.reply) {
+        addMessage('Something went wrong. Please try again.', 'error');
+      } else if (data.reply) {
+        addMessage(data.reply, 'bot');
+      } else {
+        addMessage("I can help with scheduling. Try asking me to schedule a meeting or check availability.", 'bot');
+      }
+    } catch (err) {
+      removeTyping();
+      addMessage('Network error. Please try again.', 'error');
+    }
+
+    sending = false;
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+
+  sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(inputEl.value);
+    }
+  });
+  document.querySelectorAll('.clb-chip').forEach(chip => {
+    chip.addEventListener('click', () => sendMessage(chip.dataset.msg));
+  });
+  inputEl.focus();
+})();
+</script>
+{% endif %}
+{% endblock %}
