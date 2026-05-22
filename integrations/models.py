@@ -8,6 +8,7 @@ class UserIntegration(models.Model):
 
     SERVICE_CHOICES = [
         ("microsoft", "Microsoft (Outlook + Teams)"),
+        ("google", "Google Workspace (Gmail + Calendar + Meet)"),
         ("slack", "Slack"),
         ("calendly", "Calendly"),
     ]
@@ -48,6 +49,7 @@ class CompanyIntegration(models.Model):
 
     SERVICE_CHOICES = [
         ("microsoft", "Microsoft (Outlook + Teams)"),
+        ("google", "Google Workspace (Gmail + Calendar + Meet)"),
         ("slack", "Slack"),
         ("calendly", "Calendly"),
     ]
@@ -85,6 +87,14 @@ class CompanyIntegration(models.Model):
     slack_signing_secret_enc = models.BinaryField(null=True, blank=True)
     # User OAuth Token (xoxp-...) — for posting as the user (not the bot)
     slack_user_token_enc = models.BinaryField(null=True, blank=True)
+
+    # Google Workspace-specific
+    google_account_name = models.CharField(max_length=255, blank=True)
+    google_account_email = models.CharField(max_length=255, blank=True)
+    google_project_id = models.CharField(max_length=255, blank=True)  # GCP Project ID
+    # Per-company Google OAuth app credentials (stored encrypted)
+    google_client_id_enc = models.BinaryField(null=True, blank=True)
+    google_client_secret_enc = models.BinaryField(null=True, blank=True)
 
     # Calendly-specific
     calendly_organization_uri = models.CharField(max_length=500, blank=True)
