@@ -36,6 +36,10 @@ def home(request):
                     "$orderby": "receivedDateTime desc",
                 })
                 recent_emails = email_data.get("value", [])
+                # Ensure 'from' key exists for template safety
+                for em in recent_emails:
+                    if "from" not in em:
+                        em["from"] = {"emailAddress": {"name": "Unknown", "address": ""}}
 
                 # Today's meetings
                 from datetime import datetime, timezone, timedelta

@@ -123,6 +123,18 @@ def graph_post(access_token: str, endpoint: str, json_body: dict) -> dict:
     return resp.json() if resp.content else {}
 
 
+def graph_patch(access_token: str, endpoint: str, json_body: dict) -> dict:
+    """Make an authenticated PATCH request to Microsoft Graph API."""
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+    url = f"https://graph.microsoft.com/v1.0{endpoint}"
+    resp = requests.patch(url, headers=headers, json=json_body, timeout=15)
+    resp.raise_for_status()
+    return resp.json() if resp.content else {}
+
+
 # ── Company integration helpers ───────────────────────────────────────────────
 
 def get_company_integration(request, service: str):

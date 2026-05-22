@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 
 from companies.middleware import log_activity, platform_access_required
-from integrations.utils import get_company_integration, get_valid_access_token, graph_get, graph_post
+from integrations.utils import get_company_integration, get_valid_access_token, graph_get, graph_patch, graph_post
 
 
 def _get_token_or_redirect(request):
@@ -32,6 +32,9 @@ def inbox(request):
                 "$orderby": "receivedDateTime desc",
             })
             emails = data.get("value", [])
+            for em in emails:
+                if "from" not in em:
+                    em["from"] = {"emailAddress": {"name": "Unknown", "address": ""}}
         except Exception as e:
             error = str(e)
     return render(request, "email_hub/inbox.html", {"emails": emails, "error": error, "ms_connected": ms_connected})
@@ -45,8 +48,8 @@ def email_detail(request, email_id):
     if token:
         try:
             email = graph_get(token, f"/me/messages/{email_id}")
-            # Mark as read
-            graph_post(token, f"/me/messages/{email_id}", {"isRead": True})
+            # Mark as read via PATCH
+            graph_patch(token, f"/me/messages/{email_id}", {"isRead": True})
             log_activity(request, "email_viewed", "microsoft", email.get("subject", "")[:200])
         except Exception as e:
             error = str(e)
