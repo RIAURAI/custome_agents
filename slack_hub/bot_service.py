@@ -20,6 +20,7 @@ from integrations.slack_utils import (
 )
 from .models import SlackMessage, AutoReplyRule
 from .ai_service import classify_message, generate_reply
+from .calendly_agent import CalendlyAgent
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,30 @@ def _get_channel_name(client, channel_id: str) -> str:
         return ch.get("name") or channel_id
     except Exception:
         return channel_id
+
+
+def _try_calendly_agent(company, message_text: str) -> str | None:
+    """
+    Try the Calendly agent on a message. Returns reply text if it handled
+    the message (scheduling action detected), or None to fall through.
+    """
+    try:
+        agent = CalendlyAgent(company)
+        result = agent.process_message(message_text)
+
+        # If Calendly isn't connected, fall through to standard AI
+        if result.get("calendly_available") is False:
+            return None
+
+        # If no action was detected (not a scheduling message), fall through
+        if not result.get("action"):
+            return None
+
+        # Calendly agent handled it — return the reply
+        return result.get("reply_text", "")
+    except Exception as e:
+        logger.error(f"[CalendlyAgent] Error: {e}")
+        return None
 
 
 def _process_message(event: dict, say, client):
@@ -123,12 +148,20 @@ def _process_message(event: dict, say, client):
     reply_text = ""
     if should_reply:
         custom_instructions = rule.custom_instructions if rule else ""
-        try:
-            reply_text = generate_reply(text, custom_instructions=custom_instructions)
-            logger.info(f"💬 Reply: {reply_text[:80]}...")
-        except Exception as e:
-            logger.error(f"AI reply error: {e}")
-            reply_text = ""
+
+        # ── Calendly Agent: try scheduling first (separate from Slack AI) ───
+        calendly_reply = _try_calendly_agent(integration.company, text)
+        if calendly_reply:
+            reply_text = calendly_reply
+            logger.info(f"📅 Calendly agent handled: {reply_text[:80]}...")
+        else:
+            # ── Standard AI reply (non-scheduling) ──────────────────────────
+            try:
+                reply_text = generate_reply(text, custom_instructions=custom_instructions)
+                logger.info(f"💬 Reply: {reply_text[:80]}...")
+            except Exception as e:
+                logger.error(f"AI reply error: {e}")
+                reply_text = ""
 
     # ── Save to database (ALWAYS track) ─────────────────────────────────────
     msg, _ = SlackMessage.objects.get_or_create(

@@ -113,12 +113,26 @@ def get_valid_calendly_token(integration) -> str | None:
     return result["access_token"]
 
 
-def calendly_api_get(access_token: str, endpoint: str) -> dict:
+def calendly_api_get(access_token: str, endpoint: str, params: dict | None = None) -> dict:
     """Authenticated GET request to Calendly API."""
     url = f"{CALENDLY_API_BASE_URL}{endpoint}"
     resp = requests.get(
         url,
         headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
+        params=params,
+        timeout=15,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def calendly_api_post(access_token: str, endpoint: str, payload: dict) -> dict:
+    """Authenticated POST request to Calendly API."""
+    url = f"{CALENDLY_API_BASE_URL}{endpoint}"
+    resp = requests.post(
+        url,
+        headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
+        json=payload,
         timeout=15,
     )
     resp.raise_for_status()

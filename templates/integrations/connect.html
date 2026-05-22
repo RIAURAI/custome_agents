@@ -232,6 +232,16 @@
             <span class="int-feature-chip"><i class="bi bi-people me-1"></i>Scheduling</span>
             <span class="int-feature-chip"><i class="bi bi-bell me-1"></i>Notifications</span>
           </div>
+
+          <!-- Quick access to Calendly Bot -->
+          <div class="mb-3">
+            <div class="d-flex flex-wrap gap-2">
+              <a href="{% url 'meetings:calendly_bot' %}" class="btn btn-sm" style="background:#eff6ff;color:#006bff;border:1px solid #bfdbfe;border-radius:8px;font-size:.78rem;font-weight:600;">
+                <i class="bi bi-robot me-1"></i>Calendly Bot
+              </a>
+            </div>
+          </div>
+
           <div class="d-flex gap-2 mt-auto">
             <button type="button" class="btn int-btn-connect flex-grow-1"
                     data-bs-toggle="modal" data-bs-target="#calendlyConnectModal"
