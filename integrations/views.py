@@ -56,6 +56,7 @@ def connect_view(request):
         "integrations": integrations,
         "is_admin": is_admin,
         "calendly_redirect_uri": settings.CALENDLY_REDIRECT_URI,
+        "google_redirect_uri": settings.GOOGLE_REDIRECT_URI,
         "coming_soon": [
             ("onedrive", "bi bi-cloud", "OneDrive"),
             ("chatgpt", "bi bi-robot", "ChatGPT Pro"),
@@ -481,4 +482,146 @@ def calendly_disconnect(request):
     CompanyIntegration.objects.filter(company=request.company, service="calendly").delete()
     log_activity(request, "integration_disconnected", "calendly")
     messages.info(request, "Calendly account disconnected.")
+    return redirect("integrations:connect")
+
+
+# ── Google Workspace OAuth (dynamic per-company credentials) ──────────────────
+
+from .google_utils import (
+    get_google_auth_url,
+    exchange_google_code,
+    get_google_user_info,
+    _get_company_google_creds,
+)
+
+
+@company_admin_required
+@require_POST
+def google_save_credentials(request):
+    """
+    AJAX endpoint: save Google OAuth app credentials (client_id, client_secret)
+    for this company, then return a redirect URL to start OAuth.
+    """
+    client_id = request.POST.get("client_id", "").strip()
+    client_secret = request.POST.get("client_secret", "").strip()
+
+    if not client_id:
+        return JsonResponse({"ok": False, "error": "Client ID is required."}, status=400)
+    if not client_secret:
+        return JsonResponse({"ok": False, "error": "Client Secret is required."}, status=400)
+
+    company = request.company
+    integration, _ = CompanyIntegration.objects.get_or_create(
+        company=company, service="google"
+    )
+    integration.google_client_id_enc = encrypt_token(client_id)
+    integration.google_client_secret_enc = encrypt_token(client_secret)
+    integration.connected_by = request.user
+    integration.save()
+
+    # Generate OAuth state and build authorization URL
+    state = secrets.token_urlsafe(16)
+    request.session["google_oauth_state"] = state
+    auth_url = get_google_auth_url(state, client_id)
+
+    log_activity(request, "google_credentials_saved", "google", f"Company: {company.name}")
+    return JsonResponse({
+        "ok": True,
+        "message": "Credentials saved! Redirecting to Google for authorization…",
+        "redirect_url": auth_url,
+    })
+
+
+@company_admin_required
+def google_connect(request):
+    """Redirect user to Google OAuth consent screen using stored credentials."""
+    company = request.company
+    integration = CompanyIntegration.objects.filter(company=company, service="google").first()
+
+    if not integration or not integration.google_client_id_enc:
+        messages.error(request, "Please enter your Google Workspace credentials first.")
+        return redirect("integrations:connect")
+
+    from .utils import decrypt_token as _dec
+    client_id = _dec(integration.google_client_id_enc)
+
+    state = secrets.token_urlsafe(16)
+    request.session["google_oauth_state"] = state
+    auth_url = get_google_auth_url(state, client_id)
+    return redirect(auth_url)
+
+
+@company_admin_required
+def google_callback(request):
+    """Handle OAuth callback from Google."""
+    error = request.GET.get("error")
+    if error:
+        messages.error(request, f"Google login failed: {request.GET.get('error_description', error)}")
+        return redirect("integrations:connect")
+
+    state = request.GET.get("state")
+    if state != request.session.pop("google_oauth_state", None):
+        messages.error(request, "Invalid OAuth state. Please try again.")
+        return redirect("integrations:connect")
+
+    code = request.GET.get("code")
+    if not code:
+        messages.error(request, "No authorization code received.")
+        return redirect("integrations:connect")
+
+    # Get per-company credentials from DB
+    company = request.company
+    integration = CompanyIntegration.objects.filter(company=company, service="google").first()
+    if not integration or not integration.google_client_id_enc:
+        messages.error(request, "Google credentials not found. Please reconfigure.")
+        return redirect("integrations:connect")
+
+    try:
+        client_id, client_secret = _get_company_google_creds(integration)
+    except ValueError as e:
+        messages.error(request, str(e))
+        return redirect("integrations:connect")
+
+    result = exchange_google_code(code, client_id, client_secret)
+
+    if "access_token" not in result:
+        err_msg = result.get("error_description", result.get("error", "unknown"))
+        messages.error(request, f"Google token exchange failed: {err_msg}")
+        return redirect("integrations:connect")
+
+    access_token = result["access_token"]
+    refresh_token = result.get("refresh_token", "")
+    expires_in = result.get("expires_in", 3600)
+
+    from datetime import datetime as dt, timezone as tz
+    expiry = dt.fromtimestamp(dt.now(tz.utc).timestamp() + expires_in, tz=tz.utc)
+
+    # Fetch user's Google profile
+    try:
+        user_info = get_google_user_info(access_token)
+        display_name = user_info.get("name", "")
+        email = user_info.get("email", "")
+    except Exception:
+        display_name, email = "", ""
+
+    integration.access_token_enc = encrypt_token(access_token)
+    integration.refresh_token_enc = encrypt_token(refresh_token) if refresh_token else integration.refresh_token_enc
+    integration.token_expiry = expiry
+    integration.google_account_name = display_name
+    integration.google_account_email = email
+    integration.connected_by = request.user
+    integration.status = "active"
+    integration.save()
+
+    messages.success(request, f"Google Workspace connected for {company.name}! ({email})")
+    log_activity(request, "integration_connected", "google", f"Account: {email}")
+    return redirect("integrations:connect")
+
+
+@company_admin_required
+def google_disconnect(request):
+    """Remove stored Google tokens and credentials for this company."""
+    CompanyIntegration.objects.filter(company=request.company, service="google").delete()
+    log_activity(request, "integration_disconnected", "google")
+    messages.info(request, "Google Workspace disconnected.")
     return redirect("integrations:connect")

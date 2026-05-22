@@ -1,0 +1,241 @@
+<!-- Google Workspace Dynamic Credentials Modal — reusable partial -->
+<div class="modal fade" id="googleConnectModal" tabindex="-1" aria-labelledby="googleConnectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="border-radius:18px;border:none;box-shadow:0 24px 80px rgba(0,0,0,.18);">
+
+      <!-- Header -->
+      <div class="modal-header border-0 pb-0 px-4 pt-4">
+        <div class="d-flex align-items-center gap-3">
+          <div style="background:linear-gradient(135deg,#4285F4,#34A853);border-radius:12px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="bi bi-google" style="color:#fff;font-size:1.25rem;"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="googleConnectModalLabel" style="color:#1e1b4b;letter-spacing:-.02em;">
+              Connect Google Workspace
+            </h5>
+            <p class="mb-0" style="font-size:.78rem;color:#64748b;">Enter your Google Cloud OAuth credentials — each company connects its own Google Cloud project</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body px-4 pt-3 pb-0">
+
+        <!-- Step-by-step guide accordion -->
+        <div class="accordion accordion-flush mb-4" id="googleGuideAccordion">
+          <div class="accordion-item" style="border:1px solid #e2e8f0;border-radius:12px!important;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2 px-3" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#googleGuideBody"
+                      style="font-size:.82rem;font-weight:600;color:#4285F4;background:#eff6ff;border-radius:12px!important;">
+                <i class="bi bi-list-check me-2"></i>How to get your Google OAuth credentials — step-by-step guide
+              </button>
+            </h2>
+            <div id="googleGuideBody" class="accordion-collapse collapse">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.8rem;color:#334155;">
+                <ol class="mb-0 ps-3" style="line-height:2;">
+                  <li>Go to <strong><a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a></strong> → Select or create a project.</li>
+                  <li>Navigate to <strong>APIs &amp; Services → OAuth consent screen</strong> → Configure (External or Internal for Workspace orgs).</li>
+                  <li>Go to <strong>APIs &amp; Services → Credentials</strong> → Click <em>Create Credentials → OAuth Client ID</em>.</li>
+                  <li>Choose <strong>Web application</strong> as Application type.</li>
+                  <li>Under <strong>Authorized redirect URIs</strong>, add:<br>
+                    <code style="font-size:.75rem;background:#e2e8f0;padding:2px 8px;border-radius:4px;">{{ google_redirect_uri }}</code>
+                  </li>
+                  <li>Enable the required APIs: <strong>Gmail API</strong>, <strong>Google Calendar API</strong>, <strong>Google Meet REST API</strong> in <em>APIs &amp; Services → Library</em>.</li>
+                  <li>Copy the <strong>Client ID</strong> and <strong>Client Secret</strong> from the credentials page.</li>
+                  <li>Paste them below and click <strong>Save &amp; Connect</strong>. You'll be redirected to Google to authorize.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form id="googleCredentialsForm" novalidate>
+          {% csrf_token %}
+
+          <div class="row g-3">
+
+            <!-- Client ID — required -->
+            <div class="col-12">
+              <label for="googleClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
+                <i class="bi bi-key-fill me-1" style="color:#4285F4;"></i>Client ID <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="googleClientId" name="client_id"
+                       placeholder="e.g. 123456789.apps.googleusercontent.com"
+                       autocomplete="off" required
+                       style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
+                <button class="btn btn-outline-secondary" type="button" id="toggleGoogleClientId"
+                        title="Show / hide" style="border-radius:0 10px 10px 0;">
+                  <i class="bi bi-eye" id="eyeIconGoogleId"></i>
+                </button>
+              </div>
+              <div class="form-text" style="font-size:.73rem;">
+                <strong>Google Cloud Console → Credentials → OAuth 2.0 Client IDs → Client ID</strong>
+              </div>
+            </div>
+
+            <!-- Client Secret — required -->
+            <div class="col-12">
+              <label for="googleClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
+                <i class="bi bi-shield-lock-fill me-1" style="color:#34A853;"></i>Client Secret <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="googleClientSecret" name="client_secret"
+                       placeholder="Enter your Google OAuth Client Secret"
+                       autocomplete="off" required
+                       style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
+                <button class="btn btn-outline-secondary" type="button" id="toggleGoogleSecret"
+                        title="Show / hide" style="border-radius:0 10px 10px 0;">
+                  <i class="bi bi-eye" id="eyeIconGoogleSecret"></i>
+                </button>
+              </div>
+              <div class="form-text" style="font-size:.73rem;">
+                <strong>Google Cloud Console → Credentials → OAuth 2.0 Client IDs → Client Secret</strong>
+              </div>
+            </div>
+
+          </div><!-- /row -->
+
+          <!-- What this enables -->
+          <div class="mt-4 mb-3 p-3" style="background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
+            <div class="fw-semibold mb-1" style="font-size:.78rem;color:#166534;">
+              <i class="bi bi-check2-all me-1"></i>What gets enabled after connecting:
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;">
+                <i class="bi bi-envelope me-1"></i>Read Gmail
+              </span>
+              <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;">
+                <i class="bi bi-send me-1"></i>Send Gmail
+              </span>
+              <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;">
+                <i class="bi bi-calendar3 me-1"></i>Google Calendar
+              </span>
+              <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;">
+                <i class="bi bi-calendar-event me-1"></i>Create Events
+              </span>
+              <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;">
+                <i class="bi bi-camera-video me-1"></i>Google Meet
+              </span>
+            </div>
+          </div>
+
+          <!-- Alert feedback -->
+          <div id="googleConnectAlert" class="alert d-none py-2 px-3 mb-3" style="border-radius:10px;font-size:.83rem;"></div>
+
+          <div class="d-flex gap-2 pb-4">
+            <button type="submit" class="btn flex-grow-1 fw-semibold" id="googleConnectBtn"
+                    style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-size:.88rem;">
+              <span id="googleBtnText"><i class="bi bi-plug-fill me-2"></i>Save &amp; Connect</span>
+              <span id="googleBtnSpinner" class="d-none">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving credentials…
+              </span>
+            </button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"
+                    style="border-radius:10px;font-size:.88rem;">Cancel</button>
+          </div>
+
+        </form>
+      </div><!-- /modal-body -->
+
+    </div>
+  </div>
+</div>
+
+<!-- Google Success toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1100">
+  <div id="googleSuccessToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive">
+    <div class="d-flex">
+      <div class="toast-body" id="googleToastMsg">
+        <i class="bi bi-check-circle-fill me-2"></i>Google credentials saved! Redirecting to authorize…
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  function makeToggle(btnId, inputId, iconId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      const inp = document.getElementById(inputId);
+      const ico = document.getElementById(iconId);
+      if (inp.type === "password") {
+        inp.type = "text";
+        ico.className = "bi bi-eye-slash";
+      } else {
+        inp.type = "password";
+        ico.className = "bi bi-eye";
+      }
+    });
+  }
+  makeToggle("toggleGoogleClientId",  "googleClientId",     "eyeIconGoogleId");
+  makeToggle("toggleGoogleSecret",    "googleClientSecret", "eyeIconGoogleSecret");
+
+  const form    = document.getElementById("googleCredentialsForm");
+  const alertEl = document.getElementById("googleConnectAlert");
+  const btnText = document.getElementById("googleBtnText");
+  const spinner = document.getElementById("googleBtnSpinner");
+  const btn     = document.getElementById("googleConnectBtn");
+
+  if (!form) return;
+
+  function showAlert(type, msg) {
+    alertEl.className = `alert alert-${type} py-2 px-3`;
+    alertEl.innerHTML = msg;
+    alertEl.classList.remove("d-none");
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    alertEl.classList.add("d-none");
+
+    const clientId     = document.getElementById("googleClientId").value.trim();
+    const clientSecret = document.getElementById("googleClientSecret").value.trim();
+
+    if (!clientId) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client ID is required."); return; }
+    if (!clientSecret) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client Secret is required."); return; }
+
+    // Disable button + show spinner
+    btn.disabled = true;
+    btnText.classList.add("d-none");
+    spinner.classList.remove("d-none");
+
+    try {
+      const fd = new FormData(form);
+      const resp = await fetch("{% url 'integrations:google_save_credentials' %}", {
+        method: "POST",
+        body: fd,
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      const data = await resp.json();
+
+      if (data.ok) {
+        showAlert("success", "<i class='bi bi-check-circle-fill me-1'></i>" + data.message);
+        // Show toast and redirect to OAuth
+        const toast = new bootstrap.Toast(document.getElementById("googleSuccessToast"));
+        toast.show();
+        setTimeout(() => {
+          window.location.href = data.redirect_url;
+        }, 1200);
+      } else {
+        showAlert("danger", "<i class='bi bi-x-circle-fill me-1'></i>" + (data.error || "Unknown error"));
+        btn.disabled = false;
+        btnText.classList.remove("d-none");
+        spinner.classList.add("d-none");
+      }
+    } catch (err) {
+      showAlert("danger", "<i class='bi bi-x-circle-fill me-1'></i>Network error — please try again.");
+      btn.disabled = false;
+      btnText.classList.remove("d-none");
+      spinner.classList.add("d-none");
+    }
+  });
+
+})();
+</script>

@@ -48,12 +48,15 @@ def company_context(request):
     if is_superuser:
         ctx["has_ms_access"] = True
         ctx["has_slack_access"] = True
+        ctx["has_google_access"] = True
     elif membership:
         ctx["has_ms_access"] = bool(has_platform_access(request, "microsoft"))
         ctx["has_slack_access"] = bool(has_platform_access(request, "slack"))
+        ctx["has_google_access"] = bool(has_platform_access(request, "google"))
     else:
         ctx["has_ms_access"] = False
         ctx["has_slack_access"] = False
+        ctx["has_google_access"] = False
 
     # Fallback: if user has a UserIntegration with a valid token, grant access
     if not ctx["has_slack_access"] and hasattr(request, "user") and request.user.is_authenticated:
@@ -61,6 +64,15 @@ def company_context(request):
         ctx["has_slack_access"] = UserIntegration.objects.filter(
             user=request.user, service="slack"
         ).exclude(access_token_enc=None).exists()
+
+    # Fallback: if company has a Google integration, grant access
+    if not ctx["has_google_access"]:
+        from integrations.models import CompanyIntegration
+        company = getattr(request, "company", None)
+        if company:
+            ctx["has_google_access"] = CompanyIntegration.objects.filter(
+                company=company, service="google", status="active"
+            ).exists()
 
     return ctx
 

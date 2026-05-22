@@ -19,4 +19,9 @@ urlpatterns = [
     path("calendly/connect/", views.calendly_connect, name="calendly_connect"),
     path("calendly/callback/", views.calendly_callback, name="calendly_callback"),
     path("calendly/disconnect/", views.calendly_disconnect, name="calendly_disconnect"),
+    # Google Workspace
+    path("google/save-credentials/", views.google_save_credentials, name="google_save_credentials"),
+    path("google/connect/", views.google_connect, name="google_connect"),
+    path("google/callback/", views.google_callback, name="google_callback"),
+    path("google/disconnect/", views.google_disconnect, name="google_disconnect"),
 ]

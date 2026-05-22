@@ -56,6 +56,26 @@
         </a>
       </li>
       {% endif %}
+      {% if has_google_access %}
+      <li>
+        <a href="{% url 'google_hub:inbox' %}"
+           class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'inbox' or request.resolver_match.url_name == 'detail' or request.resolver_match.url_name == 'compose' %}active{% endif %}">
+          <i class="bi bi-google me-2"></i>Gmail
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'google_hub:calendar' %}"
+           class="nav-link text-white {% if request.resolver_match.url_name == 'calendar' and request.resolver_match.app_name == 'google_hub' %}active{% endif %}">
+          <i class="bi bi-calendar3 me-2"></i>G-Calendar
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'google_hub:meet' %}"
+           class="nav-link text-white {% if request.resolver_match.url_name == 'meet' and request.resolver_match.app_name == 'google_hub' %}active{% endif %}">
+          <i class="bi bi-camera-video me-2"></i>G-Meet
+        </a>
+      </li>
+      {% endif %}
       <li>
         <a href="{% url 'integrations:connect' %}"
            class="nav-link text-white {% if request.resolver_match.app_name == 'integrations' %}active{% endif %}">
