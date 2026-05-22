@@ -51,7 +51,7 @@
     </div>
 
     <!-- Sender name -->
-    <div class="ibx-sender">{{ email.from.emailAddress.name|default:email.from.emailAddress.address|truncatechars:22 }}</div>
+    <div class="ibx-sender">{{ email.from.emailAddress.name|default:"Unknown"|truncatechars:22 }}</div>
 
     <!-- Subject + preview -->
     <div class="ibx-body">
