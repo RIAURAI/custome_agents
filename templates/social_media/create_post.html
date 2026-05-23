@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Create Post — Social Media — WorkHub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .form-card {
+    border: none; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,.06);
+  }
+  .form-card .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff; padding: 1.25rem 1.5rem; border: none;
+  }
+  .form-card .card-header h5 { font-weight: 700; }
+  .form-card .card-body { padding: 2rem; }
+  .form-card .form-control, .form-card .form-select { border-radius: 10px; border-color: #e2e8f0; }
+  .form-card .form-control:focus, .form-card .form-select:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,.15); }
+  .breadcrumb a { color: #667eea; text-decoration: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'social_media:dashboard' %}">Social Media</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'social_media:posts_list' %}">Posts</a></li>
+      <li class="breadcrumb-item active">Create Post</li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+      <div class="form-card card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Create New Post</h5>
+        </div>
+        <div class="card-body">
+          {% if accounts %}
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Platform Account <span class="text-danger">*</span></label>
+              <select name="account" class="form-select" required>
+                <option value="">— Select Account —</option>
+                {% for acc in accounts %}
+                <option value="{{ acc.pk }}">{{ acc.get_platform_display }} — {{ acc.account_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Content <span class="text-danger">*</span></label>
+              <textarea name="content" class="form-control" rows="6" placeholder="Write your post content..." required></textarea>
+              <div class="form-text">Platform character limits will apply.</div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Media URL <span class="text-muted fw-normal">(optional)</span></label>
+              <input type="url" name="media_url" class="form-control" placeholder="https://... image or video URL">
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" name="action" value="draft" class="btn btn-outline-secondary" style="border-radius:10px;">
+                <i class="bi bi-file-earmark me-1"></i>Save Draft
+              </button>
+              <button type="submit" name="action" value="publish" class="btn btn-primary" style="border-radius:10px;">
+                <i class="bi bi-send me-1"></i>Publish Now
+              </button>
+            </div>
+          </form>
+          {% else %}
+          <div class="text-center py-4">
+            <i class="bi bi-plug fs-1 text-muted"></i>
+            <p class="mt-2 text-muted">No active accounts. Connect one first.</p>
+            <a href="{% url 'social_media:dashboard' %}" class="btn btn-primary" style="border-radius:10px;">Go to Dashboard</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

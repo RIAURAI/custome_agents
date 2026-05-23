@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}AI Bot Settings — Social Media — WorkHub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .bot-hero {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 16px; padding: 2rem 2.5rem; color: #fff; margin-bottom: 2rem;
+  }
+  .bot-hero h2 { font-weight: 700; }
+  .bot-hero p { opacity: .85; margin-bottom: 0; }
+
+  .rule-card {
+    border: none; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,.06); margin-bottom: 1rem;
+    transition: box-shadow .2s, transform .2s;
+  }
+  .rule-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.1); transform: translateY(-2px); }
+  .rule-card .card-body { padding: 1.25rem 1.5rem; }
+
+  .platform-pill {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .35rem .75rem; border-radius: 20px; font-size: .8rem; font-weight: 600; color: #fff;
+  }
+  .scope-tag { background: #f1f5f9; color: #475569; border-radius: 6px; padding: .2rem .5rem; font-size: .75rem; font-weight: 500; }
+
+  .webhook-row {
+    display: flex; align-items: center; gap: 1rem;
+    padding: .75rem 1rem; border-radius: 10px; background: #f8fafc;
+    margin-bottom: .5rem; font-family: 'Fira Code', monospace; font-size: .85rem;
+  }
+  .webhook-row .platform-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+
+  .empty-state {
+    text-align: center; padding: 3rem 1rem;
+    background: linear-gradient(135deg, #f8fafc, #eef2ff); border-radius: 16px;
+  }
+  .empty-state i { font-size: 3rem; color: #94a3b8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+  <!-- Hero -->
+  <div class="bot-hero d-flex flex-wrap justify-content-between align-items-center">
+    <div>
+      <h2 class="mb-1"><i class="bi bi-robot me-2"></i>AI Bot Settings</h2>
+      <p>Configure auto-reply rules for your social media accounts.</p>
+    </div>
+    <div class="d-flex gap-2 mt-2 mt-md-0">
+      <a href="{% url 'social_media:bot_analytics' %}" class="btn btn-outline-light" style="border-radius:10px;">
+        <i class="bi bi-graph-up me-1"></i>Analytics
+      </a>
+      <a href="{% url 'social_media:create_bot_rule' %}" class="btn btn-light text-dark fw-semibold" style="border-radius:10px;">
+        <i class="bi bi-plus-lg me-1"></i>New Rule
+      </a>
+    </div>
+  </div>
+
+  {% if rules %}
+  <!-- Rules as Cards -->
+  {% for rule in rules %}
+  <div class="rule-card card">
+    <div class="card-body d-flex flex-wrap align-items-center gap-3">
+      <!-- Platform Badge -->
+      <div class="platform-pill" style="background: {% if rule.platform == 'whatsapp' %}#25D366{% elif rule.platform == 'linkedin' %}#0A66C2{% elif rule.platform == 'facebook' %}#1877F2{% elif rule.platform == 'instagram' %}#E4405F{% else %}#000{% endif %};">
+        <i class="bi bi-{% if rule.platform == 'whatsapp' %}whatsapp{% elif rule.platform == 'linkedin' %}linkedin{% elif rule.platform == 'facebook' %}facebook{% elif rule.platform == 'instagram' %}instagram{% else %}twitter-x{% endif %}"></i>
+        {{ rule.get_platform_display }}
+      </div>
+
+      <!-- Info -->
+      <div class="flex-grow-1">
+        <div class="fw-bold">{{ rule.persona_name|default:"Default Bot" }}</div>
+        <small class="text-muted">{{ rule.account.account_name|default:"All accounts" }}</small>
+      </div>
+
+      <!-- Scope Tags -->
+      <div class="d-flex gap-1 flex-wrap">
+        {% if rule.reply_to_dms %}<span class="scope-tag"><i class="bi bi-envelope-fill me-1"></i>DMs</span>{% endif %}
+        {% if rule.reply_to_comments %}<span class="scope-tag"><i class="bi bi-chat-fill me-1"></i>Comments</span>{% endif %}
+        {% if rule.reply_to_groups %}<span class="scope-tag"><i class="bi bi-people-fill me-1"></i>Groups</span>{% endif %}
+      </div>
+
+      <!-- Auto Send -->
+      {% if rule.auto_send %}
+      <span class="badge bg-warning bg-opacity-10 text-warning fw-semibold" style="border-radius:8px; padding:.4rem .7rem;">
+        <i class="bi bi-lightning-fill me-1"></i>Auto
+      </span>
+      {% else %}
+      <span class="badge bg-secondary bg-opacity-10 text-secondary fw-semibold" style="border-radius:8px; padding:.4rem .7rem;">Manual</span>
+      {% endif %}
+
+      <!-- Toggle Status -->
+      <form method="post" action="{% url 'social_media:toggle_bot_rule' rule.pk %}" class="d-inline">
+        {% csrf_token %}
+        <button class="btn btn-sm {% if rule.is_enabled %}btn-success{% else %}btn-outline-secondary{% endif %}" style="border-radius:8px; min-width:80px;">
+          <i class="bi bi-{% if rule.is_enabled %}check-circle-fill{% else %}pause-circle{% endif %} me-1"></i>
+          {{ rule.is_enabled|yesno:"Active,Off" }}
+        </button>
+      </form>
+
+      <!-- Actions -->
+      <div class="d-flex gap-1">
+        <a href="{% url 'social_media:edit_bot_rule' rule.pk %}" class="btn btn-sm btn-outline-primary" style="border-radius:8px;" title="Edit">
+          <i class="bi bi-pencil"></i>
+        </a>
+        <form method="post" action="{% url 'social_media:delete_bot_rule' rule.pk %}" class="d-inline">
+          {% csrf_token %}
+          <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-robot"></i>
+    <h5 class="mt-3 fw-bold">No auto-reply rules configured</h5>
+    <p class="text-muted mb-3">Create your first rule to let AI handle incoming messages.</p>
+    <a href="{% url 'social_media:create_bot_rule' %}" class="btn btn-primary" style="border-radius:10px;">
+      <i class="bi bi-plus-lg me-1"></i>Create First Rule
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Webhook Info -->
+  <div class="card border-0 shadow-sm mt-4" style="border-radius:16px; overflow:hidden;">
+    <div class="card-header bg-white py-3 px-4" style="border-bottom: 2px solid #f1f5f9;">
+      <h5 class="mb-0 fw-bold"><i class="bi bi-link-45deg me-2 text-muted"></i>Webhook Endpoints</h5>
+    </div>
+    <div class="card-body p-4">
+      <p class="text-muted small mb-3">Configure these URLs in each platform's developer settings.</p>
+      <div class="webhook-row"><div class="platform-icon" style="background:#25D36615;"><i class="bi bi-whatsapp" style="color:#25D366;"></i></div><code>/social/webhooks/whatsapp/</code></div>
+      <div class="webhook-row"><div class="platform-icon" style="background:#1877F215;"><i class="bi bi-facebook" style="color:#1877F2;"></i></div><code>/social/webhooks/facebook/</code></div>
+      <div class="webhook-row"><div class="platform-icon" style="background:#E4405F15;"><i class="bi bi-instagram" style="color:#E4405F;"></i></div><code>/social/webhooks/instagram/</code></div>
+      <div class="webhook-row"><div class="platform-icon" style="background:#0A66C215;"><i class="bi bi-linkedin" style="color:#0A66C2;"></i></div><code>/social/webhooks/linkedin/</code></div>
+      <div class="webhook-row"><div class="platform-icon" style="background:#00000010;"><i class="bi bi-twitter-x"></i></div><code>/social/webhooks/twitter/</code></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

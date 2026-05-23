@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "ai_assistant",
     "slack_hub",
     "google_hub",
+    "social_media",
 ]
 
 MIDDLEWARE = [
