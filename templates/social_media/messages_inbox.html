@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Messages — Social Media — WorkHub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .inbox-hero {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    border-radius: 16px; padding: 2rem 2.5rem; color: #fff; margin-bottom: 2rem;
+  }
+  .inbox-hero h2 { font-weight: 700; }
+  .inbox-hero p { opacity: .85; margin-bottom: 0; }
+
+  .inbox-card {
+    border: none; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,.06);
+  }
+  .msg-item {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9;
+    text-decoration: none; color: inherit; transition: background .15s;
+  }
+  .msg-item:last-child { border-bottom: none; }
+  .msg-item:hover { background: #f8fafc; }
+  .msg-item.unread { background: #eff6ff; }
+  .msg-item.unread:hover { background: #dbeafe; }
+
+  .msg-avatar {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .msg-content { flex-grow: 1; min-width: 0; }
+  .msg-content h6 { margin-bottom: 2px; }
+  .msg-content p { margin-bottom: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .new-badge {
+    background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;
+    border-radius: 6px; padding: .2rem .5rem; font-size: .7rem; font-weight: 700;
+  }
+  .empty-state {
+    text-align: center; padding: 3rem 1rem;
+    background: linear-gradient(135deg, #f8fafc, #ecfdf5); border-radius: 16px;
+  }
+  .empty-state i { font-size: 3rem; color: #94a3b8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+  <!-- Hero -->
+  <div class="inbox-hero d-flex flex-wrap justify-content-between align-items-center">
+    <div>
+      <h2 class="mb-1"><i class="bi bi-chat-dots me-2"></i>Messages</h2>
+      <p>View and reply to conversations across all platforms.</p>
+    </div>
+    <a href="{% url 'social_media:dashboard' %}" class="btn btn-outline-light" style="border-radius:10px;">
+      <i class="bi bi-arrow-left me-1"></i>Dashboard
+    </a>
+  </div>
+
+  {% if inbox %}
+  <div class="inbox-card card">
+    {% for msg in inbox %}
+    <a href="{% url 'social_media:conversation' account_id=msg.account.pk contact_id=msg.sender_id %}"
+       class="msg-item {% if not msg.is_read and msg.direction == 'inbound' %}unread{% endif %}">
+      <div class="msg-avatar" style="background: {% if msg.account.platform == 'whatsapp' %}#25D36615{% elif msg.account.platform == 'linkedin' %}#0A66C215{% elif msg.account.platform == 'facebook' %}#1877F215{% elif msg.account.platform == 'instagram' %}#E4405F15{% else %}#00000010{% endif %};">
+        <i class="bi bi-{% if msg.account.platform == 'whatsapp' %}whatsapp{% elif msg.account.platform == 'linkedin' %}linkedin{% elif msg.account.platform == 'facebook' %}facebook{% elif msg.account.platform == 'instagram' %}instagram{% else %}twitter-x{% endif %}"
+           style="color: {% if msg.account.platform == 'whatsapp' %}#25D366{% elif msg.account.platform == 'linkedin' %}#0A66C2{% elif msg.account.platform == 'facebook' %}#1877F2{% elif msg.account.platform == 'instagram' %}#E4405F{% else %}#000{% endif %};"></i>
+      </div>
+      <div class="msg-content">
+        <h6 class="{% if not msg.is_read and msg.direction == 'inbound' %}fw-bold{% else %}fw-semibold{% endif %}">
+          {{ msg.sender_name|default:msg.sender_id }}
+        </h6>
+        <p class="small text-muted">{{ msg.content|truncatewords:20 }}</p>
+      </div>
+      <div class="text-end flex-shrink-0">
+        <small class="text-muted d-block">{{ msg.timestamp|timesince }} ago</small>
+        {% if not msg.is_read and msg.direction == "inbound" %}
+        <span class="new-badge mt-1 d-inline-block">NEW</span>
+        {% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-chat-dots"></i>
+    <h5 class="mt-3 fw-bold">No messages yet</h5>
+    <p class="text-muted">Messages will appear here once your webhooks are configured.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

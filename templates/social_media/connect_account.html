@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+{% block title %}Connect {{ platform_name }} — WorkHub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .connect-wrapper { max-width: 680px; margin: 0 auto; }
+
+  .connect-card {
+    border: none; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  }
+  .connect-header {
+    padding: 2rem 2rem 1.5rem;
+    text-align: center; color: #fff;
+    background: {% if platform == "whatsapp" %}linear-gradient(135deg, #25D366, #128C7E){% elif platform == "linkedin" %}linear-gradient(135deg, #0A66C2, #004182){% elif platform == "facebook" %}linear-gradient(135deg, #1877F2, #0b5ed7){% elif platform == "instagram" %}linear-gradient(135deg, #E4405F, #C13584){% else %}linear-gradient(135deg, #14171A, #657786){% endif %};
+  }
+  .connect-header .icon-ring {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(255,255,255,.2); backdrop-filter: blur(4px);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.75rem; margin-bottom: .75rem;
+  }
+  .connect-header h5 { font-weight: 700; margin-bottom: .25rem; }
+  .connect-header p { opacity: .85; font-size: .85rem; margin-bottom: 0; }
+
+  .connect-body { padding: 2rem; }
+
+  .field-group { margin-bottom: 1.1rem; }
+  .field-group label { font-size: .8rem; font-weight: 600; color: #374151; margin-bottom: .35rem; display: block; }
+  .field-group .form-control {
+    border-radius: 10px; border: 1.5px solid #e5e7eb; padding: .55rem .9rem;
+    font-size: .9rem; transition: border-color .2s, box-shadow .2s;
+  }
+  .field-group .form-control:focus {
+    border-color: {% if platform == "whatsapp" %}#25D366{% elif platform == "linkedin" %}#0A66C2{% elif platform == "facebook" %}#1877F2{% elif platform == "instagram" %}#E4405F{% else %}#14171A{% endif %};
+    box-shadow: 0 0 0 3px {% if platform == "whatsapp" %}rgba(37,211,102,.15){% elif platform == "linkedin" %}rgba(10,102,194,.15){% elif platform == "facebook" %}rgba(24,119,242,.15){% elif platform == "instagram" %}rgba(228,64,95,.15){% else %}rgba(0,0,0,.1){% endif %};
+  }
+  .field-group .form-text { font-size: .73rem; color: #6b7280; }
+
+  .section-divider { border: none; border-top: 1px dashed #e5e7eb; margin: 1.5rem 0; }
+  .section-label {
+    font-size: .72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: #9ca3af; margin-bottom: .85rem;
+    display: flex; align-items: center; gap: .4rem;
+  }
+
+  .btn-connect {
+    width: 100%; border-radius: 12px; padding: .7rem; font-weight: 600; font-size: .95rem;
+    color: #fff; border: none;
+    background: {% if platform == "whatsapp" %}linear-gradient(135deg, #25D366, #128C7E){% elif platform == "linkedin" %}linear-gradient(135deg, #0A66C2, #004182){% elif platform == "facebook" %}linear-gradient(135deg, #1877F2, #0b5ed7){% elif platform == "instagram" %}linear-gradient(135deg, #E4405F, #C13584){% else %}linear-gradient(135deg, #14171A, #657786){% endif %};
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn-connect:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,.15); color: #fff; }
+
+  .btn-cancel { border-radius: 12px; padding: .7rem; font-weight: 500; width: 100%; }
+
+  .breadcrumb a { color: #667eea; text-decoration: none; }
+  .field-row { display: flex; gap: .75rem; }
+  .field-row .field-group { flex: 1; }
+
+  /* Permissions */
+  .perm-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: .6rem;
+  }
+  .perm-card {
+    border: 1.5px solid #e5e7eb; border-radius: 12px; padding: .75rem .9rem;
+    display: flex; align-items: flex-start; gap: .6rem;
+    transition: border-color .2s, background .2s; cursor: pointer;
+  }
+  .perm-card:hover { border-color: #d1d5db; background: #f9fafb; }
+  .perm-card input[type="checkbox"] { margin-top: .15rem; accent-color: {% if platform == "whatsapp" %}#25D366{% elif platform == "linkedin" %}#0A66C2{% elif platform == "facebook" %}#1877F2{% elif platform == "instagram" %}#E4405F{% else %}#14171A{% endif %}; }
+  .perm-card .perm-label { font-size: .82rem; font-weight: 600; color: #374151; }
+  .perm-card .perm-desc { font-size: .7rem; color: #6b7280; margin-top: .1rem; }
+  .perm-card.checked { border-color: {% if platform == "whatsapp" %}#25D366{% elif platform == "linkedin" %}#0A66C2{% elif platform == "facebook" %}#1877F2{% elif platform == "instagram" %}#E4405F{% else %}#14171A{% endif %}; background: {% if platform == "whatsapp" %}#25D36608{% elif platform == "linkedin" %}#0A66C208{% elif platform == "facebook" %}#1877F208{% elif platform == "instagram" %}#E4405F08{% else %}#14171A06{% endif %}; }
+
+  /* Platform Guide */
+  .platform-guide {
+    background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+  }
+  .platform-guide h6 { font-size: .82rem; font-weight: 700; color: #374151; margin-bottom: .5rem; }
+  .platform-guide ol { font-size: .78rem; color: #4b5563; padding-left: 1.2rem; margin-bottom: 0; }
+  .platform-guide ol li { margin-bottom: .3rem; }
+  .platform-guide a { color: {% if platform == "whatsapp" %}#25D366{% elif platform == "linkedin" %}#0A66C2{% elif platform == "facebook" %}#1877F2{% elif platform == "instagram" %}#E4405F{% else %}#14171A{% endif %}; font-weight: 500; }
+
+  /* Confirmation Modal */
+  .modal-content { border: none; border-radius: 20px; overflow: hidden; }
+  .modal-body { padding: 2rem; text-align: center; }
+  .modal-check-icon {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; margin-bottom: 1rem;
+    background: {% if platform == "whatsapp" %}#25D36615{% elif platform == "linkedin" %}#0A66C215{% elif platform == "facebook" %}#1877F215{% elif platform == "instagram" %}#E4405F15{% else %}#00000010{% endif %};
+    color: {% if platform == "whatsapp" %}#25D366{% elif platform == "linkedin" %}#0A66C2{% elif platform == "facebook" %}#1877F2{% elif platform == "instagram" %}#E4405F{% else %}#14171A{% endif %};
+  }
+  .perm-summary { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin: .5rem 0 1rem; }
+  .perm-badge { font-size: .68rem; padding: .25rem .6rem; border-radius: 20px; background: #f3f4f6; color: #374151; font-weight: 500; }
+
+  @media (max-width: 576px) {
+    .perm-grid { grid-template-columns: 1fr; }
+    .field-row { flex-direction: column; gap: 0; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'social_media:dashboard' %}">Social Media</a></li>
+      <li class="breadcrumb-item active">Connect {{ platform_name }}</li>
+    </ol>
+  </nav>
+
+  <div class="connect-wrapper">
+    <div class="connect-card card">
+      <!-- Header -->
+      <div class="connect-header">
+        <div class="icon-ring">
+          <i class="bi bi-{% if platform == 'whatsapp' %}whatsapp{% elif platform == 'linkedin' %}linkedin{% elif platform == 'facebook' %}facebook{% elif platform == 'instagram' %}instagram{% else %}twitter-x{% endif %}"></i>
+        </div>
+        <h5>Connect {{ platform_name }}</h5>
+        <p>Configure API credentials, permissions & webhook for this platform</p>
+      </div>
+
+      <!-- Form -->
+      <div class="connect-body">
+        <!-- Platform-specific setup guide -->
+        <div class="platform-guide">
+          <h6><i class="bi bi-info-circle me-1"></i> How to get your credentials</h6>
+          {% if platform == "whatsapp" %}
+          <ol>
+            <li>Go to <a href="https://developers.facebook.com" target="_blank">Meta Developer Portal</a></li>
+            <li>Create or select your WhatsApp Business App</li>
+            <li>Navigate to WhatsApp &rarr; API Setup</li>
+            <li>Copy your <strong>Phone Number ID</strong>, <strong>WABA ID</strong>, and generate a <strong>Permanent Token</strong></li>
+            <li>Set your Webhook URL (shown below) to receive messages</li>
+          </ol>
+          {% elif platform == "linkedin" %}
+          <ol>
+            <li>Go to <a href="https://www.linkedin.com/developers/" target="_blank">LinkedIn Developer Portal</a></li>
+            <li>Create an app &rarr; get your <strong>Client ID</strong> and <strong>Client Secret</strong></li>
+            <li>Request OAuth 2.0 scopes: <code>r_liteprofile</code>, <code>w_member_social</code>, <code>r_organization_social</code></li>
+            <li>Generate an <strong>Access Token</strong> via OAuth flow</li>
+          </ol>
+          {% elif platform == "facebook" %}
+          <ol>
+            <li>Go to <a href="https://developers.facebook.com" target="_blank">Meta Developer Portal</a></li>
+            <li>Select your App &rarr; Add Facebook Login product</li>
+            <li>Generate a <strong>Page Access Token</strong> with <code>pages_messaging</code>, <code>pages_manage_posts</code> permissions</li>
+            <li>Copy your <strong>Page ID</strong> from Page Settings &rarr; Transparency</li>
+          </ol>
+          {% elif platform == "instagram" %}
+          <ol>
+            <li>Go to <a href="https://developers.facebook.com" target="_blank">Meta Developer Portal</a></li>
+            <li>Set up Instagram Graph API on your app</li>
+            <li>Link your Instagram Professional Account to a Facebook Page</li>
+            <li>Generate token with <code>instagram_basic</code>, <code>instagram_manage_messages</code> permissions</li>
+            <li>Copy your <strong>Instagram Business Account ID</strong></li>
+          </ol>
+          {% else %}
+          <ol>
+            <li>Go to <a href="https://developer.twitter.com" target="_blank">Twitter Developer Portal</a></li>
+            <li>Create a Project and App &rarr; get <strong>API Key</strong> and <strong>API Secret</strong></li>
+            <li>Generate <strong>Bearer Token</strong> for read access</li>
+            <li>Generate <strong>Access Token &amp; Secret</strong> for write access (posting, DMs)</li>
+          </ol>
+          {% endif %}
+        </div>
+
+        <form method="post" id="connectForm">
+          {% csrf_token %}
+
+          <!-- Basic Info -->
+          <div class="section-label"><i class="bi bi-person-badge"></i> Account Information</div>
+
+          <div class="field-group">
+            <label>Account Name <span class="text-danger">*</span></label>
+            <input type="text" name="account_name" class="form-control" placeholder="e.g., My Business Page" required>
+            <div class="form-text">A friendly name to identify this connection</div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label>Account / Page ID</label>
+              <input type="text" name="account_id" class="form-control" placeholder="Platform-specific ID">
+            </div>
+            <div class="field-group">
+              <label>Profile URL</label>
+              <input type="url" name="profile_url" class="form-control" placeholder="https://...">
+            </div>
+          </div>
+
+          <!-- Authentication -->
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="bi bi-shield-lock"></i> Authentication &amp; Tokens</div>
+
+          <div class="field-group">
+            <label><i class="bi bi-key me-1"></i> Access Token <span class="text-danger">*</span></label>
+            <input type="password" name="access_token" class="form-control" placeholder="Paste your API access token" required>
+            <div class="form-text"><i class="bi bi-lock-fill me-1"></i> Stored with AES-256 encryption &mdash; never shown again</div>
+          </div>
+
+          <div class="field-group">
+            <label><i class="bi bi-key-fill me-1"></i> API Key / App Secret</label>
+            <input type="password" name="api_key" class="form-control" placeholder="App Secret or API Key (if required)">
+            <div class="form-text">Required for {% if platform == "twitter" %}Twitter API v2 authentication{% elif platform == "linkedin" %}LinkedIn OAuth Client Secret{% else %}webhook signature verification{% endif %}</div>
+          </div>
+
+          <!-- Platform-specific fields -->
+          {% if platform == "whatsapp" %}
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="bi bi-whatsapp"></i> WhatsApp Business API</div>
+          <div class="field-row">
+            <div class="field-group">
+              <label>Phone Number ID <span class="text-danger">*</span></label>
+              <input type="text" name="phone_number_id" class="form-control" placeholder="e.g., 106540352...">
+              <div class="form-text">From Meta Developer &rarr; WhatsApp &rarr; API Setup</div>
+            </div>
+            <div class="field-group">
+              <label>WABA ID <span class="text-danger">*</span></label>
+              <input type="text" name="waba_id" class="form-control" placeholder="e.g., 105789...">
+              <div class="form-text">WhatsApp Business Account ID</div>
+            </div>
+          </div>
+          {% endif %}
+
+          {% if platform == "facebook" or platform == "instagram" %}
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="bi bi-{% if platform == 'facebook' %}facebook{% else %}instagram{% endif %}"></i> {{ platform_name }} Settings</div>
+          <div class="field-group">
+            <label>Page / Business Account ID <span class="text-danger">*</span></label>
+            <input type="text" name="page_id" class="form-control" placeholder="{% if platform == 'facebook' %}Facebook Page ID{% else %}Instagram Business Account ID{% endif %}">
+            <div class="form-text">{% if platform == "facebook" %}Found in Page Settings &rarr; Transparency{% else %}Found in Meta Business Suite &rarr; Accounts{% endif %}</div>
+          </div>
+          {% endif %}
+
+          <!-- Webhook -->
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="bi bi-broadcast"></i> Webhook Configuration</div>
+
+          <div class="field-group">
+            <label>Webhook Verify Token</label>
+            <input type="text" name="webhook_secret" class="form-control" placeholder="Your custom verification string">
+            <div class="form-text">Used to verify webhook callbacks. Set the same value in your platform's webhook settings.</div>
+          </div>
+
+          <div class="field-group">
+            <label>Your Webhook URL <small class="text-muted">(copy this to platform settings)</small></label>
+            <div class="input-group">
+              <input type="text" class="form-control" readonly value="{% if platform == 'whatsapp' %}{{ request.scheme }}://{{ request.get_host }}/social/webhooks/whatsapp/{% elif platform == 'facebook' %}{{ request.scheme }}://{{ request.get_host }}/social/webhooks/facebook/{% elif platform == 'instagram' %}{{ request.scheme }}://{{ request.get_host }}/social/webhooks/instagram/{% elif platform == 'linkedin' %}{{ request.scheme }}://{{ request.get_host }}/social/webhooks/linkedin/{% else %}{{ request.scheme }}://{{ request.get_host }}/social/webhooks/twitter/{% endif %}" id="webhookUrl">
+              <button class="btn btn-outline-secondary" type="button" onclick="copyWebhook()" title="Copy"><i class="bi bi-copy"></i></button>
+            </div>
+            <div class="form-text">Paste this URL in your {{ platform_name }} developer settings as the webhook callback URL</div>
+          </div>
+
+          <!-- Permissions -->
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="bi bi-shield-check"></i> Access Permissions</div>
+          <p class="text-muted" style="font-size:.78rem; margin-bottom:.85rem;">Control what this connection is allowed to do. You can change these later.</p>
+
+          <div class="perm-grid">
+            <label class="perm-card checked">
+              <input type="checkbox" name="can_read_messages" checked>
+              <div>
+                <div class="perm-label"><i class="bi bi-envelope-open me-1"></i> Read Messages</div>
+                <div class="perm-desc">Receive &amp; view incoming messages/DMs</div>
+              </div>
+            </label>
+            <label class="perm-card">
+              <input type="checkbox" name="can_send_messages">
+              <div>
+                <div class="perm-label"><i class="bi bi-send me-1"></i> Send Messages</div>
+                <div class="perm-desc">Send replies &amp; outbound messages</div>
+              </div>
+            </label>
+            <label class="perm-card">
+              <input type="checkbox" name="can_auto_reply">
+              <div>
+                <div class="perm-label"><i class="bi bi-robot me-1"></i> AI Auto-Reply</div>
+                <div class="perm-desc">Let AI bot automatically respond</div>
+              </div>
+            </label>
+            <label class="perm-card">
+              <input type="checkbox" name="can_post_content">
+              <div>
+                <div class="perm-label"><i class="bi bi-megaphone me-1"></i> Post Content</div>
+                <div class="perm-desc">Publish posts/stories on this platform</div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-grid gap-2 mt-4">
+            <button type="button" class="btn btn-connect" id="connectBtn">
+              <i class="bi bi-plug-fill me-1"></i> Connect {{ platform_name }}
+            </button>
+            <a href="{% url 'social_media:dashboard' %}" class="btn btn-outline-secondary btn-cancel">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="modal-check-icon">
+          <i class="bi bi-{% if platform == 'whatsapp' %}whatsapp{% elif platform == 'linkedin' %}linkedin{% elif platform == 'facebook' %}facebook{% elif platform == 'instagram' %}instagram{% else %}twitter-x{% endif %}"></i>
+        </div>
+        <h5 class="fw-bold mb-2">Confirm Connection</h5>
+        <p class="text-muted small mb-1">You're about to connect:</p>
+        <p class="fw-semibold mb-1" id="modalAccountName">&mdash;</p>
+        <p class="text-muted small mb-2">to <strong>{{ platform_name }}</strong></p>
+
+        <div class="perm-summary" id="modalPerms"></div>
+
+        <div class="d-flex align-items-center justify-content-center gap-1 mb-3">
+          <i class="bi bi-shield-check text-success me-1"></i>
+          <span class="small text-muted">All credentials encrypted with AES-256</span>
+        </div>
+        <div class="d-grid gap-2">
+          <button type="button" class="btn btn-connect" id="confirmSubmit">
+            <i class="bi bi-check-lg me-1"></i> Yes, Connect
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-cancel" data-bs-dismiss="modal">Go Back</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const form = document.getElementById('connectForm');
+  const connectBtn = document.getElementById('connectBtn');
+  const confirmSubmit = document.getElementById('confirmSubmit');
+  const modalEl = document.getElementById('confirmModal');
+  const modal = new bootstrap.Modal(modalEl);
+  const nameDisplay = document.getElementById('modalAccountName');
+  const permsContainer = document.getElementById('modalPerms');
+
+  // Permission card toggle styling
+  document.querySelectorAll('.perm-card input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+      this.closest('.perm-card').classList.toggle('checked', this.checked);
+    });
+  });
+
+  connectBtn.addEventListener('click', function() {
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const accName = form.querySelector('[name="account_name"]').value.trim();
+    nameDisplay.textContent = accName || '—';
+
+    // Show selected permissions in modal
+    const permLabels = {
+      'can_read_messages': 'Read Messages',
+      'can_send_messages': 'Send Messages',
+      'can_auto_reply': 'AI Auto-Reply',
+      'can_post_content': 'Post Content'
+    };
+    permsContainer.innerHTML = '';
+    Object.entries(permLabels).forEach(([name, label]) => {
+      const cb = form.querySelector(`[name="${name}"]`);
+      if (cb && cb.checked) {
+        permsContainer.innerHTML += `<span class="perm-badge">${label}</span>`;
+      }
+    });
+
+    modal.show();
+  });
+
+  confirmSubmit.addEventListener('click', function() {
+    form.submit();
+  });
+})();
+
+function copyWebhook() {
+  const urlInput = document.getElementById('webhookUrl');
+  navigator.clipboard.writeText(urlInput.value).then(() => {
+    const btn = urlInput.nextElementSibling;
+    btn.innerHTML = '<i class="bi bi-check-lg text-success"></i>';
+    setTimeout(() => { btn.innerHTML = '<i class="bi bi-copy"></i>'; }, 2000);
+  });
+}
+</script>
+{% endblock %}

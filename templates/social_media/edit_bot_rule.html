@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Edit Bot Rule — WorkHub{% endblock %}
+
+{% block extra_head %}
+<style>
+  .rule-form-card {
+    border: none; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,.08); max-width: 680px; margin: 0 auto;
+  }
+  .rule-form-header {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: #fff; padding: 1.5rem 2rem; border: none;
+  }
+  .rule-form-header h5 { font-weight: 700; margin-bottom: .25rem; }
+  .rule-form-header p { opacity: .8; font-size: .85rem; margin-bottom: 0; }
+  .rule-form-body { padding: 2rem; }
+
+  .field-group { margin-bottom: 1.1rem; }
+  .field-group label { font-size: .8rem; font-weight: 600; color: #374151; margin-bottom: .35rem; display: block; }
+  .field-group .form-control, .field-group .form-select {
+    border-radius: 10px; border: 1.5px solid #e5e7eb; padding: .55rem .9rem; font-size: .9rem;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .field-group .form-control:focus, .field-group .form-select:focus {
+    border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79,172,254,.15);
+  }
+  .field-group .form-text { font-size: .75rem; }
+
+  .field-row { display: flex; gap: .75rem; }
+  .field-row .field-group { flex: 1; }
+
+  .section-divider { border: none; border-top: 1px dashed #e5e7eb; margin: 1.25rem 0; }
+  .section-label {
+    font-size: .7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: #9ca3af; margin-bottom: .75rem;
+  }
+
+  .scope-option {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .6rem .9rem; border-radius: 10px; background: #f8fafc;
+    border: 1.5px solid #e5e7eb; cursor: pointer; transition: all .15s;
+  }
+  .scope-option:has(input:checked) { background: #eff6ff; border-color: #4facfe; }
+  .scope-option input { margin: 0; }
+
+  .switch-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .75rem 1rem; border-radius: 10px; background: #f8fafc;
+    margin-bottom: .5rem;
+  }
+
+  .btn-submit {
+    border-radius: 12px; padding: .7rem 1.5rem; font-weight: 600;
+    background: linear-gradient(135deg, #4facfe, #00f2fe); border: none; color: #fff;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,.15); color: #fff; }
+  .btn-cancel { border-radius: 12px; padding: .7rem 1.5rem; }
+
+  .breadcrumb a { color: #667eea; text-decoration: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'social_media:dashboard' %}">Social Media</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'social_media:bot_settings' %}">Bot Settings</a></li>
+      <li class="breadcrumb-item active">Edit Rule</li>
+    </ol>
+  </nav>
+
+  <div class="rule-form-card card">
+    <div class="rule-form-header">
+      <h5><i class="bi bi-pencil-square me-2"></i>Edit Auto-Reply Rule</h5>
+      <p>Update your bot's behavior and response settings</p>
+    </div>
+    <div class="rule-form-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>Platform <span class="text-danger">*</span></label>
+            <select name="platform" class="form-select" required>
+              {% for key, name in platform_choices %}
+              <option value="{{ key }}" {% if rule.platform == key %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Account <span class="text-muted fw-normal">(optional)</span></label>
+            <select name="account" class="form-select">
+              <option value="">All accounts</option>
+              {% for acc in accounts %}
+              <option value="{{ acc.pk }}" {% if rule.account_id == acc.pk %}selected{% endif %}>
+                {{ acc.get_platform_display }} — {{ acc.account_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Bot Persona Name</label>
+          <input type="text" name="persona_name" class="form-control" value="{{ rule.persona_name }}">
+        </div>
+
+        <div class="field-group">
+          <label>AI Instructions</label>
+          <textarea name="custom_instructions" class="form-control" rows="3">{{ rule.custom_instructions }}</textarea>
+        </div>
+
+        <div class="field-group">
+          <label>Keyword Triggers <span class="text-muted fw-normal">(optional)</span></label>
+          <input type="text" name="keywords" class="form-control" value="{{ rule.keywords }}">
+          <div class="form-text">Comma-separated. Leave empty to reply to all messages.</div>
+        </div>
+
+        <div class="section-divider"></div>
+        <div class="section-label">Reply Scope</div>
+        <div class="d-flex gap-2 mb-3 flex-wrap">
+          <label class="scope-option">
+            <input class="form-check-input" type="checkbox" name="reply_to_dms" {% if rule.reply_to_dms %}checked{% endif %}>
+            <i class="bi bi-envelope-fill text-muted"></i>
+            <span class="small fw-semibold">DMs</span>
+          </label>
+          <label class="scope-option">
+            <input class="form-check-input" type="checkbox" name="reply_to_comments" {% if rule.reply_to_comments %}checked{% endif %}>
+            <i class="bi bi-chat-fill text-muted"></i>
+            <span class="small fw-semibold">Comments</span>
+          </label>
+          <label class="scope-option">
+            <input class="form-check-input" type="checkbox" name="reply_to_groups" {% if rule.reply_to_groups %}checked{% endif %}>
+            <i class="bi bi-people-fill text-muted"></i>
+            <span class="small fw-semibold">Groups</span>
+          </label>
+        </div>
+
+        <div class="section-divider"></div>
+        <div class="section-label">Behavior</div>
+        <div class="switch-row">
+          <div>
+            <span class="fw-semibold small">Enable Rule</span>
+          </div>
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" name="is_enabled" id="enabled" {% if rule.is_enabled %}checked{% endif %}>
+          </div>
+        </div>
+        <div class="switch-row">
+          <div>
+            <span class="fw-semibold small">Auto-send replies</span>
+            <span class="badge bg-warning bg-opacity-10 text-warning ms-2" style="font-size:.65rem; border-radius:6px;">No review</span>
+          </div>
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" name="auto_send" id="autosend" {% if rule.auto_send %}checked{% endif %}>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-submit">
+            <i class="bi bi-check-lg me-1"></i>Save Changes
+          </button>
+          <a href="{% url 'social_media:bot_settings' %}" class="btn btn-outline-secondary btn-cancel">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
