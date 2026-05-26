@@ -111,11 +111,11 @@
       <div class="dash-panel-body">
         {% if recent_emails %}
           {% for email in recent_emails %}
-          <a href="{% url 'email_hub:email_detail' email.id %}" class="dash-email-row {% if not email.isRead %}dash-email-row--unread{% endif %}">
+          <a href="{% url 'email_hub:detail' email.id %}" class="dash-email-row {% if not email.isRead %}dash-email-row--unread{% endif %}">
             <div class="dash-email-avatar">{{ email.from.emailAddress.name|first|upper|default:"?" }}</div>
             <div class="dash-email-content">
               <div class="dash-email-top">
-                <span class="dash-email-sender">{{ email.from.emailAddress.name|default:email.from.emailAddress.address }}</span>
+                <span class="dash-email-sender">{{ email.from.emailAddress.name|default:"Unknown" }}</span>
                 <span class="dash-email-time">{{ email.receivedDateTime|slice:":10" }}</span>
               </div>
               <div class="dash-email-subject {% if not email.isRead %}dash-email-subject--bold{% endif %}">

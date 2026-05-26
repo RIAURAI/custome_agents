@@ -1,0 +1,133 @@
+<!-- Discord Connect Modal -->
+<div class="modal fade" id="discordConnectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content" style="border:none;border-radius:20px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.25);">
+      <div class="modal-header" style="border:none;padding:1.8rem 2.2rem 1.2rem;background:linear-gradient(135deg,#f8fafc 0%,#eef2ff 100%);">
+        <div class="d-flex align-items-center gap-3">
+          <div style="width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#5865F212;">
+            <i class="bi bi-discord" style="font-size:1.5rem;color:#5865F2;"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0">Connect Discord</h5>
+            <p class="text-muted small mb-0">Set up your Discord bot step by step</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="padding:1.2rem 2.2rem 2rem;">
+
+        <!-- Step-by-step guide -->
+        <div class="accordion mb-3" id="discordSteps">
+          <div class="accordion-item" style="border:1px solid var(--border);border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ds1" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">1</span>
+                Create a Discord Application
+              </button>
+            </h2>
+            <div id="ds1" class="accordion-collapse collapse show" data-bs-parent="#discordSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                Go to <a href="https://discord.com/developers/applications" target="_blank" class="fw-semibold text-primary">Discord Developer Portal</a> → Click <strong>New Application</strong> → Give it a name → Create.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item" style="border:1px solid var(--border);border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ds2" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">2</span>
+                Create a Bot & Get Token
+              </button>
+            </h2>
+            <div id="ds2" class="accordion-collapse collapse" data-bs-parent="#discordSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                In your App → <strong>Bot</strong> tab → Click <strong>Reset Token</strong> → Copy the token.<br>
+                Enable these Privileged Intents:<br>
+                • <code>MESSAGE CONTENT INTENT</code><br>
+                • <code>SERVER MEMBERS INTENT</code><br>
+                • <code>PRESENCE INTENT</code>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item" style="border:1px solid var(--border);border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ds3" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">3</span>
+                Invite Bot to Your Server
+              </button>
+            </h2>
+            <div id="ds3" class="accordion-collapse collapse" data-bs-parent="#discordSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                <strong>OAuth2</strong> → URL Generator → Select scopes: <code>bot</code>, <code>applications.commands</code><br>
+                Bot Permissions: Send Messages, Read Message History, Manage Messages<br>
+                Open the generated URL → Select your server → Authorize.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item" style="border:1px solid var(--border);border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ds4" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">4</span>
+                Get Server (Guild) ID
+              </button>
+            </h2>
+            <div id="ds4" class="accordion-collapse collapse" data-bs-parent="#discordSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                Enable <strong>Developer Mode</strong>: User Settings → Advanced → Developer Mode ON.<br>
+                Right-click your server name → <strong>Copy Server ID</strong>. This is your Guild ID.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item" style="border:1px solid var(--border);border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ds5" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">5</span>
+                Enter Credentials Below
+              </button>
+            </h2>
+            <div id="ds5" class="accordion-collapse collapse" data-bs-parent="#discordSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                Fill in your <strong>Bot Token</strong> and <strong>Guild ID</strong> below. Webhook URL is optional (for receiving events). Click <strong>Connect & Save</strong> — we'll verify the token.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form method="post" action="{% url 'integrations:discord_save_credentials' %}" id="discordForm">
+          {% csrf_token %}
+          <div style="background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-top:1.2rem;">
+            <h6 style="font-size:.85rem;font-weight:700;margin-bottom:1rem;"><i class="bi bi-key-fill me-2" style="color:#5865F2;"></i>Discord Credentials</h6>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold" style="font-size:.78rem;">Bot Token <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="password" class="form-control" name="discord_bot_token" required placeholder="Paste your bot token here" style="border-radius:var(--radius-btn) 0 0 var(--radius-btn);font-size:.85rem;">
+                  <button class="btn btn-outline-secondary" type="button" onclick="let i=this.previousElementSibling;i.type=i.type==='password'?'text':'password'" style="border-radius:0 var(--radius-btn) var(--radius-btn) 0;">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+                <div class="form-text" style="font-size:.7rem;"><i class="bi bi-lock-fill me-1"></i>Encrypted before storing</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold" style="font-size:.78rem;">Server (Guild) ID</label>
+                <input type="text" class="form-control" name="discord_guild_id" placeholder="e.g. 1234567890123456789" style="font-size:.85rem;">
+                <div class="form-text" style="font-size:.7rem;">Right-click server → Copy Server ID</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold" style="font-size:.78rem;">Webhook URL (Optional)</label>
+                <input type="url" class="form-control" name="discord_webhook_url" placeholder="https://discord.com/api/webhooks/..." style="font-size:.85rem;">
+                <div class="form-text" style="font-size:.7rem;">Channel Settings → Integrations → Webhooks</div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer" style="border:none;padding:0 2.2rem 1.8rem;justify-content:space-between;">
+        <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal" style="border-radius:10px;padding:.55rem 1.5rem;">Cancel</button>
+        <button type="submit" form="discordForm" class="btn text-white fw-bold" style="background:#5865F2;border-radius:10px;padding:.7rem 2.2rem;font-size:.88rem;">
+          <i class="bi bi-plug-fill me-2"></i>Connect & Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

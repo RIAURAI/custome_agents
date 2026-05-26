@@ -6,12 +6,18 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
 
+from companies.middleware import has_platform_access, log_activity
+
 import openai
 
 
 @login_required
 def home(request):
-    return render(request, "ai_assistant/assistant.html")
+    ctx = {
+        "has_ms_access": bool(has_platform_access(request, "microsoft")),
+        "has_slack_access": bool(has_platform_access(request, "slack")),
+    }
+    return render(request, "ai_assistant/assistant.html", ctx)
 
 
 @login_required
@@ -62,6 +68,7 @@ def ask(request):
             temperature=0.4,
         )
         result = response.choices[0].message.content.strip()
+        log_activity(request, "ai_summarize" if action_type == "summarize" else "ai_reply", "microsoft", f"{action_type}: {text[:100]}")
         return JsonResponse({"result": result})
     except openai.AuthenticationError:
         return JsonResponse({"error": "Invalid OpenAI API key."}, status=401)

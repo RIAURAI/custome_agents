@@ -1,9 +1,12 @@
 Django>=5.0
+django-unfold>=0.81.0
 psycopg2-binary>=2.9
 msal>=1.28
 cryptography>=42.0
 openai>=1.30
 python-decouple>=3.8
+dj-database-url>=2.1
 whitenoise>=6.6
 requests>=2.31
 slack-sdk>=3.27
+google-auth>=2.29

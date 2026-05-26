@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Gmail — WorkHub{% endblock %}
+{% block page_title %}Gmail{% endblock %}
+
+{% block content %}
+
+<!-- Top toolbar -->
+<div class="ibx-toolbar mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <div class="ibx-toolbar-icon" style="background:linear-gradient(135deg,#EA4335,#FBBC05);">
+      <i class="bi bi-envelope-fill"></i>
+    </div>
+    <div>
+      <h4 class="ibx-toolbar-title">Gmail Inbox</h4>
+      <p class="ibx-toolbar-sub">Google Workspace · {% if emails %}{{ emails|length }} message{{ emails|length|pluralize }}{% else %}No messages{% endif %}</p>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'google_hub:calendar' %}" class="btn btn-sm" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:8px;font-weight:600;font-size:.82rem;">
+      <i class="bi bi-calendar3 me-1"></i>Calendar
+    </a>
+    <a href="{% url 'google_hub:meet' %}" class="btn btn-sm" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:8px;font-weight:600;font-size:.82rem;">
+      <i class="bi bi-camera-video me-1"></i>Meet
+    </a>
+    <a href="{% url 'google_hub:compose' %}" class="btn ibx-compose-btn">
+      <i class="bi bi-pencil-square me-2"></i>Compose
+    </a>
+  </div>
+</div>
+
+{% if error %}
+<div class="alert alert-warning mb-3" style="font-size:.875rem;border-radius:12px;">
+  <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+</div>
+{% endif %}
+
+{% if emails %}
+
+<!-- Email list -->
+<div class="ibx-list">
+  <div class="ibx-list-header">
+    <span>From</span>
+    <span class="ibx-list-header-subject">Subject</span>
+    <span>Date</span>
+  </div>
+
+  {% for email in emails %}
+  <a href="{% url 'google_hub:detail' email.id %}"
+     class="ibx-row {% if email.is_unread %}ibx-row--unread{% endif %}">
+
+    <!-- Avatar -->
+    <div class="ibx-avatar {% if email.is_unread %}ibx-avatar--unread{% endif %}">
+      {{ email.parsed_headers.from|first|upper|default:"?" }}
+    </div>
+
+    <!-- Sender name -->
+    <div class="ibx-sender">{{ email.parsed_headers.from|truncatechars:30 }}</div>
+
+    <!-- Subject -->
+    <div class="ibx-body">
+      <span class="ibx-subject {% if email.is_unread %}ibx-subject--unread{% endif %}">
+        {% if email.is_unread %}<span class="ibx-dot"></span>{% endif %}
+        {{ email.parsed_headers.subject|default:"(no subject)" }}
+      </span>
+      <span class="ibx-preview">&nbsp;— {{ email.snippet|truncatechars:60 }}</span>
+    </div>
+
+    <!-- Meta -->
+    <div class="ibx-meta">
+      {% if email.is_unread %}<span class="ibx-unread-badge">New</span>{% endif %}
+      <span class="ibx-date">{{ email.parsed_headers.date|truncatechars:16 }}</span>
+    </div>
+
+  </a>
+  {% endfor %}
+</div>
+
+{% else %}
+<!-- Empty state -->
+<div class="ibx-empty">
+  {% if not google_connected %}
+  <div class="ibx-empty-visual">
+    <div class="ibx-empty-ring"></div>
+    <div class="ibx-empty-ring ibx-empty-ring--2"></div>
+    <div class="ibx-empty-circle"><i class="bi bi-google"></i></div>
+  </div>
+  <h5 class="ibx-empty-title">Connect Google Workspace to access Gmail</h5>
+  <p class="ibx-empty-sub">Read Gmail, manage Calendar, and join Google Meet — all without leaving WorkHub.</p>
+  <a href="{% url 'integrations:connect' %}" class="btn ibx-connect-btn">
+    <i class="bi bi-box-arrow-in-right me-2"></i>Connect Google Workspace
+  </a>
+  {% else %}
+  <div class="ibx-empty-visual">
+    <div class="ibx-empty-ring"></div>
+    <div class="ibx-empty-circle"><i class="bi bi-inbox"></i></div>
+  </div>
+  <h5 class="ibx-empty-title">You're all caught up!</h5>
+  <p class="ibx-empty-sub">No messages in your inbox. New emails will appear here.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
