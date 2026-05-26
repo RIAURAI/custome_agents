@@ -1,0 +1,198 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block title %}How It Works — WorkHub{% endblock %}
+{% block content %}
+
+<!-- HIW HERO -->
+<section class="hiw-hero sect-purple">
+  <div class="hiw-hero-bg"></div>
+  <div class="pub-wrap" style="position:relative;z-index:1;">
+    <div class="eyebrow amber reveal">How It Works</div>
+    <h1 class="reveal d1" style="font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1.05;letter-spacing:-.05em;color:var(--text);margin-bottom:18px;">
+      From scattered<br><span class="amber-span">to sorted</span> in 4 steps.
+    </h1>
+    <p class="reveal d2" style="font-size:1.05rem;line-height:1.8;color:var(--muted);max-width:540px;">
+      No engineering required. No documentation rabbit holes. Just connect your accounts and WorkHub handles the rest.
+    </p>
+  </div>
+</section>
+
+<!-- STEPS TIMELINE -->
+<section class="sect-white" style="padding:80px 0 60px;">
+  <div class="pub-wrap">
+    <div class="steps-timeline">
+
+      <div class="step-row reveal">
+        <div class="step-n"><div class="step-n-num">01</div></div>
+        <div class="step-content">
+          <h3>Create your free account</h3>
+          <p>Head to the register page, enter your details, and you\'re in. No payment required, no plan selection, no confusing onboarding flows.</p>
+          <ul class="step-bullets">
+            <li>Takes under 60 seconds</li>
+            <li>No credit card ever required</li>
+            <li>Immediately redirected to your dashboard</li>
+            <li>Secure password hashing via Django auth</li>
+          </ul>
+          <a href="/accounts/register/" class="btn-blue" style="display:inline-flex;margin-top:22px;"><i class="bi bi-person-plus-fill"></i> Create Account</a>
+        </div>
+        <div class="step-vis">
+          <div style="font-size:.68rem;color:var(--subtle);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">Sign Up Form</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;padding:9px 12px;font-size:.78rem;color:var(--subtle);">Username</div>
+            <div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;padding:9px 12px;font-size:.78rem;color:var(--subtle);">Work Email</div>
+            <div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;padding:9px 12px;font-size:.78rem;color:var(--subtle);">Password</div>
+            <div style="background:var(--blue);border-radius:7px;padding:9px 12px;text-align:center;font-size:.78rem;font-weight:600;color:#fff;">Create Account →</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-row reveal">
+        <div class="step-n"><div class="step-n-num">02</div></div>
+        <div class="step-content">
+          <h3>Connect Microsoft 365</h3>
+          <p>Click "Connect Microsoft" from your integrations page. You\'re redirected to Microsoft\'s secure OAuth login — sign in with your work or personal account and approve the permissions.</p>
+          <p style="margin-top:10px;font-size:.875rem;line-height:1.75;color:var(--muted);">WorkHub only requests read access to your mail and calendar. Tokens are Fernet-encrypted before storage. We never see your password.</p>
+          <ul class="step-bullets">
+            <li>Standard Microsoft OAuth 2.0 + MSAL</li>
+            <li>Access tokens auto-refreshed</li>
+            <li>All tokens encrypted at rest</li>
+            <li>Disconnect with one click anytime</li>
+          </ul>
+        </div>
+        <div class="step-vis">
+          <div style="font-size:.68rem;color:var(--subtle);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">Integrations Page</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 12px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:.78rem;color:var(--muted);">
+              <i class="bi bi-microsoft" style="color:var(--blue);"></i>
+              <div style="flex:1;"><div style="color:var(--text);font-weight:600;font-size:.76rem;">Microsoft 365</div><div style="font-size:.68rem;">Outlook + Calendar</div></div>
+              <span style="background:var(--blue);border-radius:5px;padding:3px 10px;font-size:.68rem;font-weight:600;color:#fff;">Connect</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 12px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:8px;font-size:.78rem;color:var(--subtle);">
+              <i class="bi bi-slack"></i>
+              <div style="flex:1;"><div style="font-size:.76rem;">Slack</div><div style="font-size:.68rem;">Channels + Messages</div></div>
+              <span style="background:rgba(255,255,255,.06);border-radius:5px;padding:3px 10px;font-size:.68rem;font-weight:600;color:var(--muted);">Connect</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-row reveal">
+        <div class="step-n"><div class="step-n-num">03</div></div>
+        <div class="step-content">
+          <h3>Add your Slack workspace</h3>
+          <p>Click "Connect Slack" and complete the Slack OAuth flow. WorkHub gets authorized to read channels and post messages. From that point, Slack Hub shows all your accessible channels.</p>
+          <ul class="step-bullets">
+            <li>Full Slack OAuth 2.0 — secure and revokable</li>
+            <li>All accessible channels appear immediately</li>
+            <li>Read message history with timestamps</li>
+            <li>Set keyword-triggered AI auto-replies</li>
+          </ul>
+        </div>
+        <div class="step-vis">
+          <div style="font-size:.68rem;color:var(--subtle);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">Slack Hub — Channels</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:7px;border:1px solid var(--line);font-size:.78rem;color:var(--muted);">
+              <i class="bi bi-hash" style="color:var(--subtle);"></i> general
+              <span style="margin-left:auto;background:rgba(59,130,246,.15);color:var(--blue);font-size:.65rem;border-radius:4px;padding:2px 6px;font-weight:600;">3 new</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:7px;border:1px solid var(--line);font-size:.78rem;color:var(--muted);">
+              <i class="bi bi-hash" style="color:var(--subtle);"></i> engineering
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:7px;border:1px solid var(--line);font-size:.78rem;color:var(--muted);">
+              <i class="bi bi-hash" style="color:var(--subtle);"></i> sales
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-row reveal">
+        <div class="step-n"><div class="step-n-num">04</div></div>
+        <div class="step-content">
+          <h3>Let AI handle the heavy lifting</h3>
+          <p>With integrations connected, open any email in Email Hub and hit Summarize for a 5-bullet breakdown, or Draft Reply for a professional response ready in seconds. Nothing is sent automatically — you stay in control.</p>
+          <ul class="step-bullets">
+            <li>Email summarization — 5 bullets with action items</li>
+            <li>Reply drafts under 150 words</li>
+            <li>Slack channel summarization</li>
+            <li>Auto-reply rules with keyword triggers</li>
+            <li>Message urgency classification</li>
+          </ul>
+          <a href="/accounts/register/" class="btn-amber" style="display:inline-flex;margin-top:22px;"><i class="bi bi-stars"></i> Try It Free</a>
+        </div>
+        <div class="step-vis">
+          <div style="font-size:.68rem;color:var(--subtle);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">AI Assistant Output</div>
+          <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);border-radius:8px;padding:12px;">
+            <div style="font-size:.65rem;color:var(--amber);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:4px;"><i class="bi bi-stars"></i> Summary</div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div style="font-size:.75rem;color:var(--muted);display:flex;gap:6px;"><i class="bi bi-dot" style="color:var(--amber);font-size:1rem;margin-top:-3px;flex-shrink:0;"></i>Q2 targets missed by 12%</div>
+              <div style="font-size:.75rem;color:var(--muted);display:flex;gap:6px;"><i class="bi bi-dot" style="color:var(--amber);font-size:1rem;margin-top:-3px;flex-shrink:0;"></i>Board wants breakdown by Friday</div>
+              <div style="font-size:.75rem;color:var(--muted);display:flex;gap:6px;"><i class="bi bi-dot" style="color:var(--amber);font-size:1rem;margin-top:-3px;flex-shrink:0;"></i>Pull numbers + call sales team</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- TECH SPECS (no cards - table style) -->
+<section class="specs-section sect-purple">
+  <div class="pub-wrap">
+    <div style="margin-bottom:36px;" class="reveal">
+      <div class="eyebrow">Under the Hood</div>
+      <h2 class="section-h" style="font-size:clamp(1.8rem,3.5vw,2.8rem);">Built on<br><span class="blue-span">solid foundations.</span></h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" class="specs-grid-wrap">
+      <div style="border:1px solid var(--line);border-radius:14px;overflow:hidden;" class="reveal d1">
+        <div style="padding:16px 22px;border-bottom:1px solid var(--line);"><div style="font-size:.75rem;font-weight:700;color:var(--subtle);text-transform:uppercase;letter-spacing:.08em;">Backend</div></div>
+        <div style="display:flex;flex-direction:column;">
+          <div style="display:flex;border-bottom:1px solid var(--line);"><div style="padding:13px 22px;font-size:.82rem;color:var(--subtle);font-weight:600;width:140px;flex-shrink:0;background:rgba(255,255,255,.01);">Framework</div><div style="padding:13px 22px;font-size:.82rem;color:var(--muted);">Django 6 (Python)</div></div>
+          <div style="display:flex;border-bottom:1px solid var(--line);"><div style="padding:13px 22px;font-size:.82rem;color:var(--subtle);font-weight:600;width:140px;flex-shrink:0;background:rgba(255,255,255,.01);">Database</div><div style="padding:13px 22px;font-size:.82rem;color:var(--muted);">SQLite / PostgreSQL via psycopg2</div></div>
+          <div style="display:flex;border-bottom:1px solid var(--line);"><div style="padding:13px 22px;font-size:.82rem;color:var(--subtle);font-weight:600;width:140px;flex-shrink:0;background:rgba(255,255,255,.01);">Auth</div><div style="padding:13px 22px;font-size:.82rem;color:var(--muted);">Django auth + MSAL OAuth</div></div>
+          <div style="display:flex;"><div style="padding:13px 22px;font-size:.82rem;color:var(--subtle);font-weight:600;width:140px;flex-shrink:0;background:rgba(255,255,255,.01);">Encryption</div><div style="padding:13px 22px;font-size:.82rem;color:var(--muted);">Fernet symmetric (cryptography)</div></div>
+        </div>
+      </div>
+      <div style="border:1px solid var(--line);border-radius:14px;overflow:hidden;" class="reveal d2">
+        <div style="padding:16px 22px;border-bottom:1px solid var(--line);"><div style="font-size:.75rem;font-weight:700;color:var(--subtle);text-transform:uppercase;letter-spacing:.08em;">Integrations</div></div>
+        <div style="display:flex;flex-direction:column;">
+          <div style="display:flex;border-bottom:1px solid var(--line);"><div style="padding:13px 22px;font-size:.82rem;color:var(--subtle);font-weight:600;width:140px;flex-shrink:0;background:rgba(255,255,255,.01);">Email</div><div style="padding:13px 22px;font-size:.82rem;color:var(--muted);">Microsoft Graph /me/messages</div></div>
+          <div style="display:flex;border-bottom:1px solid var(--line);"><div style="padding:13px 22px;font-size:.82rem;color:var(--subtle);font-weight:600;width:140px;flex-shrink:0;background:rgba(255,255,255,.01);">Calendar</div><div style="padding:13px 22px;font-size:.82rem;color:var(--muted);">Microsoft Graph /me/calendarView</div></div>
+          <div style="display:flex;border-bottom:1px solid var(--line);"><div style="padding:13px 22px;font-size:.82rem;color:var(--subtle);font-weight:600;width:140px;flex-shrink:0;background:rgba(255,255,255,.01);">Slack</div><div style="padding:13px 22px;font-size:.82rem;color:var(--muted);">Slack Web API via slack-sdk</div></div>
+          <div style="display:flex;"><div style="padding:13px 22px;font-size:.82rem;color:var(--subtle);font-weight:600;width:140px;flex-shrink:0;background:rgba(255,255,255,.01);">AI</div><div style="padding:13px 22px;font-size:.82rem;color:var(--muted);">OpenAI GPT-4o-mini (chat completions)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ (clean list, no card boxes) -->
+<section class="faq-section sect-white">
+  <div class="pub-wrap">
+    <div style="margin-bottom:40px;" class="reveal">
+      <div class="eyebrow green">FAQ</div>
+      <h2 class="section-h" style="font-size:clamp(1.8rem,3.5vw,2.8rem);">Common questions,<br><span class="green-span">straight answers.</span></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item reveal"><div class="faq-q">Does WorkHub store my emails?</div><div class="faq-a">No. Email content is fetched from Microsoft Graph on demand and displayed. It is never written to our database.</div></div>
+      <div class="faq-item reveal d1"><div class="faq-q">Can I disconnect an integration anytime?</div><div class="faq-a">Yes. From the integrations page you can revoke access to Microsoft or Slack instantly. Tokens are deleted from the database immediately.</div></div>
+      <div class="faq-item reveal d2"><div class="faq-q">Which Microsoft account types are supported?</div><div class="faq-a">Both personal Microsoft accounts and work/school Microsoft 365 accounts work fine. If you can log in at login.microsoftonline.com, it will work.</div></div>
+      <div class="faq-item reveal d3"><div class="faq-q">Does the AI send replies automatically?</div><div class="faq-a">No — the AI drafts a reply for you to review. Nothing is sent without you explicitly sending it. Slack auto-reply rules are the exception, and those are configured manually by you.</div></div>
+      <div class="faq-item reveal"><div class="faq-q">Is it really free to use?</div><div class="faq-a">WorkHub is currently free. Individual use will always have a free tier. Team and enterprise plans are planned for the future.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-bleed">
+  <div class="pub-wrap" style="position:relative;z-index:1;">
+    <h2 class="reveal">Seen enough?<br><span class="amber-span">Let's get you set up.</span></h2>
+    <p class="reveal d1">Under 3 minutes from sign-up to a connected, working dashboard.</p>
+    <div class="cta-btn-row reveal d2">
+      <a href="/accounts/register/" class="btn-amber"><i class="bi bi-rocket-takeoff-fill"></i> Start for Free</a>
+      <a href="/contact/" class="btn-ghost">Have a question? <i class="bi bi-arrow-right"></i></a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

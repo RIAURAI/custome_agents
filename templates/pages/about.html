@@ -1,0 +1,165 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block title %}About — WorkHub{% endblock %}
+{% block content %}
+
+<!-- ABOUT HERO -->
+<section class="about-hero sect-purple">
+  <div class="about-hero-bg"></div>
+  <div class="pub-wrap" style="position:relative;z-index:1;">
+    <div class="about-headline">
+      <div class="eyebrow reveal">About WorkHub</div>
+      <h1 class="reveal d1" style="font-size:clamp(2.5rem,6vw,5rem);font-weight:900;line-height:1.05;letter-spacing:-.05em;color:var(--text);margin-bottom:22px;">
+        Built for the way<br>modern teams <span class="blue-span">actually work.</span>
+      </h1>
+      <p class="reveal d2" style="font-size:1.05rem;line-height:1.8;color:var(--muted);max-width:560px;">
+        WorkHub started as a frustration. Too many open tabs, too many missed messages, and too much time spent context-switching instead of doing real work.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- NUMBERS ROW -->
+<div class="numbers-row sect-white">
+  <div class="pub-wrap">
+    <div class="numbers-inner">
+      <div class="num-item reveal">
+        <div class="num-big nb"><span data-count="50000" data-suffix="+" data-dur="1800">0</span></div>
+        <div class="num-label">Emails processed</div>
+      </div>
+      <div class="num-item reveal d1">
+        <div class="num-big na"><span data-count="12000" data-suffix="+" data-dur="1600">0</span></div>
+        <div class="num-label">Meetings tracked</div>
+      </div>
+      <div class="num-item reveal d2">
+        <div class="num-big ng"><span data-count="99.9" data-suffix="%" data-dur="1400">0</span></div>
+        <div class="num-label">Uptime</div>
+      </div>
+      <div class="num-item reveal d3">
+        <div class="num-big np">4</div>
+        <div class="num-label">Integrated tools</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STORY -->
+<section class="story-section">
+  <div class="pub-wrap">
+    <div class="story-grid">
+      <div class="reveal">
+        <blockquote class="pull-quote">
+          "The average knowledge worker switches between 10+ apps every single day. That context-switching costs hours every week."
+        </blockquote>
+        <p style="font-size:.875rem;color:var(--muted);margin-top:16px;">We built WorkHub because we lived that problem. Outlook for email. Teams for meetings. Slack for chat. A browser for everything else. It\'s exhausting.</p>
+      </div>
+      <div class="story-body reveal d2">
+        <div class="eyebrow">Our Story</div>
+        <p>WorkHub is the answer to fragmented workdays. Instead of maintaining five different sessions across five different tools, we bring everything into one clean interface — and layer AI on top to handle the cognitive load.</p>
+        <p>The result: you spend less time triaging and more time actually thinking. Emails get summarized. Replies get drafted. Meetings show up without opening Teams. Slack channels are browsable without the endless scroll.</p>
+        <p>It\'s not magic. It\'s just good engineering applied to a real problem that every knowledge worker faces.</p>
+        <div style="display:flex;gap:14px;margin-top:28px;flex-wrap:wrap;">
+          <a href="/accounts/register/" class="btn-blue">Get Started Free</a>
+          <a href="/how-it-works/" class="btn-ghost">See How It Works <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT WE DO (no cards - mission list style) -->
+<section class="mission-section sect-purple">
+  <div class="pub-wrap">
+    <div style="margin-bottom:48px;" class="reveal">
+      <div class="eyebrow amber">What We Built</div>
+      <h2 class="section-h">Four tools that<br><span class="amber-span">work as one.</span></h2>
+    </div>
+    <div class="mission-list">
+      <div class="mission-item reveal">
+        <div class="mission-icon mi1"><i class="bi bi-envelope-paper-fill"></i></div>
+        <div>
+          <h4>Email Hub — Outlook without Outlook</h4>
+          <p>Connected directly to Microsoft Graph API. Your inbox loads inside WorkHub with unread counts, full message threads, and a clean reading experience. No separate browser tab needed.</p>
+        </div>
+      </div>
+      <div class="mission-item reveal d1">
+        <div class="mission-icon" style="background:rgba(245,158,11,.1);color:var(--amber);width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;margin-top:4px;"><i class="bi bi-stars"></i></div>
+        <div>
+          <h4>AI Assistant — GPT-4o-mini for your inbox</h4>
+          <p>A custom business-communication prompt drives every AI interaction. Summaries are concise, relevant, and action-focused. Draft replies sound natural — not like a bot wrote them.</p>
+        </div>
+      </div>
+      <div class="mission-item reveal d2">
+        <div class="mission-icon" style="background:rgba(52,211,153,.1);color:var(--green);width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;margin-top:4px;"><i class="bi bi-camera-video-fill"></i></div>
+        <div>
+          <h4>Meeting Manager — Calendar without Teams</h4>
+          <p>Uses Microsoft Calendar View API to fetch today's meetings in real time. Displays subject, start/end times, and one-click join links. Your schedule, where you actually work.</p>
+        </div>
+      </div>
+      <div class="mission-item reveal d3">
+        <div class="mission-icon" style="background:rgba(167,139,250,.12);color:#a78bfa;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;margin-top:4px;"><i class="bi bi-slack"></i></div>
+        <div>
+          <h4>Slack Hub — Channels without Slack open</h4>
+          <p>Full OAuth integration to your Slack workspace. Browse channels, read messages, send replies, and configure AI-driven auto-reply rules — all from your WorkHub dashboard.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES (no card boxes - just content separated by lines) -->
+<section class="sect-white" style="padding:80px 0;">
+  <div class="pub-wrap">
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:60px;align-items:start;" class="story-grid">
+      <div class="reveal">
+        <div class="eyebrow green">Our Principles</div>
+        <h2 class="section-h" style="font-size:clamp(1.8rem,3.5vw,2.8rem);">How we<br><span class="green-span">build things.</span></h2>
+      </div>
+      <div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div style="padding:28px 0;border-bottom:1px solid var(--line);" class="reveal d1">
+            <div style="display:flex;align-items:flex-start;gap:16px;">
+              <div style="width:36px;height:36px;background:rgba(59,130,246,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0;"><i class="bi bi-shield-lock-fill"></i></div>
+              <div>
+                <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:7px;">Security first, always</div>
+                <p style="font-size:.875rem;line-height:1.75;color:var(--muted);">All tokens are Fernet-encrypted before database storage. OAuth flows follow PKCE best practices. We never log email content or message bodies.</p>
+              </div>
+            </div>
+          </div>
+          <div style="padding:28px 0;border-bottom:1px solid var(--line);" class="reveal d2">
+            <div style="display:flex;align-items:flex-start;gap:16px;">
+              <div style="width:36px;height:36px;background:rgba(245,158,11,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--amber);flex-shrink:0;"><i class="bi bi-lightning-charge-fill"></i></div>
+              <div>
+                <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:7px;">Four features done right beats twelve done poorly</div>
+                <p style="font-size:.875rem;line-height:1.75;color:var(--muted);">We could build more integrations. We chose to do fewer things exceptionally well. Every feature is pressure-tested before it ships.</p>
+              </div>
+            </div>
+          </div>
+          <div style="padding:28px 0;" class="reveal d3">
+            <div style="display:flex;align-items:flex-start;gap:16px;">
+              <div style="width:36px;height:36px;background:rgba(52,211,153,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--green);flex-shrink:0;"><i class="bi bi-eye-slash-fill"></i></div>
+              <div>
+                <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:7px;">Minimal data footprint</div>
+                <p style="font-size:.875rem;line-height:1.75;color:var(--muted);">Email content is never persisted — fetched, rendered, discarded. Only what's needed to make the product work is stored. Your data stays yours.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-bleed">
+  <div class="pub-wrap" style="position:relative;z-index:1;">
+    <h2 class="reveal">Want to work<br><span class="blue-span">smarter?</span></h2>
+    <p class="reveal d1">Everything you need is already here. Just bring your accounts.</p>
+    <div class="cta-btn-row reveal d2">
+      <a href="/accounts/register/" class="btn-blue"><i class="bi bi-rocket-takeoff-fill"></i> Create Free Account</a>
+      <a href="/contact/" class="btn-ghost">Get in Touch</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

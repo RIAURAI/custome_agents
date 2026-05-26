@@ -1,0 +1,138 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block title %}Contact — WorkHub{% endblock %}
+{% block content %}
+
+<!-- CONTACT HERO -->
+<section class="contact-hero sect-purple">
+  <div class="pub-wrap">
+    <div class="eyebrow amber reveal">Contact</div>
+    <h1 class="reveal d1" style="font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1.05;letter-spacing:-.05em;color:var(--text);margin-bottom:18px;">
+      We're real people.<br><span class="amber-span">We actually respond.</span>
+    </h1>
+    <p class="reveal d2" style="font-size:1.05rem;line-height:1.8;color:var(--muted);max-width:520px;">
+      Questions about setup, feedback on the product, or just want to say hello — drop us a message and we'll get back to you within one business day.
+    </p>
+  </div>
+</section>
+
+<!-- CONTACT BODY -->
+<section style="padding:60px 0 80px;">
+<div class="pub-wrap">
+<div class="contact-layout">
+
+    <!-- LEFT PANEL: Info -->
+    <div class="contact-left reveal">
+
+      <div class="c-detail">
+        <div class="c-detail-icon ci-email"><i class="bi bi-envelope-fill"></i></div>
+        <div>
+          <div style="font-size:.78rem;font-weight:600;color:var(--subtle);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Email</div>
+          <div style="color:var(--text);font-size:.95rem;">hello@workhub.io</div>
+          <div style="color:var(--muted);font-size:.8rem;margin-top:2px;">We typically respond within a few hours</div>
+        </div>
+      </div>
+
+      <div class="c-detail">
+        <div class="c-detail-icon ci-loc"><i class="bi bi-geo-alt-fill"></i></div>
+        <div>
+          <div style="font-size:.78rem;font-weight:600;color:var(--subtle);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Location</div>
+          <div style="color:var(--text);font-size:.95rem;">Remote — Global</div>
+          <div style="color:var(--muted);font-size:.8rem;margin-top:2px;">Our team spans multiple time zones</div>
+        </div>
+      </div>
+
+      <div class="c-detail">
+        <div class="c-detail-icon ci-time"><i class="bi bi-clock-fill"></i></div>
+        <div>
+          <div style="font-size:.78rem;font-weight:600;color:var(--subtle);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Response time</div>
+          <div style="color:var(--text);font-size:.95rem;">Within 1 business day</div>
+          <div style="color:var(--muted);font-size:.8rem;margin-top:2px;">Mon – Fri, 9AM – 6PM (GMT)</div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;">
+        <div style="font-size:.78rem;font-weight:600;color:var(--subtle);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;">What do you need help with?</div>
+        <ul class="topics-list">
+          <li><i class="bi bi-microsoft"></i> Microsoft 365 connection issues</li>
+          <li><i class="bi bi-slack"></i> Slack integration setup</li>
+          <li><i class="bi bi-stars"></i> AI assistant questions</li>
+          <li><i class="bi bi-person-badge-fill"></i> Account or billing</li>
+          <li><i class="bi bi-bug-fill"></i> Bug report</li>
+          <li><i class="bi bi-lightbulb-fill"></i> Feature request</li>
+        </ul>
+      </div>
+
+      <div class="c-socials">
+        <a href="#" title="GitHub"><i class="bi bi-github"></i></a>
+        <a href="#" title="Twitter / X"><i class="bi bi-twitter-x"></i></a>
+        <a href="#" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: Form -->
+    <div class="contact-right sect-white reveal d2">
+
+      {% if messages %}
+        {% for message in messages %}
+          <div style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);color:var(--green);border-radius:10px;padding:14px 18px;font-size:.875rem;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+            <i class="bi bi-check-circle-fill"></i> {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <div style="margin-bottom:28px;">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:5px;">Send us a message</div>
+        <div style="font-size:.82rem;color:var(--subtle);">We read every message and respond personally.</div>
+      </div>
+
+      <form method="POST" action="{% url 'contact' %}" novalidate>
+        {% csrf_token %}
+
+        <div class="form-duo">
+          <div class="field">
+            <label>First Name</label>
+            <input type="text" name="first_name" placeholder="Sarah" required>
+          </div>
+          <div class="field">
+            <label>Last Name</label>
+            <input type="text" name="last_name" placeholder="Miller" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Work Email</label>
+          <input type="email" name="email" placeholder="sarah@company.com" required>
+        </div>
+
+        <div class="field">
+          <label>Subject</label>
+          <select name="subject" required>
+            <option value="" disabled selected>Select a topic...</option>
+            <option value="Microsoft 365 issue">Microsoft 365 connection issue</option>
+            <option value="Slack integration">Slack integration setup</option>
+            <option value="AI assistant">AI assistant question</option>
+            <option value="Account / billing">Account or billing</option>
+            <option value="Bug report">Bug report</option>
+            <option value="Feature request">Feature request</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Message</label>
+          <textarea name="message" rows="5" placeholder="Tell us what's going on or what you need. The more detail, the faster we can help." required></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit-full">
+          <i class="bi bi-send-fill"></i> Send Message
+        </button>
+
+        <p class="privacy-note"><i class="bi bi-shield-lock-fill"></i> We never share or sell your email address. Period.</p>
+      </form>
+    </div>
+</div>
+</div>
+</section>
+
+{% endblock %}

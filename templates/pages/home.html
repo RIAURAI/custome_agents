@@ -1,0 +1,400 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block title %}WorkHub — Your Unified Business Workspace{% endblock %}
+{% block content %}
+
+<!-- HERO -->
+<section class="hero-section sect-purple">
+  <div class="hero-glow"></div>
+  <div class="hero-dots"></div>
+  <div class="pub-wrap" style="width:100%;">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="hero-tag"><span></span> Live · Microsoft + Slack + AI</div>
+        <h1 class="hero-h">Stop<br>tab&nbsp;<em>hopping.</em></h1>
+        <p class="hero-sub">WorkHub pulls your Outlook inbox, Teams meetings, and Slack channels into one dashboard — then lets AI handle the grunt work.</p>
+        <div class="hero-btns">
+          <a href="/accounts/register/" class="btn-blue"><i class="bi bi-rocket-takeoff-fill"></i> Start for Free</a>
+          <a href="/how-it-works/" class="btn-ghost">See How It Works <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="hero-proof">
+          <div class="proof-pips"><span>JD</span><span>MK</span><span>SR</span><span>AL</span></div>
+          <p><strong>10,000+</strong> professionals already use WorkHub</p>
+        </div>
+      </div>
+      <div class="hero-panel reveal d2">
+        <div class="hero-panel-inner">
+          <div class="hp-header">
+            <div class="hp-dot" style="background:#ff5f57"></div>
+            <div class="hp-dot" style="background:#ffbd2e"></div>
+            <div class="hp-dot" style="background:#28c840"></div>
+            <div class="hp-url">app.workhub.io/dashboard</div>
+          </div>
+          <div class="hp-body">
+            <div class="hp-row">
+              <div class="hp-stat"><div class="hp-stat-val b">24</div><div class="hp-stat-lbl">Unread emails</div></div>
+              <div class="hp-stat"><div class="hp-stat-val a">3</div><div class="hp-stat-lbl">Meetings today</div></div>
+              <div class="hp-stat"><div class="hp-stat-val g">7</div><div class="hp-stat-lbl">Slack alerts</div></div>
+            </div>
+            <div class="hp-list">
+              <div class="hp-item">
+                <div class="hp-avatar av1">JD</div>
+                <div class="hp-text"><div class="t">Q2 Budget Review</div><div class="s">Can you review the attached spreadsheet...</div></div>
+                <div class="hp-dot-unread"></div>
+              </div>
+              <div class="hp-item">
+                <div class="hp-avatar av2">SR</div>
+                <div class="hp-text"><div class="t">Product Launch Plan</div><div class="s">Everything is on track for next Monday</div></div>
+                <div class="hp-dot-unread"></div>
+              </div>
+              <div class="hp-item">
+                <div class="hp-avatar av3">MK</div>
+                <div class="hp-text"><div class="t">Re: Client Proposal</div><div class="s">They loved it! Sending contract by EOD</div></div>
+              </div>
+            </div>
+            <div class="hp-ai">
+              <div class="hp-ai-icon"><i class="bi bi-stars"></i></div>
+              <p><strong>AI drafted a reply</strong> to Q2 Budget — ready to review</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-float-badge"><i class="bi bi-cpu-fill"></i> GPT-4o-mini active</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-track">
+    <div class="marquee-item"><i class="bi bi-microsoft"></i> Microsoft 365</div>
+    <div class="marquee-item"><i class="bi bi-envelope-fill"></i> Outlook Mail</div>
+    <div class="marquee-item"><i class="bi bi-camera-video-fill"></i> Teams Meetings</div>
+    <div class="marquee-item"><i class="bi bi-slack"></i> Slack Channels</div>
+    <div class="marquee-item"><i class="bi bi-cpu-fill"></i> OpenAI GPT-4o</div>
+    <div class="marquee-item"><i class="bi bi-shield-lock-fill"></i> OAuth 2.0 Secure</div>
+    <div class="marquee-item"><i class="bi bi-graph-up-arrow"></i> Microsoft Graph API</div>
+    <div class="marquee-item"><i class="bi bi-lightning-charge-fill"></i> Real-time Sync</div>
+  </div>
+</div>
+
+<!-- FEATURES INTERACTIVE SHOWCASE -->
+<section class="feat-section sect-white" id="features">
+  <div class="pub-wrap">
+    <div class="feat-head reveal">
+      <div class="eyebrow">Features</div>
+      <h2 class="section-h">Four tools.<br><span class="blue-span">One workspace.</span></h2>
+      <p class="feat-sub">Click any feature — or watch it demo itself.</p>
+    </div>
+    <div class="fshow-wrap">
+
+      <!-- LEFT tabs -->
+      <div class="fshow-tabs">
+
+        <div class="fshow-tab active" data-feat="email">
+          <div class="ft-accent"></div>
+          <div class="ft-inner">
+            <div class="ft-header">
+              <div class="ft-icon fi-blue"><i class="bi bi-envelope-paper-fill"></i></div>
+              <div class="ft-meta"><span class="ft-num">01</span><h3>Email Hub</h3></div>
+              <i class="bi bi-chevron-right ft-chevron"></i>
+            </div>
+            <div class="ft-body">
+              <p>Your Microsoft Outlook inbox pulled in via Microsoft Graph API. See unread counts, preview messages, and read full threads without opening a new tab.</p>
+              <div class="ft-tags">
+                <span class="ftag ft-blue"><i class="bi bi-microsoft"></i> Microsoft Graph</span>
+                <span class="ftag ft-blue"><i class="bi bi-shield-check"></i> OAuth 2.0</span>
+              </div>
+              <a href="/accounts/register/" class="feat-cta fc-blue">Connect Outlook <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+          <div class="ft-progress"><div class="ft-bar"></div></div>
+        </div>
+
+        <div class="fshow-tab" data-feat="ai">
+          <div class="ft-accent"></div>
+          <div class="ft-inner">
+            <div class="ft-header">
+              <div class="ft-icon fi-amber"><i class="bi bi-stars"></i></div>
+              <div class="ft-meta"><span class="ft-num">02</span><h3>AI Assistant</h3></div>
+              <i class="bi bi-chevron-right ft-chevron"></i>
+            </div>
+            <div class="ft-body">
+              <p>Paste any email and get a 5-bullet summary or a professional draft reply in under 10 seconds. Powered by GPT-4o-mini.</p>
+              <div class="ft-tags">
+                <span class="ftag ft-amber"><i class="bi bi-cpu-fill"></i> GPT-4o-mini</span>
+                <span class="ftag ft-amber"><i class="bi bi-lightning-fill"></i> Under 10s</span>
+              </div>
+              <a href="/accounts/register/" class="feat-cta fc-amber">Try AI Assistant <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+          <div class="ft-progress"><div class="ft-bar"></div></div>
+        </div>
+
+        <div class="fshow-tab" data-feat="meetings">
+          <div class="ft-accent"></div>
+          <div class="ft-inner">
+            <div class="ft-header">
+              <div class="ft-icon fi-green"><i class="bi bi-camera-video-fill"></i></div>
+              <div class="ft-meta"><span class="ft-num">03</span><h3>Meeting Manager</h3></div>
+              <i class="bi bi-chevron-right ft-chevron"></i>
+            </div>
+            <div class="ft-body">
+              <p>See today's Microsoft Teams meetings without touching the Teams app. Join links, start times, titles — right where your work already lives.</p>
+              <div class="ft-tags">
+                <span class="ftag ft-green"><i class="bi bi-calendar-check"></i> Teams Sync</span>
+                <span class="ftag ft-green"><i class="bi bi-link-45deg"></i> One-click Join</span>
+              </div>
+              <a href="/accounts/register/" class="feat-cta fc-green">View Meetings <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+          <div class="ft-progress"><div class="ft-bar"></div></div>
+        </div>
+
+        <div class="fshow-tab" data-feat="slack">
+          <div class="ft-accent"></div>
+          <div class="ft-inner">
+            <div class="ft-header">
+              <div class="ft-icon fi-purple"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg></div>
+              <div class="ft-meta"><span class="ft-num">04</span><h3>Slack Hub</h3></div>
+              <i class="bi bi-chevron-right ft-chevron"></i>
+            </div>
+            <div class="ft-body">
+              <p>Browse channels, send replies, and set AI auto-reply rules — without living in Slack all day. Stay responsive without the constant distraction.</p>
+              <div class="ft-tags">
+                <span class="ftag ft-purple"><i class="bi bi-slack"></i> Slack OAuth</span>
+                <span class="ftag ft-purple"><i class="bi bi-robot"></i> Auto-reply AI</span>
+              </div>
+              <a href="/accounts/register/" class="feat-cta fc-purple">Connect Slack <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+          <div class="ft-progress"><div class="ft-bar"></div></div>
+        </div>
+
+      </div><!-- /fshow-tabs -->
+
+      <!-- RIGHT preview -->
+      <div class="fshow-preview">
+
+        <!-- Email panel -->
+        <div class="fp-panel active" data-feat="email">
+          <div class="mock-win">
+            <div class="mock-bar"><div class="mock-dots"><span style="background:#ff5f57"></span><span style="background:#ffbd2e"></span><span style="background:#28c840"></span></div><div class="mock-url"><i class="bi bi-lock-fill" style="color:#10b981;font-size:.6rem"></i> app.workhub.io/email</div></div>
+            <div class="mock-body">
+              <div class="em-topbar"><span class="em-title">Inbox</span><span class="em-badge anim-pulse">24 unread</span></div>
+              <div class="em-list">
+                <div class="em-row em-unread anim-slide-in" style="--d:.05s"><div class="em-av" style="background:#6366f1">JD</div><div class="em-info"><div class="em-sub">Q2 Budget Review</div><div class="em-pre">Can you review the attached spreadsheet...</div></div><div class="em-dot"></div></div>
+                <div class="em-row em-unread anim-slide-in" style="--d:.15s"><div class="em-av" style="background:#10b981">SR</div><div class="em-info"><div class="em-sub">Product Launch Plan</div><div class="em-pre">Everything is on track for next Monday</div></div><div class="em-dot"></div></div>
+                <div class="em-row anim-slide-in" style="--d:.25s"><div class="em-av" style="background:#f59e0b">MK</div><div class="em-info"><div class="em-sub">Re: Client Proposal</div><div class="em-pre">They loved it! Sending contract by EOD</div></div></div>
+                <div class="em-row anim-slide-in" style="--d:.35s"><div class="em-av" style="background:#a78bfa">AL</div><div class="em-info"><div class="em-sub">Design Review Feedback</div><div class="em-pre">Some adjustments needed on the hero...</div></div></div>
+              </div>
+              <div class="em-ai-bar anim-slide-in" style="--d:.45s"><i class="bi bi-stars" style="color:#f59e0b"></i><span><strong>AI drafted a reply</strong> to Q2 Budget — ready to send</span><button class="em-review-btn">Review</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI panel -->
+        <div class="fp-panel" data-feat="ai">
+          <div class="mock-win">
+            <div class="mock-bar"><div class="mock-dots"><span style="background:#ff5f57"></span><span style="background:#ffbd2e"></span><span style="background:#28c840"></span></div><div class="mock-url"><i class="bi bi-lock-fill" style="color:#10b981;font-size:.6rem"></i> app.workhub.io/ai</div></div>
+            <div class="mock-body">
+              <div class="ai-chip-bar"><span class="ai-chip-badge"><i class="bi bi-stars"></i> GPT-4o-mini</span><span class="ai-status"><span class="ai-live-dot"></span>Live</span></div>
+              <div class="ai-email-in"><div class="ai-in-label">Email input</div><div class="ai-in-text">Following up on the proposal — client has concerns about pricing and timeline. They want a call before end of week. Legal needs the contract by Thursday...</div></div>
+              <div class="ai-divider"><span><i class="bi bi-stars"></i> Summarising…</span></div>
+              <div class="ai-out">
+                <div class="ai-bullet anim-typewriter" style="--d:.1s"><i class="bi bi-check-circle-fill"></i> Client concerns: pricing + timeline</div>
+                <div class="ai-bullet anim-typewriter" style="--d:.6s"><i class="bi bi-check-circle-fill"></i> Call required before end of week</div>
+                <div class="ai-bullet anim-typewriter" style="--d:1.1s"><i class="bi bi-check-circle-fill"></i> Legal contract due Thursday</div>
+                <div class="ai-bullet anim-typewriter" style="--d:1.6s"><i class="bi bi-check-circle-fill"></i> Scope adjustment needed</div>
+                <div class="ai-bullet anim-typewriter" style="--d:2.1s"><i class="bi bi-check-circle-fill"></i> Confirm your availability</div>
+              </div>
+              <div class="ai-actions"><button class="ai-btn-main"><i class="bi bi-stars"></i> Draft Reply</button><button class="ai-btn-sec">Copy Summary</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meetings panel -->
+        <div class="fp-panel" data-feat="meetings">
+          <div class="mock-win">
+            <div class="mock-bar"><div class="mock-dots"><span style="background:#ff5f57"></span><span style="background:#ffbd2e"></span><span style="background:#28c840"></span></div><div class="mock-url"><i class="bi bi-lock-fill" style="color:#10b981;font-size:.6rem"></i> app.workhub.io/meetings</div></div>
+            <div class="mock-body">
+              <div class="meet-header"><span class="meet-day">Today — Monday, 26 May</span><span class="meet-count anim-pulse">3 meetings</span></div>
+              <div class="meet-list">
+                <div class="meet-row meet-now anim-slide-in" style="--d:.05s"><div class="meet-time-col"><div class="meet-time">09:00</div><div class="meet-dur">45 min</div></div><div class="meet-info"><div class="meet-title">Q2 Budget Review</div><div class="meet-org"><i class="bi bi-microsoft"></i> Teams · 6 attendees</div></div><a class="meet-join-btn now-btn">Join Now</a></div>
+                <div class="meet-row anim-slide-in" style="--d:.2s"><div class="meet-time-col"><div class="meet-time">11:30</div><div class="meet-dur">30 min</div></div><div class="meet-info"><div class="meet-title">Product Sync</div><div class="meet-org"><i class="bi bi-microsoft"></i> Teams · 4 attendees</div></div><a class="meet-join-btn">Join</a></div>
+                <div class="meet-row anim-slide-in" style="--d:.35s"><div class="meet-time-col"><div class="meet-time">14:00</div><div class="meet-dur">60 min</div></div><div class="meet-info"><div class="meet-title">Client Presentation</div><div class="meet-org"><i class="bi bi-microsoft"></i> Teams · 8 attendees</div></div><a class="meet-join-btn">Join</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slack panel -->
+        <div class="fp-panel" data-feat="slack">
+          <div class="mock-win">
+            <div class="mock-bar"><div class="mock-dots"><span style="background:#ff5f57"></span><span style="background:#ffbd2e"></span><span style="background:#28c840"></span></div><div class="mock-url"><i class="bi bi-lock-fill" style="color:#10b981;font-size:.6rem"></i> app.workhub.io/slack</div></div>
+            <div class="mock-body sk-layout">
+              <div class="sk-sidebar"><div class="sk-ws">WorkHub</div><div class="sk-ch sk-active"><span class="sk-hash">#</span>general<span class="sk-cnt">12</span></div><div class="sk-ch"><span class="sk-hash">#</span>product<span class="sk-cnt">3</span></div><div class="sk-ch sk-ai-ch"><span class="sk-hash">#</span>sales<i class="bi bi-stars sk-ai-icon"></i></div><div class="sk-ch"><span class="sk-hash">#</span>design</div></div>
+              <div class="sk-main">
+                <div class="sk-msgs">
+                  <div class="sk-msg anim-slide-in" style="--d:.05s"><div class="sk-av" style="background:#6366f1">JD</div><div class="sk-mb"><div class="sk-name">John D <span class="sk-time">9:41 AM</span></div><div class="sk-text">Can everyone review the Q2 deck before Thursday?</div></div></div>
+                  <div class="sk-msg anim-slide-in" style="--d:.2s"><div class="sk-av" style="background:#10b981">SR</div><div class="sk-mb"><div class="sk-name">Sarah R <span class="sk-time">9:43 AM</span></div><div class="sk-text">Sure, I'll take a look this afternoon 👍</div></div></div>
+                  <div class="sk-msg sk-ai-msg anim-slide-in" style="--d:.35s"><div class="sk-av ai-av"><i class="bi bi-stars"></i></div><div class="sk-mb"><div class="sk-name sk-ai-name"><i class="bi bi-stars"></i> AI Auto-reply<span class="sk-ai-badge">AUTO</span><span class="sk-time">9:44 AM</span></div><div class="sk-text">"Thanks John, will review and share feedback by Wednesday EOD."</div></div></div>
+                </div>
+                <div class="sk-input-row"><div class="sk-input-mock">Message #general</div><div class="sk-toggle-wrap"><span class="sk-tog-lbl">AI</span><div class="sk-toggle on"><div class="sk-thumb"></div></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /fshow-preview -->
+    </div><!-- /fshow-wrap -->
+  </div>
+</section>
+
+
+
+
+
+
+<!-- PROCESS (numbered) -->
+<section class="process-section sect-purple">
+  <div class="pub-wrap">
+    <div style="margin-bottom:56px;" class="reveal">
+      <div class="eyebrow amber">Setup</div>
+      <h2 class="section-h">Running in<br><span class="amber-span">3 minutes flat.</span></h2>
+    </div>
+    <div class="process-list">
+      <div class="process-item reveal">
+        <div class="process-num">01</div>
+        <div>
+          <div class="p-title">Create your account</div>
+          <p class="p-desc">Sign up with a username, email, and password. No credit card. No plan selection. Redirected to your dashboard immediately.</p>
+          <div class="p-tags">
+            <span class="p-tag gt">Free</span>
+            <span class="p-tag bt">30 seconds</span>
+          </div>
+        </div>
+        <div class="p-visual">
+          <div style="font-size:.68rem;color:var(--subtle);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Registration</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;padding:9px 12px;font-size:.8rem;color:var(--subtle);">sarah_miller</div>
+            <div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;padding:9px 12px;font-size:.8rem;color:var(--subtle);">sarah@company.com</div>
+            <div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;padding:9px 12px;font-size:.8rem;color:var(--subtle);">••••••••••</div>
+            <div style="background:var(--blue);border-radius:7px;padding:9px 12px;text-align:center;font-size:.8rem;font-weight:600;color:#fff;">Create Account</div>
+          </div>
+        </div>
+      </div>
+      <div class="process-item reveal">
+        <div class="process-num">02</div>
+        <div>
+          <div class="p-title">Connect your tools</div>
+          <p class="p-desc">Link Microsoft 365 and Slack via standard OAuth 2.0. Takes a few clicks. All tokens encrypted at rest with Fernet.</p>
+          <div class="p-tags">
+            <span class="p-tag bt">Microsoft OAuth</span>
+            <span class="p-tag at">Slack OAuth</span>
+          </div>
+        </div>
+        <div class="p-visual">
+          <div style="font-size:.68rem;color:var(--subtle);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Integrations</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:7px;font-size:.78rem;color:var(--muted);">
+              <i class="bi bi-microsoft" style="color:var(--blue);"></i> Microsoft 365
+              <span style="margin-left:auto;color:var(--green);font-size:.7rem;font-weight:600;">Connected</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:7px;font-size:.78rem;color:var(--muted);">
+              <i class="bi bi-slack"></i> Slack <span style="margin-left:auto;color:var(--blue);font-size:.7rem;font-weight:600;">Connect →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="process-item reveal">
+        <div class="process-num">03</div>
+        <div>
+          <div class="p-title">Let AI assist you</div>
+          <p class="p-desc">Open any email, hit Summarize, and get the key points. Hit Draft Reply and get a professional response ready to copy in seconds.</p>
+          <div class="p-tags">
+            <span class="p-tag at">Email summaries</span>
+            <span class="p-tag gt">Reply drafts</span>
+            <span class="p-tag bt">Slack auto-reply</span>
+          </div>
+        </div>
+        <div class="p-visual">
+          <div style="font-size:.68rem;color:var(--subtle);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">AI Result</div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <div style="display:flex;align-items:flex-start;gap:7px;font-size:.76rem;color:var(--muted);"><i class="bi bi-check-circle-fill" style="color:var(--blue);margin-top:2px;"></i> Q2 targets missed by 12%</div>
+            <div style="display:flex;align-items:flex-start;gap:7px;font-size:.76rem;color:var(--muted);"><i class="bi bi-check-circle-fill" style="color:var(--blue);margin-top:2px;"></i> Board review due Friday</div>
+            <div style="display:flex;align-items:flex-start;gap:7px;font-size:.76rem;color:var(--muted);"><i class="bi bi-check-circle-fill" style="color:var(--blue);margin-top:2px;"></i> Schedule sales team call</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS ROW -->
+<section class="stats-row sect-white">
+  <div class="pub-wrap">
+    <div class="stats-inner">
+      <div class="stat-block reveal">
+        <div class="stat-num-big sb"><span data-count="50000" data-suffix="+" data-dur="1800">0</span></div>
+        <div class="stat-desc">Emails processed</div>
+      </div>
+      <div class="stat-block reveal d1">
+        <div class="stat-num-big sa"><span data-count="12000" data-suffix="+" data-dur="1600">0</span></div>
+        <div class="stat-desc">Meetings tracked</div>
+      </div>
+      <div class="stat-block reveal d2">
+        <div class="stat-num-big sg"><span data-count="99.9" data-suffix="%" data-dur="1400">0</span></div>
+        <div class="stat-desc">Uptime</div>
+      </div>
+      <div class="stat-block reveal d3">
+        <div class="stat-num-big sp"><span data-count="8" data-suffix=" min" data-dur="1200">0</span></div>
+        <div class="stat-desc">Saved per day</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI SPOTLIGHT -->
+<section class="spotlight-section">
+  <div class="pub-wrap">
+    <div class="spotlight-inner">
+      <div class="spot-left reveal">
+        <div style="font-size:.68rem;color:var(--subtle);margin-bottom:14px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Incoming email</div>
+        <div class="email-mock">
+          <div class="from">From: John Davies &lt;j.davies@client.com&gt;</div>
+          Following up on the proposal — the client reviewed it and has concerns about the pricing structure and delivery timeline. They want a call before end of week. Legal also needs the contract by Thursday. Can we adjust the scope and confirm your availability?
+        </div>
+        <div class="divider-label"><span><i class="bi bi-stars"></i> AI Summary</span></div>
+        <ul class="result-list">
+          <li><i class="bi bi-check-circle-fill"></i> Client concerns: pricing + timeline</li>
+          <li><i class="bi bi-check-circle-fill"></i> Call before end of week required</li>
+          <li><i class="bi bi-check-circle-fill"></i> Legal contract due Thursday</li>
+          <li><i class="bi bi-check-circle-fill"></i> Scope adjustment needed</li>
+          <li><i class="bi bi-check-circle-fill"></i> Confirm your availability</li>
+        </ul>
+      </div>
+      <div class="spot-right reveal d2">
+        <div class="eyebrow">AI Assistant</div>
+        <h2>Your inbox has a<br><span class="amber-span">brain now.</span></h2>
+        <p>Paste any email thread — get a clean bullet summary with action items in seconds. Or ask for a reply and receive a polished, professional draft under 150 words.</p>
+        <p>Powered by GPT-4o-mini with a custom business communication system prompt. It actually sounds like a human wrote it.</p>
+        <a href="/accounts/register/" class="btn-amber" style="margin-top:8px;"><i class="bi bi-stars"></i> Try it free</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-bleed">
+  <div class="pub-wrap" style="position:relative;z-index:1;">
+    <h2 class="reveal">Ready to reclaim<br>your <span class="blue-span">workday?</span></h2>
+    <p class="reveal d1">Join thousands who've stopped drowning in tabs. Free to start, no credit card.</p>
+    <div class="cta-btn-row reveal d2">
+      <a href="/accounts/register/" class="btn-blue"><i class="bi bi-rocket-takeoff-fill"></i> Get Started Free</a>
+      <a href="/contact/" class="btn-ghost">Talk to us</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -8,6 +8,43 @@ from companies.models import Company, Membership
 from .forms import RegisterForm, LoginForm
 
 
+# ── Public marketing pages ──────────────────────────────────────────────────
+
+def home(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard:home")
+    return render(request, "pages/home.html")
+
+
+def about(request):
+    return render(request, "pages/about.html")
+
+
+def how_it_works(request):
+    return render(request, "pages/how_it_works.html")
+
+
+def contact(request):
+    if request.method == "POST":
+        name = request.POST.get("first_name", request.POST.get("name", "")).strip()
+        email = request.POST.get("email", "").strip()
+        subject = request.POST.get("subject", "").strip()
+        message = request.POST.get("message", "").strip()
+
+        if name and email and message:
+            messages.success(
+                request,
+                f"Thanks {name}! Your message has been received. We'll get back to you at {email} shortly.",
+            )
+        else:
+            messages.error(request, "Please fill in all required fields.")
+        return redirect("contact")
+
+    return render(request, "pages/contact.html")
+
+
+# ── Auth views ──────────────────────────────────────────────────────────────
+
 def register_view(request):
     if request.user.is_authenticated:
         return redirect("dashboard:home")
