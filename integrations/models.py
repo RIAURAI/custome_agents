@@ -52,6 +52,8 @@ class CompanyIntegration(models.Model):
         ("google", "Google Workspace (Gmail + Calendar + Meet)"),
         ("slack", "Slack"),
         ("calendly", "Calendly"),
+        ("discord", "Discord"),
+        ("jira", "Jira"),
     ]
 
     STATUS_CHOICES = [
@@ -102,6 +104,20 @@ class CompanyIntegration(models.Model):
     # Per-company Calendly OAuth app credentials (stored encrypted)
     calendly_client_id_enc = models.BinaryField(null=True, blank=True)
     calendly_client_secret_enc = models.BinaryField(null=True, blank=True)
+
+    # Discord-specific
+    discord_guild_id = models.CharField(max_length=100, blank=True)
+    discord_guild_name = models.CharField(max_length=255, blank=True)
+    discord_bot_token_enc = models.BinaryField(null=True, blank=True)
+    discord_webhook_url = models.URLField(max_length=500, blank=True)
+
+    # Jira-specific
+    jira_site_url = models.URLField(max_length=500, blank=True, help_text="e.g. https://yourteam.atlassian.net")
+    jira_project_key = models.CharField(max_length=50, blank=True)
+    jira_user_email = models.CharField(max_length=255, blank=True)
+    jira_api_token_enc = models.BinaryField(null=True, blank=True)
+
+
 
     # Audit
     connected_by = models.ForeignKey(

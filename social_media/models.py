@@ -11,6 +11,7 @@ class SocialMediaAccount(models.Model):
         ("facebook", "Facebook"),
         ("instagram", "Instagram"),
         ("twitter", "Twitter / X"),
+        ("telegram", "Telegram"),
     ]
 
     STATUS_CHOICES = [
@@ -42,6 +43,8 @@ class SocialMediaAccount(models.Model):
     page_id = models.CharField(max_length=255, blank=True, help_text="Facebook/Instagram Page ID")
     phone_number_id = models.CharField(max_length=100, blank=True, help_text="WhatsApp Business Phone Number ID")
     waba_id = models.CharField(max_length=100, blank=True, help_text="WhatsApp Business Account ID")
+    telegram_bot_username = models.CharField(max_length=100, blank=True, help_text="Telegram Bot @username")
+    telegram_chat_id = models.CharField(max_length=100, blank=True, help_text="Default Telegram Chat/Group ID")
     api_key_enc = models.BinaryField(null=True, blank=True, help_text="Encrypted API Key / App Secret")
     webhook_secret = models.CharField(max_length=255, blank=True, help_text="Webhook verification token")
     webhook_url = models.URLField(max_length=500, blank=True, help_text="Platform webhook callback URL")

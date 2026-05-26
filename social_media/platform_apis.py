@@ -47,6 +47,8 @@ def send_message_to_platform(account, recipient_id: str, text: str) -> dict:
         return _send_linkedin_message(account, recipient_id, text)
     elif platform == "twitter":
         return _send_twitter_dm(account, recipient_id, text)
+    elif platform == "telegram":
+        return _send_telegram_message(account, recipient_id, text)
     else:
         raise ValueError(f"Unsupported platform: {platform}")
 
@@ -155,6 +157,22 @@ def _send_twitter_dm(account, recipient_id: str, text: str) -> dict:
     return resp.json()
 
 
+def _send_telegram_message(account, chat_id: str, text: str) -> dict:
+    """Send a Telegram message via Bot API."""
+    token = _get_token(account)
+
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "Markdown",
+    }
+    resp = requests.post(url, json=payload, timeout=30)
+    resp.raise_for_status()
+    logger.info(f"[Telegram] Message sent to chat {chat_id}")
+    return resp.json()
+
+
 # ── Mark as Read ──────────────────────────────────────────────────────────────
 
 
@@ -166,7 +184,7 @@ def mark_as_read_on_platform(account, message_id: str) -> None:
         _mark_read_whatsapp(account, message_id)
     elif platform in ("facebook", "instagram"):
         _mark_read_facebook(account, message_id)
-    # LinkedIn and Twitter don't have explicit mark-as-read APIs
+    # LinkedIn, Twitter, and Telegram don't have explicit mark-as-read APIs
 
 
 def _mark_read_whatsapp(account, message_id: str) -> None:
