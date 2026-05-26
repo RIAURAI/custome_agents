@@ -1,0 +1,134 @@
+<!-- Jira Connect Modal -->
+<div class="modal fade" id="jiraConnectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content" style="border:none;border-radius:20px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.25);">
+      <div class="modal-header" style="border:none;padding:1.8rem 2.2rem 1.2rem;background:linear-gradient(135deg,#f8fafc 0%,#eef2ff 100%);">
+        <div class="d-flex align-items-center gap-3">
+          <div style="width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#2684FF12;">
+            <i class="bi bi-kanban" style="font-size:1.5rem;color:#2684FF;"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0">Connect Jira</h5>
+            <p class="text-muted small mb-0">Link your Atlassian Jira account</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="padding:1.2rem 2.2rem 2rem;">
+
+        <!-- Step-by-step guide -->
+        <div class="accordion mb-3" id="jiraSteps">
+          <div class="accordion-item" style="border:1px solid var(--border);border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#js1" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">1</span>
+                Find Your Jira Site URL
+              </button>
+            </h2>
+            <div id="js1" class="accordion-collapse collapse show" data-bs-parent="#jiraSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                Your Jira URL looks like: <code>https://yourteam.atlassian.net</code><br>
+                Find it in your browser address bar when logged into Jira.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item" style="border:1px solid var(--border);border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#js2" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">2</span>
+                Generate API Token
+              </button>
+            </h2>
+            <div id="js2" class="accordion-collapse collapse" data-bs-parent="#jiraSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                Go to <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" class="fw-semibold text-primary">Atlassian API Tokens</a> → <strong>Create API token</strong> → Give it a label → Copy the token.<br>
+                <span class="text-danger fw-semibold">Important:</span> You can only see the token once! Save it now.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item" style="border:1px solid var(--border);border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#js3" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">3</span>
+                Your Email Address
+              </button>
+            </h2>
+            <div id="js3" class="accordion-collapse collapse" data-bs-parent="#jiraSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                Use the email associated with your Atlassian account. This is used together with the API token for authentication (Basic Auth).
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item" style="border:1px solid var(--border);border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#js4" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">4</span>
+                Project Key (Optional)
+              </button>
+            </h2>
+            <div id="js4" class="accordion-collapse collapse" data-bs-parent="#jiraSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                If you want to link a specific project, find the <strong>Project Key</strong> (e.g. <code>WH</code>, <code>DEV</code>) in Jira → Project Settings → Details.<br>
+                Leave empty to access all projects.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item" style="border:1px solid var(--border);border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#js5" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">5</span>
+                Enter Credentials Below
+              </button>
+            </h2>
+            <div id="js5" class="accordion-collapse collapse" data-bs-parent="#jiraSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                Fill in your Site URL, Email, and API Token. Click <strong>Connect & Save</strong> — we'll verify by calling the Jira API.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form method="post" action="{% url 'integrations:jira_save_credentials' %}" id="jiraForm">
+          {% csrf_token %}
+          <div style="background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-top:1.2rem;">
+            <h6 style="font-size:.85rem;font-weight:700;margin-bottom:1rem;"><i class="bi bi-key-fill me-2" style="color:#2684FF;"></i>Jira Credentials</h6>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold" style="font-size:.78rem;">Jira Site URL <span class="text-danger">*</span></label>
+                <input type="url" class="form-control" name="jira_site_url" required placeholder="https://yourteam.atlassian.net" style="font-size:.85rem;">
+                <div class="form-text" style="font-size:.7rem;">Your Atlassian cloud site URL</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold" style="font-size:.78rem;">Email Address <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" name="jira_user_email" required placeholder="you@company.com" style="font-size:.85rem;">
+                <div class="form-text" style="font-size:.7rem;">Your Atlassian account email</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold" style="font-size:.78rem;">API Token <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="password" class="form-control" name="jira_api_token" required placeholder="Paste API token" style="border-radius:var(--radius-btn) 0 0 var(--radius-btn);font-size:.85rem;">
+                  <button class="btn btn-outline-secondary" type="button" onclick="let i=this.previousElementSibling;i.type=i.type==='password'?'text':'password'" style="border-radius:0 var(--radius-btn) var(--radius-btn) 0;">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+                <div class="form-text" style="font-size:.7rem;"><i class="bi bi-lock-fill me-1"></i>Encrypted before storing</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold" style="font-size:.78rem;">Project Key (Optional)</label>
+                <input type="text" class="form-control" name="jira_project_key" placeholder="e.g. WH, DEV" style="font-size:.85rem;">
+                <div class="form-text" style="font-size:.7rem;">Leave empty for all projects</div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer" style="border:none;padding:0 2.2rem 1.8rem;justify-content:space-between;">
+        <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal" style="border-radius:10px;padding:.55rem 1.5rem;">Cancel</button>
+        <button type="submit" form="jiraForm" class="btn text-white fw-bold" style="background:#2684FF;border-radius:10px;padding:.7rem 2.2rem;font-size:.88rem;">
+          <i class="bi bi-plug-fill me-2"></i>Connect & Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

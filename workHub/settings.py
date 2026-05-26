@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     "meetings",
     "ai_assistant",
     "slack_hub",
+    "google_hub",
+    "social_media",
 ]
 
 MIDDLEWARE = [
@@ -320,6 +322,9 @@ CALENDLY_REDIRECT_URI = "http://localhost:8000/integrations/calendly/callback/"
 CALENDLY_AUTH_BASE_URL = "https://auth.calendly.com/oauth/authorize"
 CALENDLY_TOKEN_URL = "https://auth.calendly.com/oauth/token"
 CALENDLY_API_BASE_URL = "https://api.calendly.com"
+
+# ── Google Workspace (OAuth 2.0 — per-company credentials stored in DB) ───────
+GOOGLE_REDIRECT_URI = "http://localhost:8000/integrations/google/callback/"
 
 # ── OpenAI ────────────────────────────────────────────────────────────────────
 OPENAI_API_KEY = config("OPENAI_API_KEY", default="")

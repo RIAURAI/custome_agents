@@ -32,6 +32,8 @@ urlpatterns = [
     path("meetings/", include("meetings.urls", namespace="meetings")),
     path("ai/", include("ai_assistant.urls", namespace="ai_assistant")),
     path("slack/", include("slack_hub.urls", namespace="slack_hub")),
+    path("google/", include("google_hub.urls", namespace="google_hub")),
+    path("social/", include("social_media.urls", namespace="social_media")),
 ]
 
 if settings.DEBUG:

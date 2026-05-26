@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ email.parsed_headers.subject|default:"Email" }} — WorkHub{% endblock %}
+{% block page_title %}Email Detail{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+  <div class="d-flex align-items-center gap-2">
+    <div style="width:32px;height:32px;border-radius:9px;background:#fef3c7;display:flex;align-items:center;justify-content:center;">
+      <i class="bi bi-envelope-open" style="color:#d97706;"></i>
+    </div>
+    <h5 class="mb-0" style="font-size:.95rem;">Gmail Detail</h5>
+  </div>
+  <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Back to Inbox
+  </a>
+</div>
+
+{% if error %}
+  <div class="alert alert-warning">{{ error }}</div>
+{% elif email %}
+
+<div class="card mb-4">
+  <div class="card-body p-4">
+    <h5 class="fw-bold mb-3" style="font-size:1.05rem;">{{ email.parsed_headers.subject|default:"(no subject)" }}</h5>
+    <div class="d-flex align-items-center gap-3 mb-3 pb-3 flex-wrap" style="border-bottom:1px solid var(--border);">
+      <div class="d-flex align-items-center gap-2">
+        <div class="avatar-circle avatar-circle-sm" style="background:#4285F4;color:#fff;">
+          {{ email.parsed_headers.from|first|upper|default:"?" }}
+        </div>
+        <div>
+          <div class="fw-semibold" style="font-size:.88rem;">{{ email.parsed_headers.from }}</div>
+          <div class="text-muted" style="font-size:.78rem;">To: {{ email.parsed_headers.to|default:"me" }}</div>
+        </div>
+      </div>
+      <small class="text-muted ms-auto" style="font-size:.78rem;">{{ email.parsed_headers.date }}</small>
+    </div>
+    <div class="email-body" style="max-height:60vh;overflow-y:auto;font-size:.88rem;line-height:1.7;">
+      {{ email.body_html|safe }}
+    </div>
+  </div>
+</div>
+
+<!-- Actions -->
+<div class="d-flex gap-2">
+  <a href="{% url 'google_hub:compose' %}?to={{ email.parsed_headers.from|urlencode }}&subject=Re: {{ email.parsed_headers.subject|urlencode }}"
+     class="btn btn-primary btn-sm">
+    <i class="bi bi-reply me-1"></i>Reply
+  </a>
+  <a href="{% url 'google_hub:inbox' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+</div>
+
+{% else %}
+<div class="alert alert-info">Email not found.</div>
+{% endif %}
+
+{% endblock %}

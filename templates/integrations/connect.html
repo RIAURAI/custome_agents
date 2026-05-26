@@ -191,6 +191,100 @@
     </div>
   </div>
 
+  <!-- ── Google Workspace ──────────────────────────────────────────────── -->
+  <div class="col-md-6 col-xl-4 d-flex flex-column">
+    <div class="int-card {% if integrations.google %}int-card--connected{% endif %} flex-grow-1">
+      <div class="int-card-inner">
+
+        <!-- Header row -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="int-logo-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+          </div>
+          <div class="flex-grow-1 min-w-0">
+            <div class="int-card-name">Google Workspace</div>
+            <div class="int-card-sub">Gmail · Calendar · Meet</div>
+          </div>
+          {% if integrations.google %}
+            <span class="int-badge int-badge--connected"><i class="bi bi-check-circle-fill me-1"></i>Connected</span>
+          {% else %}
+            <span class="int-badge int-badge--disconnected"><i class="bi bi-x-circle-fill me-1"></i>Not connected</span>
+          {% endif %}
+        </div>
+
+        <!-- Body -->
+        {% if integrations.google %}
+          <div class="int-account-box mb-4">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi bi-google" style="color:#4285F4;font-size:1rem;"></i>
+              <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">{{ integrations.google.google_account_name }}</span>
+            </div>
+            <div class="text-muted" style="font-size:.8rem;">{{ integrations.google.google_account_email }}</div>
+            <div class="mt-2" style="font-size:.75rem;color:#94a3b8;">
+              <i class="bi bi-clock me-1"></i>Connected {{ integrations.google.connected_at|date:"N j, Y" }}
+            </div>
+          </div>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-envelope me-1"></i>Gmail</span>
+            <span class="int-feature-chip"><i class="bi bi-calendar3 me-1"></i>Calendar</span>
+            <span class="int-feature-chip"><i class="bi bi-camera-video me-1"></i>Google Meet</span>
+          </div>
+
+          <!-- Quick access links to Google Workspace features -->
+          <div class="mb-3">
+            <div class="d-flex flex-wrap gap-2">
+              <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:8px;font-size:.78rem;font-weight:600;">
+                <i class="bi bi-envelope me-1"></i>Gmail Inbox
+              </a>
+              <a href="{% url 'google_hub:calendar' %}" class="btn btn-sm" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:8px;font-size:.78rem;font-weight:600;">
+                <i class="bi bi-calendar3 me-1"></i>Calendar
+              </a>
+              <a href="{% url 'google_hub:meet' %}" class="btn btn-sm" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:8px;font-size:.78rem;font-weight:600;">
+                <i class="bi bi-camera-video me-1"></i>Google Meet
+              </a>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-auto">
+            <button type="button" class="btn int-btn-connect flex-grow-1"
+                    data-bs-toggle="modal" data-bs-target="#googleConnectModal"
+                    style="font-size:.82rem;">
+              <i class="bi bi-arrow-repeat me-1"></i>Update Credentials
+            </button>
+            <form method="post" action="{% url 'integrations:google_disconnect' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn int-btn-disconnect"
+                      onclick="return confirm('Disconnect Google Workspace account?')"
+                      style="font-size:.82rem;">
+                <i class="bi bi-slash-circle me-1"></i>Disconnect
+              </button>
+            </form>
+          </div>
+        {% else %}
+          <p class="int-card-desc mb-4">
+            Connect your Google Workspace account to read <strong>Gmail</strong>, manage
+            <strong>Google Calendar</strong>, and join <strong>Google Meet</strong> directly in WorkHub.
+          </p>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-envelope me-1"></i>Gmail</span>
+            <span class="int-feature-chip"><i class="bi bi-calendar3 me-1"></i>Calendar</span>
+            <span class="int-feature-chip"><i class="bi bi-camera-video me-1"></i>Google Meet</span>
+          </div>
+          <button type="button" class="btn int-btn-connect w-100 mt-auto"
+                  data-bs-toggle="modal" data-bs-target="#googleConnectModal">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Connect Google Workspace
+          </button>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
   <!-- ── Slack ──────────────────────────────────────────────────────────── -->
   <div class="col-md-6 col-xl-4 d-flex flex-column">
     <div class="int-card {% if integrations.slack %}int-card--connected{% endif %} flex-grow-1">
@@ -335,6 +429,16 @@
             <span class="int-feature-chip"><i class="bi bi-people me-1"></i>Scheduling</span>
             <span class="int-feature-chip"><i class="bi bi-bell me-1"></i>Notifications</span>
           </div>
+
+          <!-- Quick access to Calendly Bot -->
+          <div class="mb-3">
+            <div class="d-flex flex-wrap gap-2">
+              <a href="{% url 'meetings:calendly_bot' %}" class="btn btn-sm" style="background:#eff6ff;color:#006bff;border:1px solid #bfdbfe;border-radius:8px;font-size:.78rem;font-weight:600;">
+                <i class="bi bi-robot me-1"></i>Calendly Bot
+              </a>
+            </div>
+          </div>
+
           <div class="d-flex gap-2 mt-auto">
             <button type="button" class="btn int-btn-connect flex-grow-1"
                     data-bs-toggle="modal" data-bs-target="#calendlyConnectModal"
@@ -363,6 +467,156 @@
           <button type="button" class="btn int-btn-connect w-100 mt-auto"
                   data-bs-toggle="modal" data-bs-target="#calendlyConnectModal">
             <i class="bi bi-box-arrow-in-right me-2"></i>Connect Calendly Account
+          </button>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Discord ────────────────────────────────────────────────────────── -->
+  <div class="col-md-6 col-xl-4 d-flex flex-column">
+    <div class="int-card {% if integrations.discord %}int-card--connected{% endif %} flex-grow-1">
+      <div class="int-card-inner">
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="int-logo-box">
+            <i class="bi bi-discord" style="font-size:1.4rem;color:#5865F2;"></i>
+          </div>
+          <div class="flex-grow-1 min-w-0">
+            <div class="int-card-name">Discord</div>
+            <div class="int-card-sub">Bot + Server Messages</div>
+          </div>
+          {% if integrations.discord %}
+            <span class="int-badge int-badge--connected"><i class="bi bi-check-circle-fill me-1"></i>Connected</span>
+          {% else %}
+            <span class="int-badge int-badge--disconnected"><i class="bi bi-x-circle-fill me-1"></i>Not connected</span>
+          {% endif %}
+        </div>
+
+        {% if integrations.discord %}
+          <div class="int-account-box mb-4">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi bi-discord" style="color:#5865F2;font-size:1rem;"></i>
+              <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">{{ integrations.discord.discord_guild_name }}</span>
+            </div>
+            {% if integrations.discord.discord_guild_id %}
+              <div class="text-muted" style="font-size:.8rem;">Guild ID: {{ integrations.discord.discord_guild_id }}</div>
+            {% endif %}
+            <div class="mt-2" style="font-size:.75rem;color:#94a3b8;">
+              <i class="bi bi-clock me-1"></i>Connected {{ integrations.discord.connected_at|date:"N j, Y" }}
+            </div>
+          </div>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-hash me-1"></i>Channels</span>
+            <span class="int-feature-chip"><i class="bi bi-robot me-1"></i>Bot</span>
+            <span class="int-feature-chip"><i class="bi bi-bell me-1"></i>Webhooks</span>
+          </div>
+          <div class="d-flex gap-2 mt-auto">
+            <button type="button" class="btn int-btn-connect flex-grow-1"
+                    data-bs-toggle="modal" data-bs-target="#discordConnectModal"
+                    style="font-size:.82rem;">
+              <i class="bi bi-arrow-repeat me-1"></i>Update Credentials
+            </button>
+            <form method="post" action="{% url 'integrations:discord_disconnect' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn int-btn-disconnect"
+                      onclick="return confirm('Disconnect Discord?')"
+                      style="font-size:.82rem;">
+                <i class="bi bi-slash-circle me-1"></i>Disconnect
+              </button>
+            </form>
+          </div>
+        {% else %}
+          <p class="int-card-desc mb-4">
+            Connect your Discord bot to receive and send messages in your server channels
+            with <strong>AI-powered responses</strong>.
+          </p>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-hash me-1"></i>Channels</span>
+            <span class="int-feature-chip"><i class="bi bi-robot me-1"></i>Bot</span>
+            <span class="int-feature-chip"><i class="bi bi-bell me-1"></i>Webhooks</span>
+          </div>
+          <button type="button" class="btn int-btn-connect w-100 mt-auto"
+                  data-bs-toggle="modal" data-bs-target="#discordConnectModal">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Connect Discord Bot
+          </button>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Jira ──────────────────────────────────────────────────────────── -->
+  <div class="col-md-6 col-xl-4 d-flex flex-column">
+    <div class="int-card {% if integrations.jira %}int-card--connected{% endif %} flex-grow-1">
+      <div class="int-card-inner">
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="int-logo-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <path d="M11.53 2C6.28 2 2.03 6.25 2.03 11.5c0 .28.01.55.04.82a.75.75 0 001.03.63c2.23-.87 4.73-.26 6.3 1.54a5.75 5.75 0 01.14 7.14.75.75 0 00.35 1.15c.53.17 1.09.26 1.64.26 5.25 0 9.5-4.25 9.5-9.5S16.78 2 11.53 2z" fill="#2684FF"/>
+              <path d="M9.1 14.75a4.25 4.25 0 00-6.32-1.72.75.75 0 00-.14 1.07A6.75 6.75 0 009.1 16.8a.75.75 0 00.48-1.18 4.24 4.24 0 00-.48-.87z" fill="#2684FF" opacity=".7"/>
+            </svg>
+          </div>
+          <div class="flex-grow-1 min-w-0">
+            <div class="int-card-name">Jira</div>
+            <div class="int-card-sub">Issues · Projects · Boards</div>
+          </div>
+          {% if integrations.jira %}
+            <span class="int-badge int-badge--connected"><i class="bi bi-check-circle-fill me-1"></i>Connected</span>
+          {% else %}
+            <span class="int-badge int-badge--disconnected"><i class="bi bi-x-circle-fill me-1"></i>Not connected</span>
+          {% endif %}
+        </div>
+
+        {% if integrations.jira %}
+          <div class="int-account-box mb-4">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi bi-kanban" style="color:#2684FF;font-size:1rem;"></i>
+              <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">{{ integrations.jira.jira_user_email }}</span>
+            </div>
+            <div class="text-muted" style="font-size:.8rem;">{{ integrations.jira.jira_site_url }}</div>
+            {% if integrations.jira.jira_project_key %}
+              <div class="text-muted" style="font-size:.78rem;">Project: {{ integrations.jira.jira_project_key }}</div>
+            {% endif %}
+            <div class="mt-2" style="font-size:.75rem;color:#94a3b8;">
+              <i class="bi bi-clock me-1"></i>Connected {{ integrations.jira.connected_at|date:"N j, Y" }}
+            </div>
+          </div>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-bug me-1"></i>Issues</span>
+            <span class="int-feature-chip"><i class="bi bi-kanban me-1"></i>Boards</span>
+            <span class="int-feature-chip"><i class="bi bi-diagram-3 me-1"></i>Projects</span>
+          </div>
+          <div class="d-flex gap-2 mt-auto">
+            <button type="button" class="btn int-btn-connect flex-grow-1"
+                    data-bs-toggle="modal" data-bs-target="#jiraConnectModal"
+                    style="font-size:.82rem;">
+              <i class="bi bi-arrow-repeat me-1"></i>Update Credentials
+            </button>
+            <form method="post" action="{% url 'integrations:jira_disconnect' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn int-btn-disconnect"
+                      onclick="return confirm('Disconnect Jira?')"
+                      style="font-size:.82rem;">
+                <i class="bi bi-slash-circle me-1"></i>Disconnect
+              </button>
+            </form>
+          </div>
+        {% else %}
+          <p class="int-card-desc mb-4">
+            Connect your Atlassian Jira account to create, track, and manage <strong>issues & projects</strong>
+            directly from WorkHub.
+          </p>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-bug me-1"></i>Issues</span>
+            <span class="int-feature-chip"><i class="bi bi-kanban me-1"></i>Boards</span>
+            <span class="int-feature-chip"><i class="bi bi-diagram-3 me-1"></i>Projects</span>
+          </div>
+          <button type="button" class="btn int-btn-connect w-100 mt-auto"
+                  data-bs-toggle="modal" data-bs-target="#jiraConnectModal">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Connect Jira Account
           </button>
         {% endif %}
 
@@ -409,6 +663,9 @@
 {% include "integrations/_microsoft_connect_modal.html" %}
 {% include "integrations/_slack_connect_modal.html" %}
 {% include "integrations/_calendly_connect_modal.html" %}
+{% include "integrations/_google_connect_modal.html" %}
+{% include "integrations/_discord_connect_modal.html" %}
+{% include "integrations/_jira_connect_modal.html" %}
 
 <!-- Feature toggle styles -->
 <style>
