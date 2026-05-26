@@ -128,13 +128,58 @@ MS_CLIENT_ID = config("MS_CLIENT_ID", default="")
 MS_CLIENT_SECRET = config("MS_CLIENT_SECRET", default="")
 MS_TENANT_ID = config("MS_TENANT_ID", default="common")
 MS_AUTHORITY = f"https://login.microsoftonline.com/{config('MS_TENANT_ID', default='common')}"
-MS_SCOPES = [
-    "User.Read",
-    "Mail.Read",
-    "Mail.Send",
-    "Calendars.Read",
-    "OnlineMeetings.Read",
-]
+MS_BASE_SCOPES = ["User.Read", "profile", "offline_access"]
+
+# Feature → required Microsoft Graph scopes mapping.
+# Each company enables features individually; OAuth requests only the scopes needed.
+MS_FEATURE_SCOPES = {
+    "email": {
+        "label": "Outlook Mail",
+        "icon": "bi-envelope",
+        "description": "Read, send, and manage emails via Outlook.",
+        "scopes": ["Mail.ReadWrite", "Mail.Send"],
+    },
+    "calendar": {
+        "label": "Calendar & Meetings",
+        "icon": "bi-calendar3",
+        "description": "View calendar events and online meetings.",
+        "scopes": ["Calendars.ReadWrite", "OnlineMeetings.Read"],
+    },
+    "presence": {
+        "label": "Teams Presence",
+        "icon": "bi-circle-fill",
+        "description": "See who's online, busy, or away in real time.",
+        "scopes": ["Presence.Read", "Presence.Read.All"],
+    },
+    "onedrive": {
+        "label": "OneDrive Files",
+        "icon": "bi-cloud",
+        "description": "Browse, upload, download, and share files.",
+        "scopes": ["Files.ReadWrite"],
+    },
+    "tasks": {
+        "label": "To Do & Planner",
+        "icon": "bi-check2-square",
+        "description": "Manage tasks, to-do lists, and Planner boards.",
+        "scopes": ["Tasks.ReadWrite", "Group.Read.All"],
+    },
+    "teams_chat": {
+        "label": "Teams Chat",
+        "icon": "bi-chat-dots",
+        "description": "Read and send Teams chat and channel messages.",
+        "scopes": ["Chat.ReadWrite", "ChannelMessage.Read.All", "ChannelMessage.Send",
+                   "Team.ReadBasic.All", "Channel.ReadBasic.All"],
+    },
+    "contacts": {
+        "label": "People & Contacts",
+        "icon": "bi-people",
+        "description": "Search people, view org directory and profiles.",
+        "scopes": ["People.Read", "User.Read.All"],
+    },
+}
+
+# Default features enabled for new companies (backwards-compatible)
+MS_DEFAULT_FEATURES = ["email", "calendar"]
 MS_REDIRECT_URI = "http://localhost:8000/integrations/callback/"
 
 # ── Unfold Admin ──────────────────────────────────────────────────────────────

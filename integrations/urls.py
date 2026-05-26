@@ -5,6 +5,8 @@ app_name = "integrations"
 
 urlpatterns = [
     path("", views.connect_view, name="connect"),
+    path("microsoft/save-credentials/", views.microsoft_save_credentials, name="microsoft_save_credentials"),
+    path("microsoft/save-features/", views.microsoft_save_features, name="microsoft_save_features"),
     path("microsoft/connect/", views.microsoft_connect, name="microsoft_connect"),
     path("callback/", views.microsoft_callback, name="callback"),
     path("microsoft/disconnect/", views.microsoft_disconnect, name="microsoft_disconnect"),

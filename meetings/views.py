@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_POST
 
 from companies.middleware import log_activity, platform_access_required
+from integrations.utils import get_company_integration, get_valid_access_token, graph_get, friendly_graph_error
 from integrations.models import CompanyIntegration
 from integrations.utils import get_company_integration, get_valid_access_token, graph_get
 from slack_hub.calendly_agent import CalendlyAgent
@@ -46,7 +47,7 @@ def meetings_list(request):
         meetings = data.get("value", [])
         log_activity(request, "meetings_viewed", "microsoft", f"{len(meetings)} upcoming")
     except Exception as e:
-        error = str(e)
+        error = friendly_graph_error(e)
 
     return render(request, "meetings/meetings.html", {
         "meetings": meetings,
