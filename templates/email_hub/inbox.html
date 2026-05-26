@@ -27,11 +27,12 @@
 {% if emails %}
 
 <!-- Filter strip -->
-<div class="ibx-filters mb-3">
-  <span class="ibx-filter-pill ibx-filter-pill--active">All mail</span>
-  <span class="ibx-filter-pill">Unread</span>
-  <span class="ibx-filter-pill">Recent</span>
+<div class="ibx-filters mb-3" id="ibxFilters">
+  <button class="ibx-filter-pill ibx-filter-pill--active" data-filter="all">All mail</button>
+  <button class="ibx-filter-pill" data-filter="unread">Unread</button>
+  <button class="ibx-filter-pill" data-filter="recent">Recent</button>
 </div>
+<p id="ibxEmptyFilter" class="text-muted text-center py-4" style="display:none;font-size:.875rem;">No messages match this filter.</p>
 
 <!-- Email list -->
 <div class="ibx-list">
@@ -43,7 +44,9 @@
 
   {% for email in emails %}
   <a href="{% url 'email_hub:detail' email.id %}"
-     class="ibx-row {% if not email.isRead %}ibx-row--unread{% endif %}">
+     class="ibx-row {% if not email.isRead %}ibx-row--unread{% endif %}"
+     data-read="{% if email.isRead %}true{% else %}false{% endif %}"
+     data-date="{{ email.receivedDateTime|slice:':10' }}">
 
     <!-- Avatar -->
     <div class="ibx-avatar {% if not email.isRead %}ibx-avatar--unread{% endif %}">
@@ -83,7 +86,7 @@
   </div>
   <h5 class="ibx-empty-title">Connect Microsoft to access your inbox</h5>
   <p class="ibx-empty-sub">Read Outlook emails, reply, and compose — all without leaving WorkHub.</p>
-  <a href="{% url 'integrations:microsoft_connect' %}" class="btn ibx-connect-btn">
+  <a href="{% url 'integrations:connect' %}" class="btn ibx-connect-btn">
     <i class="bi bi-box-arrow-in-right me-2"></i>Connect Microsoft Account
   </a>
   {% else %}
@@ -97,4 +100,38 @@
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const pills    = document.querySelectorAll('#ibxFilters .ibx-filter-pill');
+  const rows     = document.querySelectorAll('.ibx-row');
+  const emptyMsg = document.getElementById('ibxEmptyFilter');
+
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 3);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+  function applyFilter(filter) {
+    let visible = 0;
+    rows.forEach(row => {
+      let show = true;
+      if (filter === 'unread') show = row.dataset.read === 'false';
+      if (filter === 'recent') show = row.dataset.date >= cutoffStr;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    emptyMsg.style.display = visible === 0 ? 'block' : 'none';
+  }
+
+  pills.forEach(pill => {
+    pill.addEventListener('click', function () {
+      pills.forEach(p => p.classList.remove('ibx-filter-pill--active'));
+      this.classList.add('ibx-filter-pill--active');
+      applyFilter(this.dataset.filter);
+    });
+  });
+})();
+</script>
 {% endblock %}

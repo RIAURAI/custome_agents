@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from companies.middleware import log_activity, platform_access_required
-from integrations.utils import get_company_integration, get_valid_access_token, graph_get
+from integrations.utils import get_company_integration, get_valid_access_token, graph_get, friendly_graph_error
 
 
 @platform_access_required("microsoft")
@@ -40,7 +40,7 @@ def meetings_list(request):
         meetings = data.get("value", [])
         log_activity(request, "meetings_viewed", "microsoft", f"{len(meetings)} upcoming")
     except Exception as e:
-        error = str(e)
+        error = friendly_graph_error(e)
 
     return render(request, "meetings/meetings.html", {
         "meetings": meetings,

@@ -1,3 +1,4 @@
+import logging
 import secrets
 from datetime import datetime, timezone
 from functools import wraps
@@ -13,10 +14,13 @@ import requests as http_requests
 
 from .models import CompanyIntegration, UserIntegration
 from .utils import (
+    decrypt_token,
     encrypt_token,
     exchange_code_for_tokens,
     get_auth_url,
+    get_scopes_for_integration,
     graph_get,
+    _get_company_ms_creds,
 )
 from companies.middleware import log_activity
 
@@ -52,32 +56,126 @@ def connect_view(request):
             integrations["slack"] = user_slack
     membership = getattr(request, "membership", None)
     is_admin = membership.is_admin if membership else False
+
+    # Build Microsoft feature toggles context
+    ms_integration = integrations.get("microsoft")
+    enabled_features = []
+    if ms_integration and hasattr(ms_integration, "enabled_ms_features"):
+        enabled_features = ms_integration.enabled_ms_features or []
+    ms_features = []
+    for key, info in settings.MS_FEATURE_SCOPES.items():
+        ms_features.append({
+            "key": key,
+            "label": info["label"],
+            "icon": info["icon"],
+            "description": info["description"],
+            "enabled": key in enabled_features,
+        })
+
     return render(request, "integrations/connect.html", {
         "integrations": integrations,
         "is_admin": is_admin,
+        "ms_redirect_uri": settings.MS_REDIRECT_URI,
         "calendly_redirect_uri": settings.CALENDLY_REDIRECT_URI,
+        "ms_features": ms_features,
         "coming_soon": [
-            ("onedrive", "bi bi-cloud", "OneDrive"),
             ("chatgpt", "bi bi-robot", "ChatGPT Pro"),
         ],
     })
 
 
 @company_admin_required
+def microsoft_save_credentials(request):
+    """AJAX endpoint: save Azure App Registration credentials for this company."""
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Method not allowed."}, status=405)
+
+    client_id = request.POST.get("client_id", "").strip()
+    client_secret = request.POST.get("client_secret", "").strip()
+    tenant_id = request.POST.get("tenant_id", "").strip() or "common"
+
+    if not client_id or not client_secret:
+        return JsonResponse({"success": False, "error": "Client ID and Client Secret are required."})
+
+    company = request.company
+    integration, _ = CompanyIntegration.objects.get_or_create(
+        company=company, service="microsoft"
+    )
+    integration.ms_client_id_enc = encrypt_token(client_id)
+    integration.ms_client_secret_enc = encrypt_token(client_secret)
+    integration.ms_tenant_id = tenant_id
+    integration.save()
+
+    log_activity(request, "integration_credentials_saved", "microsoft", "Azure App credentials saved")
+    return JsonResponse({"success": True})
+
+
+@company_admin_required
+@require_POST
+def microsoft_save_features(request):
+    """AJAX endpoint: save which Microsoft features this company wants enabled."""
+    import json as _json
+
+    try:
+        body = _json.loads(request.body)
+        features = body.get("features", [])
+    except (ValueError, AttributeError):
+        features = request.POST.getlist("features")
+
+    # Validate feature keys against settings
+    valid_keys = set(settings.MS_FEATURE_SCOPES.keys())
+    features = [f for f in features if f in valid_keys]
+
+    if not features:
+        return JsonResponse({"success": False, "error": "Please enable at least one feature."})
+
+    company = request.company
+    integration, _ = CompanyIntegration.objects.get_or_create(
+        company=company, service="microsoft"
+    )
+    old_features = set(integration.enabled_ms_features or [])
+    integration.enabled_ms_features = features
+    integration.save()
+
+    # Check if new features were added that require re-authentication
+    new_features = set(features) - old_features
+    needs_reauth = bool(new_features) and integration.access_token_enc
+
+    log_activity(request, "ms_features_updated", "microsoft", f"Features: {', '.join(features)}")
+    return JsonResponse({
+        "success": True,
+        "features": features,
+        "needs_reauth": needs_reauth,
+        "message": "Features saved! Re-authenticate to grant new permissions." if needs_reauth else "Features saved!",
+    })
+
+
+@company_admin_required
 def microsoft_connect(request):
-    """Redirect user to Microsoft OAuth consent screen."""
+    """Redirect user to Microsoft OAuth consent screen using per-company creds."""
+    company = request.company
+    try:
+        integration = CompanyIntegration.objects.get(company=company, service="microsoft")
+        client_id, client_secret, tenant_id = _get_company_ms_creds(integration)
+    except (CompanyIntegration.DoesNotExist, ValueError):
+        messages.error(request, "Please save your Azure App credentials first.")
+        return redirect("integrations:connect")
+
     state = secrets.token_urlsafe(16)
     request.session["ms_oauth_state"] = state
-    auth_url = get_auth_url(state)
+    auth_url = get_auth_url(state, client_id, client_secret, tenant_id, integration=integration)
     return redirect(auth_url)
 
 
 @company_admin_required
 def microsoft_callback(request):
     """Handle OAuth callback from Microsoft Identity Platform."""
+    logger = logging.getLogger(__name__)
+
     error = request.GET.get("error")
     if error:
-        messages.error(request, f"Microsoft login failed: {request.GET.get('error_description', error)}")
+        logger.error("Microsoft OAuth error: %s — %s", error, request.GET.get("error_description", ""))
+        messages.error(request, "Microsoft login failed. Please check your Azure App configuration and try again.")
         return redirect("integrations:connect")
 
     state = request.GET.get("state")
@@ -90,10 +188,39 @@ def microsoft_callback(request):
         messages.error(request, "No authorization code received.")
         return redirect("integrations:connect")
 
-    result = exchange_code_for_tokens(code)
+    # Load per-company creds for token exchange
+    company = request.company
+    try:
+        integration = CompanyIntegration.objects.get(company=company, service="microsoft")
+        client_id, client_secret, tenant_id = _get_company_ms_creds(integration)
+    except (CompanyIntegration.DoesNotExist, ValueError):
+        messages.error(request, "Azure App credentials missing. Please re-configure.")
+        return redirect("integrations:connect")
+
+    result = exchange_code_for_tokens(code, client_id, client_secret, tenant_id, integration=integration)
 
     if "error" in result:
-        messages.error(request, f"Token exchange failed: {result.get('error_description', result['error'])}")
+        raw_desc = result.get("error_description", result["error"])
+        logger.error("Microsoft token exchange failed: %s", raw_desc)
+
+        # Map common Azure AD errors to friendly messages
+        error_code = result.get("error", "")
+        if "7000215" in raw_desc or "Invalid client secret" in raw_desc:
+            friendly = ("Invalid client secret. Make sure you copied the secret "
+                        "\"Value\" (not the \"Secret ID\") from Azure portal → "
+                        "Certificates & secrets.")
+        elif "700016" in raw_desc or "not found in the directory" in raw_desc:
+            friendly = "Application (Client) ID not found. Please verify your Client ID in Azure portal."
+        elif "7000112" in raw_desc or "disabled" in raw_desc:
+            friendly = "Your Azure application is disabled. Please enable it in Azure portal."
+        elif "70011" in raw_desc or "redirect" in raw_desc.lower():
+            friendly = "Redirect URI mismatch. Verify the redirect URI in your Azure App matches exactly."
+        elif error_code == "invalid_grant":
+            friendly = "Authorization expired. Please try connecting again."
+        else:
+            friendly = "Connection failed. Please verify your Azure App credentials and try again."
+
+        messages.error(request, friendly)
         return redirect("integrations:connect")
 
     access_token = result["access_token"]

@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 
 from companies.middleware import log_activity, platform_access_required
-from integrations.utils import get_company_integration, get_valid_access_token, graph_get, graph_patch, graph_post
+from integrations.utils import get_company_integration, get_valid_access_token, graph_get, graph_patch, graph_post, friendly_graph_error
 
 
 def _get_token_or_redirect(request):
@@ -36,7 +36,7 @@ def inbox(request):
                 if "from" not in em:
                     em["from"] = {"emailAddress": {"name": "Unknown", "address": ""}}
         except Exception as e:
-            error = str(e)
+            error = friendly_graph_error(e)
     return render(request, "email_hub/inbox.html", {"emails": emails, "error": error, "ms_connected": ms_connected})
 
 
@@ -52,7 +52,7 @@ def email_detail(request, email_id):
             graph_patch(token, f"/me/messages/{email_id}", {"isRead": True})
             log_activity(request, "email_viewed", "microsoft", email.get("subject", "")[:200])
         except Exception as e:
-            error = str(e)
+            error = friendly_graph_error(e)
     return render(request, "email_hub/email_detail.html", {"email": email, "error": error})
 
 
@@ -86,6 +86,6 @@ def compose(request):
             messages.success(request, f"Email sent to {to_email}!")
             return redirect("email_hub:inbox")
         except Exception as e:
-            messages.error(request, f"Failed to send: {e}")
+            messages.error(request, friendly_graph_error(e))
 
     return render(request, "email_hub/compose.html", {})

@@ -21,7 +21,7 @@
 
   <!-- ── Microsoft 365 ─────────────────────────────────────────────────── -->
   <div class="col-md-6 col-xl-4 d-flex flex-column">
-    <div class="int-card {% if integrations.microsoft %}int-card--connected{% endif %} flex-grow-1">
+    <div class="int-card {% if integrations.microsoft and integrations.microsoft.access_token_enc %}int-card--connected{% endif %} flex-grow-1">
       <div class="int-card-inner">
 
         <!-- Header row -->
@@ -36,18 +36,21 @@
           </div>
           <div class="flex-grow-1 min-w-0">
             <div class="int-card-name">Microsoft 365</div>
-            <div class="int-card-sub">Outlook · Teams · Calendar</div>
+            <div class="int-card-sub">Outlook · Teams · Calendar · OneDrive</div>
           </div>
-          {% if integrations.microsoft %}
+          {% if integrations.microsoft and integrations.microsoft.access_token_enc %}
             <span class="int-badge int-badge--connected"><i class="bi bi-check-circle-fill me-1"></i>Connected</span>
+          {% elif integrations.microsoft and integrations.microsoft.ms_client_id_enc %}
+            <span class="int-badge" style="background:#fef3c7;color:#92400e;"><i class="bi bi-exclamation-triangle-fill me-1"></i>Setup incomplete</span>
           {% else %}
             <span class="int-badge int-badge--disconnected"><i class="bi bi-x-circle-fill me-1"></i>Not connected</span>
           {% endif %}
         </div>
 
         <!-- Body -->
-        {% if integrations.microsoft %}
-          <div class="int-account-box mb-4">
+        {% if integrations.microsoft and integrations.microsoft.access_token_enc %}
+          {# ── Fully connected: has OAuth tokens ── #}
+          <div class="int-account-box mb-3">
             <div class="d-flex align-items-center gap-2 mb-1">
               <i class="bi bi-person-circle" style="color:#6366f1;font-size:1rem;"></i>
               <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">{{ integrations.microsoft.ms_account_name }}</span>
@@ -57,29 +60,129 @@
               <i class="bi bi-clock me-1"></i>Connected {{ integrations.microsoft.connected_at|date:"N j, Y" }}
             </div>
           </div>
-          <div class="int-features mb-4">
-            <span class="int-feature-chip"><i class="bi bi-envelope me-1"></i>Outlook Mail</span>
-            <span class="int-feature-chip"><i class="bi bi-camera-video me-1"></i>Teams</span>
-            <span class="int-feature-chip"><i class="bi bi-calendar3 me-1"></i>Calendar</span>
+
+          {# ── Feature toggles ── #}
+          <div class="mb-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="fw-semibold" style="font-size:.82rem;color:#1e293b;">
+                <i class="bi bi-toggles me-1"></i>Enabled Features
+              </span>
+              {% if is_admin %}
+              <button type="button" class="btn btn-sm" id="msFeatureEditBtn"
+                      style="font-size:.72rem;padding:2px 8px;background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:6px;">
+                <i class="bi bi-pencil me-1"></i>Edit
+              </button>
+              {% endif %}
+            </div>
+            <div id="msFeatureDisplay" class="int-features">
+              {% for feat in ms_features %}
+                {% if feat.enabled %}
+                  <span class="int-feature-chip"><i class="bi {{ feat.icon }} me-1"></i>{{ feat.label }}</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            {% if is_admin %}
+            <div id="msFeatureEditor" style="display:none;">
+              <div class="ms-feature-toggles">
+                {% for feat in ms_features %}
+                <label class="ms-feat-toggle {% if feat.enabled %}ms-feat-toggle--on{% endif %}" data-key="{{ feat.key }}">
+                  <input type="checkbox" name="ms_features" value="{{ feat.key }}"
+                         {% if feat.enabled %}checked{% endif %} style="display:none;">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="ms-feat-check">
+                      <i class="bi bi-check2"></i>
+                    </div>
+                    <i class="bi {{ feat.icon }}" style="font-size:.9rem;"></i>
+                    <div>
+                      <div style="font-size:.82rem;font-weight:600;line-height:1.2;">{{ feat.label }}</div>
+                      <div style="font-size:.72rem;color:#64748b;line-height:1.3;">{{ feat.description }}</div>
+                    </div>
+                  </div>
+                </label>
+                {% endfor %}
+              </div>
+              <div class="d-flex gap-2 mt-2">
+                <button type="button" class="btn btn-sm flex-grow-1" id="msFeatureSaveBtn"
+                        style="background:#4f46e5;color:#fff;border-radius:8px;font-size:.8rem;">
+                  <i class="bi bi-check-lg me-1"></i>Save Features
+                </button>
+                <button type="button" class="btn btn-sm" id="msFeatureCancelBtn"
+                        style="background:#f1f5f9;color:#475569;border-radius:8px;font-size:.8rem;">
+                  Cancel
+                </button>
+              </div>
+              <div id="msFeatureMsg" class="mt-2" style="display:none;font-size:.78rem;border-radius:6px;padding:6px 10px;"></div>
+            </div>
+            {% endif %}
           </div>
-          <form method="post" action="{% url 'integrations:microsoft_disconnect' %}" class="mt-auto">
+
+          <a href="{% url 'integrations:microsoft_connect' %}" class="btn btn-outline-primary w-100 mb-2" style="border-radius:10px;font-size:.85rem;">
+            <i class="bi bi-arrow-repeat me-2"></i>Re-authenticate
+          </a>
+          <form method="post" action="{% url 'integrations:microsoft_disconnect' %}" class="mt-0">
             {% csrf_token %}
             <button type="submit" class="btn int-btn-disconnect w-100"
                     onclick="return confirm('Disconnect Microsoft account?')">
               <i class="bi bi-slash-circle me-2"></i>Disconnect Account
             </button>
           </form>
+
+        {% elif integrations.microsoft and integrations.microsoft.ms_client_id_enc %}
+          {# ── Creds saved but OAuth not completed yet — show feature picker ── #}
+          <div class="alert alert-warning d-flex align-items-center mb-3" style="font-size:.85rem;" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            Azure App credentials saved — select features, then sign in.
+          </div>
+
+          {# ── Feature selection (always editable in this state) ── #}
+          <div class="mb-3">
+            <span class="fw-semibold d-block mb-2" style="font-size:.82rem;color:#1e293b;">
+              <i class="bi bi-toggles me-1"></i>Select Features to Enable
+            </span>
+            <div class="ms-feature-toggles" id="msSetupFeatures">
+              {% for feat in ms_features %}
+              <label class="ms-feat-toggle {% if feat.enabled %}ms-feat-toggle--on{% endif %}" data-key="{{ feat.key }}">
+                <input type="checkbox" name="ms_features_setup" value="{{ feat.key }}"
+                       {% if feat.enabled %}checked{% endif %} style="display:none;">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="ms-feat-check">
+                    <i class="bi bi-check2"></i>
+                  </div>
+                  <i class="bi {{ feat.icon }}" style="font-size:.9rem;"></i>
+                  <div>
+                    <div style="font-size:.82rem;font-weight:600;line-height:1.2;">{{ feat.label }}</div>
+                    <div style="font-size:.72rem;color:#64748b;line-height:1.3;">{{ feat.description }}</div>
+                  </div>
+                </div>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <button type="button" class="btn int-btn-connect w-100 mb-2" id="msSetupConnectBtn">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Save Features &amp; Sign in with Microsoft
+          </button>
+          <form method="post" action="{% url 'integrations:microsoft_disconnect' %}" class="mt-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary btn-sm w-100"
+                    onclick="return confirm('Remove saved credentials?')">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Reset &amp; Re-configure
+            </button>
+          </form>
+
         {% else %}
+          {# ── Not configured at all ── #}
           <p class="int-card-desc mb-4">
-            Connect your Microsoft 365 account to read <strong>Outlook emails</strong> and join
-            <strong>Teams meetings</strong> directly in WorkHub.
+            Connect your Microsoft 365 account to access <strong>Outlook emails</strong>,
+            <strong>Teams</strong>, <strong>OneDrive</strong>, and more in WorkHub.
           </p>
           <div class="int-features mb-4">
-            <span class="int-feature-chip"><i class="bi bi-envelope me-1"></i>Outlook Mail</span>
-            <span class="int-feature-chip"><i class="bi bi-camera-video me-1"></i>Teams</span>
-            <span class="int-feature-chip"><i class="bi bi-calendar3 me-1"></i>Calendar</span>
+            {% for feat in ms_features %}
+              <span class="int-feature-chip int-feature-chip--muted"><i class="bi {{ feat.icon }} me-1"></i>{{ feat.label }}</span>
+            {% endfor %}
           </div>
-          <a href="{% url 'integrations:microsoft_connect' %}" class="btn int-btn-connect w-100 mt-auto">
+          <a href="#" class="btn int-btn-connect w-100 mt-auto" data-bs-toggle="modal" data-bs-target="#msConnectModal">
             <i class="bi bi-box-arrow-in-right me-2"></i>Connect Microsoft Account
           </a>
         {% endif %}
@@ -303,7 +406,159 @@
 
 </div>
 
+{% include "integrations/_microsoft_connect_modal.html" %}
 {% include "integrations/_slack_connect_modal.html" %}
 {% include "integrations/_calendly_connect_modal.html" %}
+
+<!-- Feature toggle styles -->
+<style>
+.ms-feature-toggles { display:flex; flex-direction:column; gap:6px; }
+.ms-feat-toggle {
+  display:block; cursor:pointer; padding:8px 10px; border-radius:8px;
+  border:1.5px solid #e2e8f0; background:#f8fafc; transition:all .15s;
+}
+.ms-feat-toggle:hover { border-color:#c7d2fe; background:#eef2ff; }
+.ms-feat-toggle--on { border-color:#818cf8; background:#eef2ff; }
+.ms-feat-check {
+  width:18px; height:18px; border-radius:4px; border:1.5px solid #cbd5e1;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.7rem; color:transparent; transition:all .15s; flex-shrink:0;
+}
+.ms-feat-toggle--on .ms-feat-check {
+  background:#4f46e5; border-color:#4f46e5; color:#fff;
+}
+</style>
+
+<!-- Feature toggle JS -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const csrfToken = '{{ csrf_token }}';
+
+  // Toggle checkbox + visual state on click
+  document.querySelectorAll('.ms-feat-toggle').forEach(function(label) {
+    label.addEventListener('click', function(e) {
+      e.preventDefault();
+      const cb = this.querySelector('input[type=checkbox]');
+      cb.checked = !cb.checked;
+      this.classList.toggle('ms-feat-toggle--on', cb.checked);
+    });
+  });
+
+  // ── Connected state: Edit / Save / Cancel ──
+  const editBtn = document.getElementById('msFeatureEditBtn');
+  const saveBtn = document.getElementById('msFeatureSaveBtn');
+  const cancelBtn = document.getElementById('msFeatureCancelBtn');
+  const display = document.getElementById('msFeatureDisplay');
+  const editor = document.getElementById('msFeatureEditor');
+  const msgEl = document.getElementById('msFeatureMsg');
+
+  if (editBtn) {
+    editBtn.addEventListener('click', function() {
+      display.style.display = 'none';
+      editBtn.style.display = 'none';
+      editor.style.display = 'block';
+    });
+  }
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function() {
+      editor.style.display = 'none';
+      display.style.display = '';
+      if (editBtn) editBtn.style.display = '';
+      if (msgEl) msgEl.style.display = 'none';
+    });
+  }
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function() {
+      const checked = [];
+      editor.querySelectorAll('input[name=ms_features]:checked').forEach(function(cb) {
+        checked.push(cb.value);
+      });
+      if (checked.length === 0) {
+        msgEl.style.display = 'block';
+        msgEl.style.background = '#fef2f2';
+        msgEl.style.color = '#991b1b';
+        msgEl.textContent = 'Please enable at least one feature.';
+        return;
+      }
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Saving…';
+      fetch('{% url "integrations:microsoft_save_features" %}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+        body: JSON.stringify({features: checked})
+      })
+      .then(r => r.json())
+      .then(function(data) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save Features';
+        if (data.success) {
+          msgEl.style.display = 'block';
+          if (data.needs_reauth) {
+            msgEl.style.background = '#fef3c7';
+            msgEl.style.color = '#92400e';
+            msgEl.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>' + data.message +
+              ' <a href="{% url "integrations:microsoft_connect" %}" class="fw-bold" style="color:#92400e;">Re-authenticate now →</a>';
+          } else {
+            msgEl.style.background = '#dcfce7';
+            msgEl.style.color = '#166534';
+            msgEl.textContent = data.message;
+            setTimeout(function(){ location.reload(); }, 1200);
+          }
+        } else {
+          msgEl.style.display = 'block';
+          msgEl.style.background = '#fef2f2';
+          msgEl.style.color = '#991b1b';
+          msgEl.textContent = data.error || 'Failed to save features.';
+        }
+      })
+      .catch(function() {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save Features';
+        msgEl.style.display = 'block';
+        msgEl.style.background = '#fef2f2';
+        msgEl.style.color = '#991b1b';
+        msgEl.textContent = 'Network error. Please try again.';
+      });
+    });
+  }
+
+  // ── Setup state: Save features then redirect to OAuth ──
+  const setupBtn = document.getElementById('msSetupConnectBtn');
+  if (setupBtn) {
+    setupBtn.addEventListener('click', function() {
+      const checked = [];
+      document.querySelectorAll('#msSetupFeatures input[name=ms_features_setup]:checked').forEach(function(cb) {
+        checked.push(cb.value);
+      });
+      if (checked.length === 0) {
+        alert('Please enable at least one feature before connecting.');
+        return;
+      }
+      setupBtn.disabled = true;
+      setupBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Saving…';
+      fetch('{% url "integrations:microsoft_save_features" %}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+        body: JSON.stringify({features: checked})
+      })
+      .then(r => r.json())
+      .then(function(data) {
+        if (data.success) {
+          window.location.href = '{% url "integrations:microsoft_connect" %}';
+        } else {
+          setupBtn.disabled = false;
+          setupBtn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i>Save Features & Sign in with Microsoft';
+          alert(data.error || 'Failed to save features.');
+        }
+      })
+      .catch(function() {
+        setupBtn.disabled = false;
+        setupBtn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i>Save Features & Sign in with Microsoft';
+        alert('Network error. Please try again.');
+      });
+    });
+  }
+});
+</script>
 
 {% endblock %}

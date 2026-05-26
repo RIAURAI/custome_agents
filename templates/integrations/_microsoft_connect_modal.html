@@ -1,0 +1,316 @@
+<!-- Microsoft BYOB Credentials Modal -->
+<style>
+  @keyframes msModalSlideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes msFieldFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes msShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+  @keyframes msPulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,120,212,.3); }
+    50%      { box-shadow: 0 0 0 8px rgba(0,120,212,0); }
+  }
+  #msConnectModal .modal-content {
+    animation: msModalSlideUp .35s cubic-bezier(.16,1,.3,1);
+  }
+  #msConnectModal .ms-field { animation: msFieldFadeIn .4s ease both; }
+  #msConnectModal .ms-field:nth-child(2) { animation-delay: .08s; }
+  #msConnectModal .ms-field:nth-child(3) { animation-delay: .16s; }
+  #msConnectModal .ms-input:focus {
+    border-color: #0078d4;
+    box-shadow: 0 0 0 3px rgba(0,120,212,.15);
+  }
+  #msConnectModal .ms-input.is-invalid { animation: msShake .4s ease; }
+  #msConnectBtn:not(:disabled):hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0,120,212,.25);
+  }
+  #msConnectBtn { transition: all .2s ease; }
+  .ms-redirect-uri {
+    user-select: all;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .ms-redirect-uri:hover { background: #d1e5f7 !important; }
+  .ms-copy-feedback {
+    opacity: 0;
+    transition: opacity .3s ease;
+    font-size: .72rem;
+    color: #16a34a;
+    margin-left: 6px;
+  }
+  .ms-copy-feedback.show { opacity: 1; }
+</style>
+
+<div class="modal fade" id="msConnectModal" tabindex="-1" aria-labelledby="msConnectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="border-radius:16px;border:none;box-shadow:0 20px 60px rgba(0,0,0,.16);">
+
+      <!-- Header -->
+      <div class="modal-header border-0 pb-0 px-4 pt-4">
+        <div class="d-flex align-items-center gap-3">
+          <div style="background:linear-gradient(135deg,#0078d4,#005a9e);border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="bi bi-microsoft" style="color:#fff;font-size:1.3rem;"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="msConnectModalLabel" style="color:#1a1a2e;letter-spacing:-.02em;">
+              Connect Microsoft 365
+            </h5>
+            <p class="mb-0" style="font-size:.78rem;color:#64748b;">
+              Register your own Azure App — your credentials stay with your company
+            </p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body px-4 pt-3 pb-0">
+
+        <!-- Setup guide -->
+        <div class="accordion accordion-flush mb-4" id="msGuideAccordion">
+          <div class="accordion-item" style="border:1px solid #e2e8f0;border-radius:12px!important;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2 px-3" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#msGuideBody"
+                      style="font-size:.82rem;font-weight:600;color:#0078d4;background:#eff6ff;border-radius:12px!important;">
+                <i class="bi bi-journal-check me-2"></i>How to register your Azure App — step-by-step
+              </button>
+            </h2>
+            <div id="msGuideBody" class="accordion-collapse collapse">
+              <div class="accordion-body px-3 py-3" style="background:#fafbfc;font-size:.8rem;color:#334155;">
+                <ol class="mb-0 ps-3" style="line-height:2.1;">
+                  <li>Go to <strong><a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApplications/ApplicationsListBlade" target="_blank" rel="noopener">Azure App Registrations</a></strong> → Click <em>New registration</em>.</li>
+                  <li>Name your app (e.g. <em>WorkHub — Your Company</em>).</li>
+                  <li>Under <strong>Supported account types</strong>, select:<br>
+                    <code style="font-size:.74rem;background:#e2e8f0;padding:2px 8px;border-radius:4px;">Accounts in any organizational directory (Multi-tenant) and personal Microsoft accounts</code>
+                  </li>
+                  <li>Set <strong>Redirect URI</strong> → Platform: <em>Web</em> → URI:<br>
+                    <span class="ms-redirect-uri d-inline-block mt-1"
+                          style="font-family:monospace;font-size:.74rem;background:#dbeafe;padding:3px 10px;border-radius:6px;"
+                          onclick="navigator.clipboard.writeText(this.textContent.trim()).then(()=>{document.getElementById('msCopyFeedback').classList.add('show');setTimeout(()=>document.getElementById('msCopyFeedback').classList.remove('show'),1500)})">{{ ms_redirect_uri }}</span>
+                    <span id="msCopyFeedback" class="ms-copy-feedback"><i class="bi bi-check2"></i> Copied!</span>
+                  </li>
+                  <li>Click <strong>Register</strong>. Copy the <strong>Application (client) ID</strong> from the Overview page.</li>
+                  <li>Go to <strong>Certificates &amp; secrets</strong> → <em>New client secret</em> → copy the <strong>Value</strong> immediately.</li>
+                  <li>Paste both values below and click <strong>Save &amp; Connect</strong>.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Credential form -->
+        <form id="msCredentialsForm" novalidate>
+          {% csrf_token %}
+
+          <div class="d-flex flex-column gap-3">
+
+            <!-- Application (Client) ID -->
+            <div class="ms-field">
+              <label for="msClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
+                <i class="bi bi-fingerprint me-1" style="color:#0078d4;"></i>Application (Client) ID <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <input type="text" class="form-control ms-input" id="msClientId" name="client_id"
+                       placeholder="e.g. 12345678-abcd-efgh-ijkl-1234567890ab"
+                       autocomplete="off" required
+                       style="font-family:'Cascadia Code',monospace;font-size:.81rem;border-radius:10px 0 0 10px;border-color:#d1d5db;">
+                <button class="btn btn-outline-secondary" type="button" onclick="toggleMsField('msClientId','msEyeId')"
+                        title="Show / hide" style="border-radius:0 10px 10px 0;">
+                  <i class="bi bi-eye" id="msEyeId"></i>
+                </button>
+              </div>
+              <div class="form-text" style="font-size:.72rem;">
+                Found on your Azure App's <strong>Overview</strong> page
+              </div>
+            </div>
+
+            <!-- Client Secret -->
+            <div class="ms-field">
+              <label for="msClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
+                <i class="bi bi-shield-lock-fill me-1" style="color:#16a34a;"></i>Client Secret <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <input type="password" class="form-control ms-input" id="msClientSecret" name="client_secret"
+                       placeholder="Enter your client secret value"
+                       autocomplete="off" required
+                       style="font-family:'Cascadia Code',monospace;font-size:.81rem;border-radius:10px 0 0 10px;border-color:#d1d5db;">
+                <button class="btn btn-outline-secondary" type="button" onclick="toggleMsField('msClientSecret','msEyeSecret')"
+                        title="Show / hide" style="border-radius:0 10px 10px 0;">
+                  <i class="bi bi-eye" id="msEyeSecret"></i>
+                </button>
+              </div>
+              <div class="form-text" style="font-size:.72rem;">
+                <strong>Certificates &amp; secrets</strong> → copy the <em>Value</em> (not the Secret ID)
+              </div>
+            </div>
+
+            <!-- Tenant ID (optional) -->
+            <div class="ms-field">
+              <label for="msTenantId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
+                <i class="bi bi-building me-1" style="color:#6366f1;"></i>Tenant ID
+                <span class="badge bg-light text-secondary" style="font-size:.65rem;vertical-align:middle;">Optional</span>
+              </label>
+              <input type="text" class="form-control ms-input" id="msTenantId" name="tenant_id"
+                     placeholder="common (default — works for most setups)"
+                     autocomplete="off"
+                     style="font-family:'Cascadia Code',monospace;font-size:.81rem;border-radius:10px;border-color:#d1d5db;">
+              <div class="form-text" style="font-size:.72rem;">
+                Leave blank for multi-tenant. Set your Directory (tenant) ID for single-tenant apps.
+              </div>
+            </div>
+
+          </div>
+
+          <!-- What gets enabled -->
+          <div class="mt-4 mb-3 p-3" style="background:#f0f9ff;border-radius:10px;border:1px solid #bae6fd;">
+            <div class="fw-semibold mb-2" style="font-size:.78rem;color:#0369a1;">
+              <i class="bi bi-check2-all me-1"></i>What gets enabled after connecting:
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <span style="font-size:.72rem;background:#e0f2fe;color:#0c4a6e;border-radius:20px;padding:3px 12px;">
+                <i class="bi bi-envelope me-1"></i>Email (Outlook)
+              </span>
+              <span style="font-size:.72rem;background:#e0f2fe;color:#0c4a6e;border-radius:20px;padding:3px 12px;">
+                <i class="bi bi-calendar3 me-1"></i>Calendar
+              </span>
+              <span style="font-size:.72rem;background:#e0f2fe;color:#0c4a6e;border-radius:20px;padding:3px 12px;">
+                <i class="bi bi-camera-video me-1"></i>Meetings
+              </span>
+              <span style="font-size:.72rem;background:#e0f2fe;color:#0c4a6e;border-radius:20px;padding:3px 12px;">
+                <i class="bi bi-person-badge me-1"></i>Profile
+              </span>
+            </div>
+          </div>
+
+          <!-- Alert -->
+          <div id="msConnectAlert" class="alert d-none py-2 px-3 mb-3" style="border-radius:10px;font-size:.83rem;"></div>
+
+          <!-- Actions -->
+          <div class="d-flex gap-2 pb-4">
+            <button type="submit" class="btn flex-grow-1 fw-semibold" id="msConnectBtn"
+                    style="background:linear-gradient(135deg,#0078d4,#005a9e);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-size:.88rem;">
+              <span id="msBtnText"><i class="bi bi-plug-fill me-2"></i>Save &amp; Connect</span>
+              <span id="msBtnSpinner" class="d-none">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving…
+              </span>
+            </button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"
+                    style="border-radius:10px;font-size:.88rem;">Cancel</button>
+          </div>
+        </form>
+
+      </div><!-- /modal-body -->
+    </div>
+  </div>
+</div>
+
+<!-- Success toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1100">
+  <div id="msSuccessToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive">
+    <div class="d-flex">
+      <div class="toast-body"><i class="bi bi-check-circle-fill me-2"></i>Credentials saved! Redirecting to Microsoft…</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* Toggle show/hide for credential fields */
+  window.toggleMsField = function (inputId, iconId) {
+    const inp = document.getElementById(inputId);
+    const ico = document.getElementById(iconId);
+    if (inp.type === "password") { inp.type = "text"; ico.className = "bi bi-eye-slash"; }
+    else { inp.type = "password"; ico.className = "bi bi-eye"; }
+  };
+
+  const form    = document.getElementById("msCredentialsForm");
+  const alertEl = document.getElementById("msConnectAlert");
+  const btnText = document.getElementById("msBtnText");
+  const spinner = document.getElementById("msBtnSpinner");
+  const btn     = document.getElementById("msConnectBtn");
+
+  if (!form) return;
+
+  function showAlert(type, msg) {
+    alertEl.className = "alert alert-" + type + " py-2 px-3 mb-3";
+    alertEl.innerHTML = msg;
+    alertEl.classList.remove("d-none");
+    alertEl.style.animation = "msFieldFadeIn .3s ease";
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    alertEl.classList.add("d-none");
+
+    /* Remove previous invalid states */
+    form.querySelectorAll(".is-invalid").forEach(function (el) { el.classList.remove("is-invalid"); });
+
+    const clientId     = document.getElementById("msClientId").value.trim();
+    const clientSecret = document.getElementById("msClientSecret").value.trim();
+
+    let hasError = false;
+    if (!clientId) {
+      document.getElementById("msClientId").classList.add("is-invalid");
+      hasError = true;
+    }
+    if (!clientSecret) {
+      document.getElementById("msClientSecret").classList.add("is-invalid");
+      hasError = true;
+    }
+    if (hasError) {
+      showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Please fill in all required fields.");
+      return;
+    }
+
+    /* Disable button + show spinner */
+    btn.disabled = true;
+    btnText.classList.add("d-none");
+    spinner.classList.remove("d-none");
+
+    try {
+      const fd = new FormData(form);
+      const resp = await fetch("{% url 'integrations:microsoft_save_credentials' %}", {
+        method: "POST",
+        body: fd,
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      const data = await resp.json();
+
+      if (data.success) {
+        showAlert("success", "<i class='bi bi-check-circle-fill me-1'></i>Credentials saved! Redirecting to Microsoft…");
+        const toast = new bootstrap.Toast(document.getElementById("msSuccessToast"));
+        toast.show();
+        setTimeout(function () {
+          window.location.href = "{% url 'integrations:microsoft_connect' %}";
+        }, 1200);
+      } else {
+        showAlert("danger", "<i class='bi bi-x-circle-fill me-1'></i>" + data.error);
+      }
+    } catch (err) {
+      showAlert("danger", "<i class='bi bi-wifi-off me-1'></i>Network error — please try again.");
+    } finally {
+      btn.disabled = false;
+      btnText.classList.remove("d-none");
+      spinner.classList.add("d-none");
+    }
+  });
+
+  /* Clear invalid state on input */
+  ["msClientId", "msClientSecret"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener("input", function () { el.classList.remove("is-invalid"); });
+  });
+})();
+</script>
