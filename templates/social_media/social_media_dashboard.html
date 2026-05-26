@@ -560,6 +560,13 @@
                 <div class="form-text">Page Settings → About</div>
               </div>
 
+              <!-- Telegram fields -->
+              <div class="col-md-6 platform-fields pf-telegram">
+                <label for="cf_telegram_chat_id"><i class="bi bi-chat-square-dots-fill me-1"></i>Chat / Group ID</label>
+                <input type="text" class="form-control" name="telegram_chat_id" id="cf_telegram_chat_id" placeholder="e.g. -1001234567890">
+                <div class="form-text">Optional — for sending proactive messages to a group/channel</div>
+              </div>
+
               <div class="col-md-6">
                 <label for="cf_profile_url">Profile URL</label>
                 <input type="url" class="form-control" name="profile_url" id="cf_profile_url" placeholder="https://...">
@@ -661,12 +668,21 @@ const platformSteps = {
     { title: "Auth Settings", body: `User Auth → Web App type. Callback:<br><code class="d-inline-block bg-dark text-white px-2 py-1 rounded mt-1">YOUR_DOMAIN/social/webhooks/twitter/</code><br>Enable Read + Write.` },
     { title: "Account Info", body: `Account ID = your handle (without @). Profile: <code>https://twitter.com/HANDLE</code>` },
     { title: "Enter Credentials", body: `Fill in @handle, Access Token, API Key + Secret, Webhook Token. Click <strong>Connect & Save</strong>.` }
+  ],
+  telegram: [
+    { title: "Open BotFather on Telegram", body: `Open Telegram and search for <a href="https://t.me/BotFather" target="_blank" class="fw-semibold text-primary">@BotFather</a>. Start a chat and send <code>/newbot</code>.` },
+    { title: "Create Your Bot", body: `BotFather will ask for:<br>• <strong>Bot name</strong> (display name, e.g. "My Business Bot")<br>• <strong>Bot username</strong> (must end in "bot", e.g. <code>mybusiness_bot</code>)<br>After creation, you'll receive a <strong>Bot Token</strong> like: <code>7123456789:AAF...</code>` },
+    { title: "Copy Bot Token", body: `The Bot Token is your <strong>Access Token</strong>. Keep it secret! If compromised, use <code>/revoke</code> with @BotFather to regenerate.` },
+    { title: "Set Bot Permissions", body: `Send these commands to @BotFather:<br>• <code>/setprivacy</code> → <strong>Disable</strong> (to read all group messages)<br>• <code>/setjoingroups</code> → <strong>Enable</strong> (allow adding to groups)<br>• <code>/setcommands</code> → add commands like <code>start - Start the bot</code>` },
+    { title: "Get Chat ID (Optional)", body: `Add bot to your group/channel. Send a message, then call:<br><code class="d-inline-block bg-dark text-white px-2 py-1 rounded mt-1">https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code><br>Find <code>chat.id</code> in the response. Use this as <strong>Chat ID</strong> for sending messages.` },
+    { title: "Set Webhook", body: `Set webhook so Telegram sends updates to your server:<br><code class="d-inline-block bg-dark text-white px-2 py-1 rounded mt-1">YOUR_DOMAIN/social/webhooks/telegram/</code><br>Or use API: <code>https://api.telegram.org/bot&lt;TOKEN&gt;/setWebhook?url=YOUR_URL</code>` },
+    { title: "Enter Credentials Below", body: `Paste the <strong>Bot Token</strong> as Access Token. Add Chat ID if you want to send proactive messages. Click <strong>Connect & Save</strong> — we'll verify the token instantly.` }
   ]
 };
 
 const platformIcons = {
   whatsapp: 'bi-whatsapp', linkedin: 'bi-linkedin', facebook: 'bi-facebook',
-  instagram: 'bi-instagram', twitter: 'bi-twitter-x'
+  instagram: 'bi-instagram', twitter: 'bi-twitter-x', telegram: 'bi-telegram'
 };
 
 let currentPlatform = '';

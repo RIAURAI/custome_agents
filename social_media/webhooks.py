@@ -314,3 +314,133 @@ def twitter_webhook(request):
         })
 
     return JsonResponse({"status": "ok"})
+
+
+# ── Telegram Webhook ──────────────────────────────────────────────────────────
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def telegram_webhook(request):
+    """
+    Telegram Bot API webhook endpoint.
+    Receives updates from Telegram when bot gets messages.
+    """
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    # Handle different update types
+    message = body.get("message") or body.get("channel_post")
+    if not message:
+        return JsonResponse({"status": "ignored"})
+
+    chat = message.get("chat", {})
+    chat_id = str(chat.get("id", ""))
+    chat_type = chat.get("type", "private")  # private, group, supergroup, channel
+    sender = message.get("from", {})
+    sender_id = str(sender.get("id", ""))
+    sender_name = sender.get("first_name", "")
+    if sender.get("last_name"):
+        sender_name += f" {sender['last_name']}"
+
+    # Extract text
+    text = message.get("text", "")
+    if not text:
+        # Handle other content types
+        if message.get("photo"):
+            text = message.get("caption", "[Photo]")
+        elif message.get("document"):
+            text = message.get("caption", "[Document]")
+        elif message.get("voice"):
+            text = "[Voice message]"
+        elif message.get("sticker"):
+            text = f"[Sticker: {message['sticker'].get('emoji', '')}]"
+        else:
+            text = "[Unsupported content]"
+
+    if not text:
+        return JsonResponse({"status": "no_content"})
+
+    # Find the Telegram account — match by bot username or chat_id
+    account = None
+    if chat_type == "private":
+        account = SocialMediaAccount.objects.filter(
+            platform="telegram", status="active"
+        ).first()
+    else:
+        # Group/channel — try matching by stored chat_id
+        account = SocialMediaAccount.objects.filter(
+            platform="telegram", status="active", telegram_chat_id=chat_id
+        ).first()
+        if not account:
+            # Fallback: any active telegram account
+            account = SocialMediaAccount.objects.filter(
+                platform="telegram", status="active"
+            ).first()
+
+    if not account:
+        logger.warning(f"No Telegram account found for chat_id: {chat_id}")
+        return JsonResponse({"status": "no_account"})
+
+    # Skip messages from the bot itself
+    bot_id = account.account_id
+    if sender_id == bot_id:
+        return JsonResponse({"status": "own_message"})
+
+    # Handle bot commands
+    if text.startswith("/"):
+        command = text.split()[0].split("@")[0]
+        if command in ("/start", "/help"):
+            _send_telegram_welcome(account, chat_id, command)
+            return JsonResponse({"status": "command_handled"})
+
+    # Process through bot handler
+    handler = SocialMediaBotHandler(account.company)
+    handler.process_incoming_message(account, {
+        "sender_id": sender_id,
+        "sender_name": sender_name,
+        "content": text,
+        "message_type": "text",
+        "platform_message_id": str(message.get("message_id", "")),
+        "is_group": chat_type in ("group", "supergroup"),
+        "chat_id": chat_id,
+    })
+
+    return JsonResponse({"status": "ok"})
+
+
+def _send_telegram_welcome(account, chat_id: str, command: str):
+    """Send a welcome/help message for /start or /help commands."""
+    from integrations.utils import decrypt_token
+    import requests as http_requests
+
+    try:
+        token = decrypt_token(account.access_token_enc)
+    except Exception:
+        return
+
+    if command == "/start":
+        text = (
+            f"👋 Hi! I'm {account.account_name}.\n\n"
+            "I'm an AI-powered business assistant. You can:\n"
+            "• Ask me questions about our business\n"
+            "• Send messages and I'll reply\n"
+            "• Use /help to see available commands\n\n"
+            "How can I help you today?"
+        )
+    else:
+        text = (
+            "📋 *Available Commands:*\n\n"
+            "/start - Start conversation\n"
+            "/help - Show this help message\n\n"
+            "Or simply type your message and I'll respond!"
+        )
+
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    http_requests.post(url, json={
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "Markdown",
+    }, timeout=10)

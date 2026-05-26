@@ -371,6 +371,156 @@
     </div>
   </div>
 
+  <!-- ── Discord ────────────────────────────────────────────────────────── -->
+  <div class="col-md-6 col-xl-4 d-flex flex-column">
+    <div class="int-card {% if integrations.discord %}int-card--connected{% endif %} flex-grow-1">
+      <div class="int-card-inner">
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="int-logo-box">
+            <i class="bi bi-discord" style="font-size:1.4rem;color:#5865F2;"></i>
+          </div>
+          <div class="flex-grow-1 min-w-0">
+            <div class="int-card-name">Discord</div>
+            <div class="int-card-sub">Bot + Server Messages</div>
+          </div>
+          {% if integrations.discord %}
+            <span class="int-badge int-badge--connected"><i class="bi bi-check-circle-fill me-1"></i>Connected</span>
+          {% else %}
+            <span class="int-badge int-badge--disconnected"><i class="bi bi-x-circle-fill me-1"></i>Not connected</span>
+          {% endif %}
+        </div>
+
+        {% if integrations.discord %}
+          <div class="int-account-box mb-4">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi bi-discord" style="color:#5865F2;font-size:1rem;"></i>
+              <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">{{ integrations.discord.discord_guild_name }}</span>
+            </div>
+            {% if integrations.discord.discord_guild_id %}
+              <div class="text-muted" style="font-size:.8rem;">Guild ID: {{ integrations.discord.discord_guild_id }}</div>
+            {% endif %}
+            <div class="mt-2" style="font-size:.75rem;color:#94a3b8;">
+              <i class="bi bi-clock me-1"></i>Connected {{ integrations.discord.connected_at|date:"N j, Y" }}
+            </div>
+          </div>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-hash me-1"></i>Channels</span>
+            <span class="int-feature-chip"><i class="bi bi-robot me-1"></i>Bot</span>
+            <span class="int-feature-chip"><i class="bi bi-bell me-1"></i>Webhooks</span>
+          </div>
+          <div class="d-flex gap-2 mt-auto">
+            <button type="button" class="btn int-btn-connect flex-grow-1"
+                    data-bs-toggle="modal" data-bs-target="#discordConnectModal"
+                    style="font-size:.82rem;">
+              <i class="bi bi-arrow-repeat me-1"></i>Update Credentials
+            </button>
+            <form method="post" action="{% url 'integrations:discord_disconnect' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn int-btn-disconnect"
+                      onclick="return confirm('Disconnect Discord?')"
+                      style="font-size:.82rem;">
+                <i class="bi bi-slash-circle me-1"></i>Disconnect
+              </button>
+            </form>
+          </div>
+        {% else %}
+          <p class="int-card-desc mb-4">
+            Connect your Discord bot to receive and send messages in your server channels
+            with <strong>AI-powered responses</strong>.
+          </p>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-hash me-1"></i>Channels</span>
+            <span class="int-feature-chip"><i class="bi bi-robot me-1"></i>Bot</span>
+            <span class="int-feature-chip"><i class="bi bi-bell me-1"></i>Webhooks</span>
+          </div>
+          <button type="button" class="btn int-btn-connect w-100 mt-auto"
+                  data-bs-toggle="modal" data-bs-target="#discordConnectModal">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Connect Discord Bot
+          </button>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Jira ──────────────────────────────────────────────────────────── -->
+  <div class="col-md-6 col-xl-4 d-flex flex-column">
+    <div class="int-card {% if integrations.jira %}int-card--connected{% endif %} flex-grow-1">
+      <div class="int-card-inner">
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="int-logo-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <path d="M11.53 2C6.28 2 2.03 6.25 2.03 11.5c0 .28.01.55.04.82a.75.75 0 001.03.63c2.23-.87 4.73-.26 6.3 1.54a5.75 5.75 0 01.14 7.14.75.75 0 00.35 1.15c.53.17 1.09.26 1.64.26 5.25 0 9.5-4.25 9.5-9.5S16.78 2 11.53 2z" fill="#2684FF"/>
+              <path d="M9.1 14.75a4.25 4.25 0 00-6.32-1.72.75.75 0 00-.14 1.07A6.75 6.75 0 009.1 16.8a.75.75 0 00.48-1.18 4.24 4.24 0 00-.48-.87z" fill="#2684FF" opacity=".7"/>
+            </svg>
+          </div>
+          <div class="flex-grow-1 min-w-0">
+            <div class="int-card-name">Jira</div>
+            <div class="int-card-sub">Issues · Projects · Boards</div>
+          </div>
+          {% if integrations.jira %}
+            <span class="int-badge int-badge--connected"><i class="bi bi-check-circle-fill me-1"></i>Connected</span>
+          {% else %}
+            <span class="int-badge int-badge--disconnected"><i class="bi bi-x-circle-fill me-1"></i>Not connected</span>
+          {% endif %}
+        </div>
+
+        {% if integrations.jira %}
+          <div class="int-account-box mb-4">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi bi-kanban" style="color:#2684FF;font-size:1rem;"></i>
+              <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">{{ integrations.jira.jira_user_email }}</span>
+            </div>
+            <div class="text-muted" style="font-size:.8rem;">{{ integrations.jira.jira_site_url }}</div>
+            {% if integrations.jira.jira_project_key %}
+              <div class="text-muted" style="font-size:.78rem;">Project: {{ integrations.jira.jira_project_key }}</div>
+            {% endif %}
+            <div class="mt-2" style="font-size:.75rem;color:#94a3b8;">
+              <i class="bi bi-clock me-1"></i>Connected {{ integrations.jira.connected_at|date:"N j, Y" }}
+            </div>
+          </div>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-bug me-1"></i>Issues</span>
+            <span class="int-feature-chip"><i class="bi bi-kanban me-1"></i>Boards</span>
+            <span class="int-feature-chip"><i class="bi bi-diagram-3 me-1"></i>Projects</span>
+          </div>
+          <div class="d-flex gap-2 mt-auto">
+            <button type="button" class="btn int-btn-connect flex-grow-1"
+                    data-bs-toggle="modal" data-bs-target="#jiraConnectModal"
+                    style="font-size:.82rem;">
+              <i class="bi bi-arrow-repeat me-1"></i>Update Credentials
+            </button>
+            <form method="post" action="{% url 'integrations:jira_disconnect' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn int-btn-disconnect"
+                      onclick="return confirm('Disconnect Jira?')"
+                      style="font-size:.82rem;">
+                <i class="bi bi-slash-circle me-1"></i>Disconnect
+              </button>
+            </form>
+          </div>
+        {% else %}
+          <p class="int-card-desc mb-4">
+            Connect your Atlassian Jira account to create, track, and manage <strong>issues & projects</strong>
+            directly from WorkHub.
+          </p>
+          <div class="int-features mb-4">
+            <span class="int-feature-chip"><i class="bi bi-bug me-1"></i>Issues</span>
+            <span class="int-feature-chip"><i class="bi bi-kanban me-1"></i>Boards</span>
+            <span class="int-feature-chip"><i class="bi bi-diagram-3 me-1"></i>Projects</span>
+          </div>
+          <button type="button" class="btn int-btn-connect w-100 mt-auto"
+                  data-bs-toggle="modal" data-bs-target="#jiraConnectModal">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Connect Jira Account
+          </button>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
   <!-- ── Coming Soon cards ─────────────────────────────────────────────── -->
   {% for service, icon, name in coming_soon %}
   <div class="col-md-6 col-xl-4 d-flex flex-column">
@@ -410,5 +560,7 @@
 {% include "integrations/_slack_connect_modal.html" %}
 {% include "integrations/_calendly_connect_modal.html" %}
 {% include "integrations/_google_connect_modal.html" %}
+{% include "integrations/_discord_connect_modal.html" %}
+{% include "integrations/_jira_connect_modal.html" %}
 
 {% endblock %}

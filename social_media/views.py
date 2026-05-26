@@ -47,6 +47,7 @@ def dashboard_view(request):
         {"key": "facebook", "name": "Facebook", "icon": "bi-facebook", "color": "#1877F2"},
         {"key": "instagram", "name": "Instagram", "icon": "bi-instagram", "color": "#E4405F"},
         {"key": "twitter", "name": "Twitter / X", "icon": "bi-twitter-x", "color": "#000000"},
+        {"key": "telegram", "name": "Telegram", "icon": "bi-telegram", "color": "#0088CC"},
     ]
 
     # Only map accounts that are truly connected (active + have a token)
@@ -59,7 +60,7 @@ def dashboard_view(request):
     for info in platform_info:
         info["account"] = connected_map.get(info["key"])
 
-    return render(request, "social_media/dashboard.html", {
+    return render(request, "social_media/social_media_dashboard.html", {
         "accounts": accounts,
         "recent_posts": recent_posts,
         "is_admin": is_admin,
@@ -96,6 +97,7 @@ def connect_account(request, platform):
         waba_id = request.POST.get("waba_id", "").strip()
         profile_url = request.POST.get("profile_url", "").strip()
         webhook_secret = request.POST.get("webhook_secret", "").strip()
+        telegram_chat_id = request.POST.get("telegram_chat_id", "").strip()
 
         # Permissions
         can_read_messages = request.POST.get("can_read_messages") == "on"
@@ -125,6 +127,7 @@ def connect_account(request, platform):
                 "page_id": page_id,
                 "phone_number_id": phone_number_id,
                 "waba_id": waba_id,
+                "telegram_chat_id": telegram_chat_id,
                 "webhook_secret": webhook_secret,
                 "can_read_messages": can_read_messages,
                 "can_send_messages": can_send_messages,
@@ -489,6 +492,18 @@ def test_connection(request, pk):
             resp = http_requests.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=10)
             success = resp.status_code == 200
             error_msg = resp.json().get("detail", "") if not success else ""
+
+        elif account.platform == "telegram":
+            # Test Telegram Bot API
+            url = f"https://api.telegram.org/bot{token}/getMe"
+            resp = http_requests.get(url, timeout=10)
+            data = resp.json()
+            success = data.get("ok", False)
+            if success:
+                bot_info = data.get("result", {})
+                account.telegram_bot_username = bot_info.get("username", "")
+            else:
+                error_msg = data.get("description", "Invalid bot token")
 
         else:
             error_msg = "Unknown platform"

@@ -59,7 +59,6 @@ def connect_view(request):
         "google_redirect_uri": settings.GOOGLE_REDIRECT_URI,
         "coming_soon": [
             ("onedrive", "bi bi-cloud", "OneDrive"),
-            ("chatgpt", "bi bi-robot", "ChatGPT Pro"),
         ],
     })
 
@@ -624,4 +623,134 @@ def google_disconnect(request):
     CompanyIntegration.objects.filter(company=request.company, service="google").delete()
     log_activity(request, "integration_disconnected", "google")
     messages.info(request, "Google Workspace disconnected.")
+    return redirect("integrations:connect")
+
+
+# ── Discord ───────────────────────────────────────────────────────────────────
+
+
+@company_admin_required
+@require_POST
+def discord_save_credentials(request):
+    """Save Discord bot credentials manually (token-based connection)."""
+    bot_token = request.POST.get("discord_bot_token", "").strip()
+    guild_id = request.POST.get("discord_guild_id", "").strip()
+    webhook_url = request.POST.get("discord_webhook_url", "").strip()
+
+    if not bot_token:
+        messages.error(request, "Discord Bot Token is required.")
+        return redirect("integrations:connect")
+
+    # Verify the bot token by calling Discord API
+    headers = {"Authorization": f"Bot {bot_token}"}
+    try:
+        resp = http_requests.get("https://discord.com/api/v10/users/@me", headers=headers, timeout=10)
+        if resp.status_code != 200:
+            messages.error(request, "Invalid Bot Token — Discord rejected it.")
+            return redirect("integrations:connect")
+        bot_info = resp.json()
+    except Exception:
+        messages.error(request, "Could not connect to Discord API.")
+        return redirect("integrations:connect")
+
+    # Get guild name if guild_id provided
+    guild_name = ""
+    if guild_id:
+        try:
+            resp = http_requests.get(
+                f"https://discord.com/api/v10/guilds/{guild_id}",
+                headers=headers, timeout=10
+            )
+            if resp.status_code == 200:
+                guild_name = resp.json().get("name", "")
+        except Exception:
+            pass
+
+    company = request.company
+    integration, _ = CompanyIntegration.objects.update_or_create(
+        company=company, service="discord",
+        defaults={
+            "discord_bot_token_enc": encrypt_token(bot_token),
+            "discord_guild_id": guild_id,
+            "discord_guild_name": guild_name or bot_info.get("username", ""),
+            "discord_webhook_url": webhook_url,
+            "access_token_enc": encrypt_token(bot_token),
+            "connected_by": request.user,
+            "status": "active",
+        },
+    )
+    messages.success(request, f"Discord connected! Bot: {bot_info.get('username', 'Bot')}")
+    log_activity(request, "integration_connected", "discord", f"Guild: {guild_name or guild_id}")
+    return redirect("integrations:connect")
+
+
+@company_admin_required
+@require_POST
+def discord_disconnect(request):
+    """Disconnect Discord integration."""
+    CompanyIntegration.objects.filter(company=request.company, service="discord").delete()
+    log_activity(request, "integration_disconnected", "discord")
+    messages.info(request, "Discord disconnected.")
+    return redirect("integrations:connect")
+
+
+# ── Jira ──────────────────────────────────────────────────────────────────────
+
+
+@company_admin_required
+@require_POST
+def jira_save_credentials(request):
+    """Save Jira credentials (API Token + site URL)."""
+    site_url = request.POST.get("jira_site_url", "").strip().rstrip("/")
+    user_email = request.POST.get("jira_user_email", "").strip()
+    api_token = request.POST.get("jira_api_token", "").strip()
+    project_key = request.POST.get("jira_project_key", "").strip()
+
+    if not site_url or not user_email or not api_token:
+        messages.error(request, "Jira Site URL, Email, and API Token are all required.")
+        return redirect("integrations:connect")
+
+    # Verify credentials by calling Jira API
+    import base64
+    auth_str = base64.b64encode(f"{user_email}:{api_token}".encode()).decode()
+    headers = {
+        "Authorization": f"Basic {auth_str}",
+        "Content-Type": "application/json",
+    }
+    try:
+        resp = http_requests.get(f"{site_url}/rest/api/3/myself", headers=headers, timeout=10)
+        if resp.status_code != 200:
+            messages.error(request, "Invalid Jira credentials — authentication failed.")
+            return redirect("integrations:connect")
+        jira_user = resp.json()
+    except Exception:
+        messages.error(request, "Could not connect to Jira API. Check site URL.")
+        return redirect("integrations:connect")
+
+    company = request.company
+    integration, _ = CompanyIntegration.objects.update_or_create(
+        company=company, service="jira",
+        defaults={
+            "jira_site_url": site_url,
+            "jira_user_email": user_email,
+            "jira_api_token_enc": encrypt_token(api_token),
+            "jira_project_key": project_key,
+            "access_token_enc": encrypt_token(api_token),
+            "connected_by": request.user,
+            "status": "active",
+        },
+    )
+    display_name = jira_user.get("displayName", user_email)
+    messages.success(request, f"Jira connected! User: {display_name}")
+    log_activity(request, "integration_connected", "jira", f"Site: {site_url}")
+    return redirect("integrations:connect")
+
+
+@company_admin_required
+@require_POST
+def jira_disconnect(request):
+    """Disconnect Jira integration."""
+    CompanyIntegration.objects.filter(company=request.company, service="jira").delete()
+    log_activity(request, "integration_disconnected", "jira")
+    messages.info(request, "Jira disconnected.")
     return redirect("integrations:connect")

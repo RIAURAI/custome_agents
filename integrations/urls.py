@@ -24,4 +24,10 @@ urlpatterns = [
     path("google/connect/", views.google_connect, name="google_connect"),
     path("google/callback/", views.google_callback, name="google_callback"),
     path("google/disconnect/", views.google_disconnect, name="google_disconnect"),
+    # Discord
+    path("discord/save-credentials/", views.discord_save_credentials, name="discord_save_credentials"),
+    path("discord/disconnect/", views.discord_disconnect, name="discord_disconnect"),
+    # Jira
+    path("jira/save-credentials/", views.jira_save_credentials, name="jira_save_credentials"),
+    path("jira/disconnect/", views.jira_disconnect, name="jira_disconnect"),
 ]

@@ -37,4 +37,5 @@ urlpatterns = [
     path("webhooks/instagram/", webhooks.facebook_webhook, name="webhook_instagram"),
     path("webhooks/linkedin/", webhooks.linkedin_webhook, name="webhook_linkedin"),
     path("webhooks/twitter/", webhooks.twitter_webhook, name="webhook_twitter"),
+    path("webhooks/telegram/", webhooks.telegram_webhook, name="webhook_telegram"),
 ]

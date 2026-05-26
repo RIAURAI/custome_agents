@@ -60,6 +60,8 @@ class SocialMediaBotHandler:
         platform_msg_id = message_data.get("platform_message_id", "")
         timestamp = message_data.get("timestamp", dj_timezone.now())
         is_group = message_data.get("is_group", False)
+        # For Telegram, use chat_id as reply destination (handles groups correctly)
+        reply_to_id = message_data.get("chat_id") or sender_id
 
         if not content:
             return {"action": "ignored", "reply": "", "classification": {}}
@@ -165,7 +167,7 @@ class SocialMediaBotHandler:
         was_sent = False
         if reply_text and rule and rule.auto_send:
             try:
-                send_message_to_platform(account, sender_id, reply_text)
+                send_message_to_platform(account, reply_to_id, reply_text)
                 was_sent = True
 
                 # Save outbound message
@@ -173,7 +175,7 @@ class SocialMediaBotHandler:
                     account=account,
                     direction="outbound",
                     sender_id=account.account_id,
-                    recipient_id=sender_id,
+                    recipient_id=reply_to_id,
                     content=reply_text,
                     message_type="text",
                     timestamp=dj_timezone.now(),
