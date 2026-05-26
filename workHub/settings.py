@@ -77,7 +77,9 @@ WSGI_APPLICATION = "workHub.wsgi.application"
 
 # ── Database ──────────────────────────────────────────────────────────────────
 DATABASES = {
-    "default": dj_database_url.config(default=config("DATABASE_URL"))
+    "default": dj_database_url.config(
+        default=config("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
