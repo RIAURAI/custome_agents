@@ -59,17 +59,25 @@ def _get_company_ms_creds(integration) -> tuple[str, str, str]:
     return client_id, client_secret, tenant_id
 
 
+_MSAL_RESERVED_SCOPES = {"openid", "profile", "offline_access"}
+
+
 def get_scopes_for_integration(integration=None) -> list[str]:
-    """Build OAuth scopes from a CompanyIntegration's enabled features, or defaults."""
+    """Build OAuth scopes from a CompanyIntegration's enabled features, or defaults.
+
+    MSAL automatically adds openid/profile/offline_access — passing them
+    explicitly raises ValueError, so we strip them here.
+    """
     if integration is not None:
-        return integration.get_ms_scopes()
-    # Fallback: base + default features
-    scopes = list(settings.MS_BASE_SCOPES)
-    for feat in settings.MS_DEFAULT_FEATURES:
-        feat_info = settings.MS_FEATURE_SCOPES.get(feat)
-        if feat_info:
-            scopes.extend(feat_info["scopes"])
-    return list(dict.fromkeys(scopes))
+        raw = integration.get_ms_scopes()
+    else:
+        # Fallback: base + default features
+        raw = list(settings.MS_BASE_SCOPES)
+        for feat in settings.MS_DEFAULT_FEATURES:
+            feat_info = settings.MS_FEATURE_SCOPES.get(feat)
+            if feat_info:
+                raw.extend(feat_info["scopes"])
+    return list(dict.fromkeys(s for s in raw if s not in _MSAL_RESERVED_SCOPES))
 
 
 def get_auth_url(state: str, client_id: str | None = None, client_secret: str | None = None, tenant_id: str | None = None, integration=None) -> str:
@@ -126,6 +134,8 @@ def get_valid_access_token(integration) -> str | None:
         scopes=scopes,
     )
     if "access_token" not in result:
+        integration.status = "expired"
+        integration.save(update_fields=["status"])
         return None
 
     # Persist refreshed tokens
@@ -137,6 +147,7 @@ def get_valid_access_token(integration) -> str | None:
         datetime.now(timezone.utc).timestamp() + expiry_secs,
         tz=timezone.utc,
     )
+    integration.status = "active"
     integration.save()
     return result["access_token"]
 
@@ -151,16 +162,27 @@ def friendly_graph_error(exc: Exception) -> str:
     raw = str(exc)
     _logger.error("Microsoft Graph API error: %s", raw)
 
-    if "401" in raw:
+    # Try to extract JSON error body from HTTPError
+    detail = ""
+    if hasattr(exc, "response") and exc.response is not None:
+        try:
+            body = exc.response.json()
+            detail = body.get("error", {}).get("code", "")
+        except Exception:
+            pass
+
+    if detail == "InvalidAuthenticationToken" or "401" in raw:
         return "Microsoft session expired. Please reconnect your account."
-    if "403" in raw:
+    if detail in ("Authorization_RequestDenied", "InsufficientPermissions") or "403" in raw:
         return ("Access denied by Microsoft. Your Azure App may be missing the "
                 "required API permissions. Check API permissions in Azure portal "
                 "and grant admin consent.")
-    if "404" in raw:
+    if detail == "ErrorItemNotFound" or "404" in raw:
         return "The requested item was not found. It may have been deleted."
     if "429" in raw:
-        return "Too many requests. Please wait a moment and try again."
+        return "Too many requests to Microsoft. Please wait a moment and try again."
+    if "timeout" in raw.lower() or "timed out" in raw.lower():
+        return "The request to Microsoft timed out. Please try again."
     if "500" in raw or "502" in raw or "503" in raw:
         return "Microsoft services are temporarily unavailable. Please try again later."
     return "Something went wrong while contacting Microsoft. Please try again."
@@ -195,6 +217,26 @@ def graph_patch(access_token: str, endpoint: str, json_body: dict) -> dict:
     }
     url = f"https://graph.microsoft.com/v1.0{endpoint}"
     resp = requests.patch(url, headers=headers, json=json_body, timeout=15)
+    resp.raise_for_status()
+    return resp.json() if resp.content else {}
+
+
+def graph_delete(access_token: str, endpoint: str) -> None:
+    """Make an authenticated DELETE request to Microsoft Graph API."""
+    headers = {"Authorization": f"Bearer {access_token}"}
+    url = f"https://graph.microsoft.com/v1.0{endpoint}"
+    resp = requests.delete(url, headers=headers, timeout=15)
+    resp.raise_for_status()
+
+
+def graph_put(access_token: str, endpoint: str, data: bytes, content_type: str = "application/octet-stream") -> dict:
+    """Make an authenticated PUT request (binary upload) to Microsoft Graph API."""
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": content_type,
+    }
+    url = f"https://graph.microsoft.com/v1.0{endpoint}"
+    resp = requests.put(url, headers=headers, data=data, timeout=60)
     resp.raise_for_status()
     return resp.json() if resp.content else {}
 

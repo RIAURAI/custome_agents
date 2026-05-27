@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+{% block title %}OneDrive — WorkHub{% endblock %}
+{% block page_title %}OneDrive{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#0078d4,#50a5f1);display:flex;align-items:center;justify-content:center;">
+    <i class="bi bi-cloud-fill text-white" style="font-size:1.1rem;"></i>
+  </div>
+  <div>
+    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">OneDrive</h4>
+    <p class="mb-0" style="color:#64748b;font-size:.85rem;">Browse, upload, and share your Microsoft OneDrive files</p>
+  </div>
+</div>
+
+{% if not ms_connected or not has_access %}
+<div class="dash-connect-banner mb-4">
+  <div class="dash-connect-icon"><i class="bi bi-microsoft"></i></div>
+  <div class="flex-grow-1">
+    <div class="dash-connect-title">Connect Microsoft 365</div>
+    <div class="dash-connect-sub">Enable the OneDrive feature to access your files.</div>
+  </div>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Setup</a>
+</div>
+{% else %}
+
+<!-- Toolbar -->
+<div class="dash-panel mb-4">
+  <div class="d-flex flex-wrap align-items-center gap-2 p-3">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="flex-grow-1" id="breadcrumb">
+      <ol class="breadcrumb mb-0" style="font-size:.82rem;">
+        <li class="breadcrumb-item"><a href="#" onclick="navigate('')" style="color:#4f46e5;text-decoration:none;">My Files</a></li>
+      </ol>
+    </nav>
+    <!-- Search -->
+    <div class="input-group" style="width:220px;">
+      <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search files…" style="border-radius:8px 0 0 8px;font-size:.8rem;">
+      <button class="btn btn-sm" id="searchBtn" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:0 8px 8px 0;font-size:.8rem;">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+    <!-- Actions -->
+    <button class="btn btn-sm" onclick="document.getElementById('uploadInput').click()" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:8px;font-size:.78rem;">
+      <i class="bi bi-cloud-arrow-up me-1"></i>Upload
+    </button>
+    <button class="btn btn-sm" id="newFolderBtn" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:8px;font-size:.78rem;">
+      <i class="bi bi-folder-plus me-1"></i>New Folder
+    </button>
+    <input type="file" id="uploadInput" style="display:none;" multiple>
+  </div>
+</div>
+
+<!-- File list -->
+<div class="dash-panel">
+  <div class="dash-panel-body p-0">
+    <table class="table table-hover mb-0" style="font-size:.84rem;">
+      <thead style="background:#f8fafc;">
+        <tr>
+          <th style="width:50%;padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Name</th>
+          <th style="padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Modified</th>
+          <th style="padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Size</th>
+          <th style="width:120px;padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="fileTable">
+        <tr><td colspan="4" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- New Folder Modal -->
+<div class="modal fade" id="newFolderModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;box-shadow:0 20px 60px rgba(0,0,0,.15);">
+      <div class="modal-header border-0 pb-0"><h6 class="modal-title fw-bold">New Folder</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="text" class="form-control form-control-sm" id="folderNameInput" placeholder="Folder name" style="border-radius:8px;">
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button class="btn btn-sm" data-bs-dismiss="modal" style="border-radius:8px;">Cancel</button>
+        <button class="btn btn-sm" id="createFolderBtn" style="background:#4f46e5;color:#fff;border-radius:8px;">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Share Link Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080;">
+  <div id="shareToast" class="toast" role="alert" style="border-radius:12px;">
+    <div class="toast-body d-flex align-items-center gap-2">
+      <i class="bi bi-link-45deg" style="color:#4f46e5;"></i>
+      <span id="shareToastMsg">Link copied!</span>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+<style>
+#fileTable tr { cursor:default; }
+#fileTable tr:hover { background:#f8fafc; }
+.file-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0; }
+.file-icon--folder { background:#fef3c7; color:#d97706; }
+.file-icon--doc { background:#eef2ff; color:#4f46e5; }
+.file-icon--img { background:#fce7f3; color:#db2777; }
+.file-icon--sheet { background:#dcfce7; color:#16a34a; }
+.file-icon--pdf { background:#fee2e2; color:#dc2626; }
+.file-icon--default { background:#f1f5f9; color:#64748b; }
+.file-action { background:none; border:none; padding:4px 6px; border-radius:6px; color:#64748b; font-size:.8rem; }
+.file-action:hover { background:#eef2ff; color:#4f46e5; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const csrf = '{{ csrf_token }}';
+  let currentFolderId = '';
+  let folderStack = [];
+
+  function fileIcon(item) {
+    if (item.folder) return '<div class="file-icon file-icon--folder"><i class="bi bi-folder-fill"></i></div>';
+    const name = (item.name || '').toLowerCase();
+    const mime = item.file?.mimeType || '';
+    if (name.match(/\.(docx?|txt|md)$/)||mime.includes('document')) return '<div class="file-icon file-icon--doc"><i class="bi bi-file-earmark-text"></i></div>';
+    if (name.match(/\.(xlsx?|csv)$/)||mime.includes('spreadsheet')) return '<div class="file-icon file-icon--sheet"><i class="bi bi-file-earmark-spreadsheet"></i></div>';
+    if (name.match(/\.(png|jpg|jpeg|gif|svg|webp)$/)||mime.startsWith('image/')) return '<div class="file-icon file-icon--img"><i class="bi bi-file-earmark-image"></i></div>';
+    if (name.endsWith('.pdf')||mime.includes('pdf')) return '<div class="file-icon file-icon--pdf"><i class="bi bi-file-earmark-pdf"></i></div>';
+    return '<div class="file-icon file-icon--default"><i class="bi bi-file-earmark"></i></div>';
+  }
+
+  function formatSize(bytes) {
+    if (!bytes) return '—';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+    if (bytes < 1073741824) return (bytes/1048576).toFixed(1) + ' MB';
+    return (bytes/1073741824).toFixed(1) + ' GB';
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  }
+
+  function renderFiles(items) {
+    const tbody = document.getElementById('fileTable');
+    if (!items.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted"><i class="bi bi-folder2-open" style="font-size:1.5rem;"></i><div class="mt-2">This folder is empty</div></td></tr>';
+      return;
+    }
+    items.sort((a,b) => {
+      if (a.folder && !b.folder) return -1;
+      if (!a.folder && b.folder) return 1;
+      return (a.name||'').localeCompare(b.name||'');
+    });
+    tbody.innerHTML = items.map(item => {
+      const isFolder = !!item.folder;
+      const nameClick = isFolder
+        ? `onclick="navigate('${item.id}')" style="cursor:pointer;color:#4f46e5;font-weight:600;"`
+        : `style="font-weight:500;color:#1e293b;"`;
+      return `<tr>
+        <td class="align-middle" style="padding:8px 16px;">
+          <div class="d-flex align-items-center gap-2">
+            ${fileIcon(item)}
+            <span ${nameClick}>${item.name}</span>
+            ${item.folder ? '<span style="font-size:.65rem;background:#fef3c7;color:#d97706;padding:1px 6px;border-radius:10px;margin-left:6px;">'+item.folder.childCount+' items</span>' : ''}
+          </div>
+        </td>
+        <td class="align-middle" style="padding:8px 16px;color:#64748b;">${formatDate(item.lastModifiedDateTime)}</td>
+        <td class="align-middle" style="padding:8px 16px;color:#64748b;">${isFolder ? '—' : formatSize(item.size)}</td>
+        <td class="align-middle" style="padding:8px 16px;">
+          <div class="d-flex gap-1">
+            ${!isFolder ? `<button class="file-action" onclick="downloadFile('${item.id}')" title="Download"><i class="bi bi-download"></i></button>` : ''}
+            <button class="file-action" onclick="shareItem('${item.id}')" title="Share"><i class="bi bi-link-45deg"></i></button>
+            <button class="file-action" onclick="deleteItem('${item.id}','${item.name.replace(/'/g,"\\&#39;")}')" title="Delete"><i class="bi bi-trash"></i></button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function updateBreadcrumb() {
+    const ol = document.querySelector('#breadcrumb ol');
+    let html = '<li class="breadcrumb-item"><a href="#" onclick="navigate(\'\')" style="color:#4f46e5;text-decoration:none;">My Files</a></li>';
+    folderStack.forEach((f, i) => {
+      if (i === folderStack.length - 1) {
+        html += `<li class="breadcrumb-item active" style="color:#1e293b;">${f.name}</li>`;
+      } else {
+        html += `<li class="breadcrumb-item"><a href="#" onclick="navigateTo(${i+1})" style="color:#4f46e5;text-decoration:none;">${f.name}</a></li>`;
+      }
+    });
+    ol.innerHTML = html;
+  }
+
+  window.navigate = function(itemId) {
+    if (!itemId) {
+      currentFolderId = '';
+      folderStack = [];
+    }
+    currentFolderId = itemId;
+    updateBreadcrumb();
+    loadFiles();
+  };
+
+  window.navigateTo = function(depth) {
+    folderStack = folderStack.slice(0, depth);
+    currentFolderId = folderStack.length ? folderStack[folderStack.length-1].id : '';
+    updateBreadcrumb();
+    loadFiles();
+  };
+
+  function loadFiles() {
+    const tbody = document.getElementById('fileTable');
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</td></tr>';
+    const qs = currentFolderId ? '?item_id='+encodeURIComponent(currentFolderId) : '';
+    fetch('{% url "microsoft:list_files" %}'+qs)
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { tbody.innerHTML = '<tr><td colspan="4" class="text-danger text-center py-3">'+data.error+'</td></tr>'; return; }
+        if (currentFolderId && data.folder && data.folder.id !== 'root') {
+          const existing = folderStack.find(f => f.id === currentFolderId);
+          if (!existing) {
+            folderStack.push({id: data.folder.id, name: data.folder.name});
+            updateBreadcrumb();
+          }
+        }
+        renderFiles(data.items || []);
+      })
+      .catch(() => { tbody.innerHTML = '<tr><td colspan="4" class="text-danger text-center py-3">Failed to load files</td></tr>'; });
+  }
+
+  // Search
+  document.getElementById('searchBtn').addEventListener('click', doSearch);
+  document.getElementById('searchInput').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+  function doSearch() {
+    const q = document.getElementById('searchInput').value.trim();
+    if (!q) { loadFiles(); return; }
+    const tbody = document.getElementById('fileTable');
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4"><div class="spinner-border spinner-border-sm me-2"></div>Searching…</td></tr>';
+    fetch('{% url "microsoft:search_files" %}?q='+encodeURIComponent(q))
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { tbody.innerHTML = '<tr><td colspan="4" class="text-danger text-center py-3">'+data.error+'</td></tr>'; return; }
+        renderFiles(data.items || []);
+      });
+  }
+
+  // Download
+  window.downloadFile = function(itemId) {
+    window.open('/microsoft/api/files/'+itemId+'/download/', '_blank');
+  };
+
+  // Share
+  window.shareItem = function(itemId) {
+    fetch('/microsoft/api/files/'+itemId+'/share/', {
+      method:'POST', headers:{'X-CSRFToken':csrf}
+    }).then(r=>r.json()).then(data => {
+      if (data.link) {
+        navigator.clipboard.writeText(data.link).then(()=>{
+          document.getElementById('shareToastMsg').textContent = 'Link copied to clipboard!';
+        }).catch(()=>{
+          document.getElementById('shareToastMsg').textContent = data.link;
+        });
+        const toast = new bootstrap.Toast(document.getElementById('shareToast'));
+        toast.show();
+      } else if (data.error) {
+        alert(data.error);
+      }
+    });
+  };
+
+  // Delete
+  window.deleteItem = function(itemId, name) {
+    if (!confirm('Delete "'+name+'"? This cannot be undone.')) return;
+    fetch('/microsoft/api/files/'+itemId+'/delete/', {
+      method:'POST', headers:{'X-CSRFToken':csrf}
+    }).then(r=>r.json()).then(data => {
+      if (data.success) loadFiles();
+      else if (data.error) alert(data.error);
+    });
+  };
+
+  // Upload
+  document.getElementById('uploadInput').addEventListener('change', function() {
+    const files = this.files;
+    if (!files.length) return;
+    for (let i = 0; i < files.length; i++) {
+      const fd = new FormData();
+      fd.append('file', files[i]);
+      if (currentFolderId) fd.append('parent_id', currentFolderId);
+      fetch('{% url "microsoft:upload_file" %}', {
+        method:'POST', headers:{'X-CSRFToken':csrf}, body:fd
+      }).then(r=>r.json()).then(data => {
+        if (data.error) alert('Upload error: '+data.error);
+        else loadFiles();
+      });
+    }
+    this.value = '';
+  });
+
+  // New Folder
+  document.getElementById('newFolderBtn').addEventListener('click', function() {
+    document.getElementById('folderNameInput').value = '';
+    new bootstrap.Modal(document.getElementById('newFolderModal')).show();
+  });
+  document.getElementById('createFolderBtn').addEventListener('click', function() {
+    const name = document.getElementById('folderNameInput').value.trim();
+    if (!name) return;
+    fetch('{% url "microsoft:create_folder" %}', {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrf},
+      body:JSON.stringify({name, parent_id: currentFolderId})
+    }).then(r=>r.json()).then(data => {
+      bootstrap.Modal.getInstance(document.getElementById('newFolderModal')).hide();
+      if (data.error) alert(data.error);
+      else loadFiles();
+    });
+  });
+
+  // Initial load
+  loadFiles();
+});
+</script>
+{% endblock %}

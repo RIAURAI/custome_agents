@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -329,4 +331,96 @@ def activity_log_view(request):
         "current_user_filter": user_filter,
         "current_platform_filter": platform_filter,
         "current_action_filter": action_filter,
+    })
+
+
+# ── Admin Dashboard ───────────────────────────────────────────────────────────
+
+@login_required
+def admin_dashboard_view(request):
+    """Admin dashboard with team activity stats and usage analytics."""
+    membership = _require_admin(request)
+    if not membership:
+        messages.error(request, "Only company admins can view the admin dashboard.")
+        return redirect("dashboard:home")
+
+    company = request.company
+    now = timezone.now()
+    last_7 = now - timezone.timedelta(days=7)
+    last_30 = now - timezone.timedelta(days=30)
+
+    # ── Summary cards ──
+    total_members = Membership.objects.filter(company=company, is_active=True).count()
+    active_integrations = CompanyIntegration.objects.filter(company=company, status="active").count()
+    actions_7d = ActivityLog.objects.filter(company=company, created_at__gte=last_7).count()
+    actions_30d = ActivityLog.objects.filter(company=company, created_at__gte=last_30).count()
+
+    # ── Activity by day (last 30 days) ──
+    daily_activity = list(
+        ActivityLog.objects.filter(company=company, created_at__gte=last_30)
+        .annotate(day=TruncDate("created_at"))
+        .values("day")
+        .annotate(count=Count("id"))
+        .order_by("day")
+    )
+    # Convert dates to strings for JSON
+    for d in daily_activity:
+        d["day"] = d["day"].isoformat()
+
+    # ── Activity by platform (last 30 days) ──
+    platform_activity = list(
+        ActivityLog.objects.filter(company=company, created_at__gte=last_30)
+        .exclude(platform="")
+        .values("platform")
+        .annotate(count=Count("id"))
+        .order_by("-count")
+    )
+
+    # ── Top actions (last 30 days) ──
+    top_actions = list(
+        ActivityLog.objects.filter(company=company, created_at__gte=last_30)
+        .values("action")
+        .annotate(count=Count("id"))
+        .order_by("-count")[:10]
+    )
+    # Map action keys to labels
+    action_labels = dict(ActivityLog.Action.choices)
+    for a in top_actions:
+        a["label"] = action_labels.get(a["action"], a["action"])
+
+    # ── Per-user activity (last 30 days) ──
+    user_activity = list(
+        ActivityLog.objects.filter(company=company, created_at__gte=last_30, user__isnull=False)
+        .values("user__username", "user__first_name", "user__last_name")
+        .annotate(count=Count("id"))
+        .order_by("-count")[:10]
+    )
+    for u in user_activity:
+        name = f"{u['user__first_name']} {u['user__last_name']}".strip()
+        u["display_name"] = name or u["user__username"]
+
+    # ── Integration health ──
+    integrations_status = list(
+        CompanyIntegration.objects.filter(company=company)
+        .values("service", "status", "connected_at", "updated_at")
+    )
+    for i in integrations_status:
+        i["connected_at"] = i["connected_at"].isoformat() if i["connected_at"] else ""
+        i["updated_at"] = i["updated_at"].isoformat() if i["updated_at"] else ""
+
+    # ── Recent activity (last 10) ──
+    recent_logs = ActivityLog.objects.filter(company=company).select_related("user")[:10]
+
+    import json
+    return render(request, "companies/admin_dashboard.html", {
+        "total_members": total_members,
+        "active_integrations": active_integrations,
+        "actions_7d": actions_7d,
+        "actions_30d": actions_30d,
+        "daily_activity_json": json.dumps(daily_activity),
+        "platform_activity_json": json.dumps(platform_activity),
+        "top_actions": top_actions,
+        "user_activity": user_activity,
+        "integrations_status": integrations_status,
+        "recent_logs": recent_logs,
     })

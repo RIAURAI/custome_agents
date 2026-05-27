@@ -34,7 +34,12 @@ urlpatterns = [
     path("slack/", include("slack_hub.urls", namespace="slack_hub")),
     path("google/", include("google_hub.urls", namespace="google_hub")),
     path("social/", include("social_media.urls", namespace="social_media")),
+    path("microsoft/", include("microsoft.urls", namespace="microsoft")),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+
+# ── Custom error handlers ─────────────────────────────────────────────────────
+handler404 = "workHub.views.custom_404"
+handler500 = "workHub.views.custom_500"

@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% block title %}Teams Chat — WorkHub{% endblock %}
+{% block page_title %}Teams Chat{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;">
+    <i class="bi bi-chat-dots-fill text-white" style="font-size:1.1rem;"></i>
+  </div>
+  <div>
+    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">Teams Chat</h4>
+    <p class="mb-0" style="color:#64748b;font-size:.85rem;">Your Microsoft Teams chats and channel conversations</p>
+  </div>
+</div>
+
+{% if not ms_connected or not has_access %}
+<div class="dash-connect-banner mb-4">
+  <div class="dash-connect-icon"><i class="bi bi-microsoft"></i></div>
+  <div class="flex-grow-1">
+    <div class="dash-connect-title">Connect Microsoft 365</div>
+    <div class="dash-connect-sub">Enable the Teams Chat feature to view and send messages.</div>
+  </div>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Setup</a>
+</div>
+{% else %}
+
+{% if error %}
+<div class="alert alert-warning mb-4" style="font-size:.85rem;border-radius:12px;">
+  <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+</div>
+{% endif %}
+
+<!-- Tab Nav: Chats / Teams & Channels -->
+<ul class="nav nav-tabs mb-4" id="chatTabs" role="tablist" style="border-bottom:2px solid #e2e8f0;">
+  <li class="nav-item">
+    <button class="nav-link active" id="chats-tab" data-bs-toggle="tab" data-bs-target="#chatsPane" type="button" style="font-size:.85rem;font-weight:600;">
+      <i class="bi bi-chat-dots me-1"></i>Chats
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" id="teams-tab" data-bs-toggle="tab" data-bs-target="#teamsPane" type="button" style="font-size:.85rem;font-weight:600;">
+      <i class="bi bi-people me-1"></i>Teams & Channels
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content">
+  <!-- Chats Pane -->
+  <div class="tab-pane fade show active" id="chatsPane">
+    <div class="row g-0" style="height:calc(100vh - 280px);min-height:500px;">
+      <!-- Chat list sidebar -->
+      <div class="col-md-4" style="border-right:1px solid #e2e8f0;overflow-y:auto;background:#f8fafc;">
+        <div class="p-2">
+          <input type="text" id="chatSearch" class="form-control form-control-sm mb-2" placeholder="Search chats…"
+                 style="border-radius:8px;font-size:.8rem;">
+        </div>
+        <div id="chatList">
+          {% for chat in chats %}
+          <div class="chat-list-item" data-chat-id="{{ chat.id }}" data-topic="{{ chat.topic|default:'' }}">
+            <div class="d-flex align-items-center gap-2 p-2" style="cursor:pointer;">
+              <div class="avatar-circle" style="width:36px;height:36px;font-size:.8rem;flex-shrink:0;background:#6366f1;color:#fff;">
+                {% if chat.chatType == "oneOnOne" %}<i class="bi bi-person"></i>{% else %}<i class="bi bi-people"></i>{% endif %}
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <div class="text-truncate fw-semibold" style="font-size:.82rem;color:#1e293b;">
+                  {{ chat.topic|default:"Chat"|truncatechars:30 }}
+                </div>
+                {% if chat.lastMessagePreview %}
+                <div class="text-truncate" style="font-size:.72rem;color:#64748b;">
+                  {{ chat.lastMessagePreview.body.content|striptags|truncatechars:50 }}
+                </div>
+                {% endif %}
+              </div>
+              {% if chat.chatType == "oneOnOne" %}
+              <span style="font-size:.65rem;background:#eef2ff;color:#6366f1;padding:1px 6px;border-radius:10px;">1:1</span>
+              {% else %}
+              <span style="font-size:.65rem;background:#ecfdf5;color:#059669;padding:1px 6px;border-radius:10px;">Group</span>
+              {% endif %}
+            </div>
+          </div>
+          {% empty %}
+          <div class="text-center py-4 text-muted" style="font-size:.85rem;">
+            <i class="bi bi-chat-dots" style="font-size:1.5rem;"></i>
+            <div class="mt-2">No chats found</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Message area -->
+      <div class="col-md-8 d-flex flex-column" style="background:#fff;">
+        <div id="chatHeader" class="p-3 border-bottom" style="display:none;">
+          <span class="fw-semibold" id="chatHeaderTitle" style="font-size:.9rem;"></span>
+        </div>
+        <div id="chatMessages" class="flex-grow-1 p-3" style="overflow-y:auto;">
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-chat-dots" style="font-size:2.5rem;color:#cbd5e1;"></i>
+            <div class="mt-2" style="font-size:.85rem;">Select a chat to view messages</div>
+          </div>
+        </div>
+        <div id="chatInput" class="p-3 border-top" style="display:none;">
+          <div class="d-flex gap-2">
+            <input type="text" id="chatMsgInput" class="form-control form-control-sm" placeholder="Type a message…" style="border-radius:8px;">
+            <button id="chatSendBtn" class="btn btn-sm" style="background:#4f46e5;color:#fff;border-radius:8px;padding:4px 16px;">
+              <i class="bi bi-send"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Teams Pane -->
+  <div class="tab-pane fade" id="teamsPane">
+    <div class="row g-0" style="height:calc(100vh - 280px);min-height:500px;">
+      <!-- Teams/Channels sidebar -->
+      <div class="col-md-4" style="border-right:1px solid #e2e8f0;overflow-y:auto;background:#f8fafc;">
+        <div id="teamsList" class="p-2">
+          <div class="text-center py-4 text-muted">
+            <div class="spinner-border spinner-border-sm me-2"></div>Loading teams…
+          </div>
+        </div>
+      </div>
+      <!-- Channel messages area -->
+      <div class="col-md-8 d-flex flex-column" style="background:#fff;">
+        <div id="channelHeader" class="p-3 border-bottom" style="display:none;">
+          <span class="fw-semibold" id="channelHeaderTitle" style="font-size:.9rem;"></span>
+        </div>
+        <div id="channelMessages" class="flex-grow-1 p-3" style="overflow-y:auto;">
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-megaphone" style="font-size:2.5rem;color:#cbd5e1;"></i>
+            <div class="mt-2" style="font-size:.85rem;">Select a channel to view messages</div>
+          </div>
+        </div>
+        <div id="channelInput" class="p-3 border-top" style="display:none;">
+          <div class="d-flex gap-2">
+            <input type="text" id="channelMsgInput" class="form-control form-control-sm" placeholder="Type a message…" style="border-radius:8px;">
+            <button id="channelSendBtn" class="btn btn-sm" style="background:#4f46e5;color:#fff;border-radius:8px;padding:4px 16px;">
+              <i class="bi bi-send"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+<style>
+.chat-list-item { border-bottom:1px solid #f1f5f9; transition:background .1s; }
+.chat-list-item:hover, .chat-list-item.active { background:#eef2ff; }
+.msg-bubble { max-width:75%; padding:8px 12px; border-radius:12px; font-size:.84rem; margin-bottom:6px; }
+.msg-bubble--me { background:#eef2ff; color:#1e293b; margin-left:auto; border-bottom-right-radius:4px; }
+.msg-bubble--other { background:#f1f5f9; color:#1e293b; border-bottom-left-radius:4px; }
+.msg-sender { font-size:.7rem; font-weight:600; color:#6366f1; margin-bottom:2px; }
+.msg-time { font-size:.65rem; color:#94a3b8; margin-top:2px; }
+.team-item { padding:8px 12px; cursor:pointer; border-radius:8px; margin-bottom:2px; }
+.team-item:hover { background:#eef2ff; }
+.channel-item { padding:6px 12px 6px 28px; cursor:pointer; border-radius:6px; font-size:.82rem; }
+.channel-item:hover, .channel-item.active { background:#eef2ff; color:#4f46e5; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const csrf = '{{ csrf_token }}';
+  let activeChatId = null;
+  let activeTeamId = null, activeChannelId = null;
+
+  // ── Chat list click ──
+  document.querySelectorAll('.chat-list-item').forEach(el => {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('.chat-list-item').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      activeChatId = this.dataset.chatId;
+      const topic = this.dataset.topic || 'Chat';
+      document.getElementById('chatHeaderTitle').textContent = topic;
+      document.getElementById('chatHeader').style.display = '';
+      document.getElementById('chatInput').style.display = '';
+      loadChatMessages(activeChatId);
+    });
+  });
+
+  function loadChatMessages(chatId) {
+    const box = document.getElementById('chatMessages');
+    box.innerHTML = '<div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>';
+    fetch(`/microsoft/api/chat/${chatId}/messages/`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { box.innerHTML = '<div class="text-danger p-3">'+data.error+'</div>'; return; }
+        const msgs = data.messages || [];
+        if (!msgs.length) { box.innerHTML = '<div class="text-muted text-center py-4">No messages yet</div>'; return; }
+        box.innerHTML = msgs.map(m => {
+          const sender = m.from?.user?.displayName || 'System';
+          const content = m.body?.content || '';
+          const time = m.createdDateTime ? new Date(m.createdDateTime).toLocaleString() : '';
+          const isSystem = m.messageType === 'systemEventMessage';
+          if (isSystem) return `<div class="text-center my-2" style="font-size:.72rem;color:#94a3b8;">${content}</div>`;
+          return `<div class="msg-bubble msg-bubble--other">
+            <div class="msg-sender">${sender}</div>
+            <div>${content}</div>
+            <div class="msg-time">${time}</div>
+          </div>`;
+        }).join('');
+        box.scrollTop = box.scrollHeight;
+      });
+  }
+
+  // Send chat message
+  document.getElementById('chatSendBtn')?.addEventListener('click', sendChatMsg);
+  document.getElementById('chatMsgInput')?.addEventListener('keydown', e => { if(e.key==='Enter') sendChatMsg(); });
+  function sendChatMsg() {
+    if (!activeChatId) return;
+    const inp = document.getElementById('chatMsgInput');
+    const content = inp.value.trim();
+    if (!content) return;
+    inp.value = '';
+    fetch(`/microsoft/api/chat/${activeChatId}/send/`, {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrf},
+      body:JSON.stringify({content})
+    }).then(r=>r.json()).then(()=> loadChatMessages(activeChatId));
+  }
+
+  // Search chats
+  document.getElementById('chatSearch')?.addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.chat-list-item').forEach(el => {
+      const topic = (el.dataset.topic||'').toLowerCase() + el.textContent.toLowerCase();
+      el.style.display = topic.includes(q) ? '' : 'none';
+    });
+  });
+
+  // ── Teams tab ──
+  document.getElementById('teams-tab')?.addEventListener('shown.bs.tab', loadTeams);
+  function loadTeams() {
+    const box = document.getElementById('teamsList');
+    box.innerHTML = '<div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div> Loading…</div>';
+    fetch('{% url "microsoft:teams_channels_api" %}')
+      .then(r=>r.json())
+      .then(data => {
+        if (data.error) { box.innerHTML = '<div class="text-danger p-2">'+data.error+'</div>'; return; }
+        const teams = data.teams || [];
+        if (!teams.length) { box.innerHTML = '<div class="text-muted text-center py-4">No teams found</div>'; return; }
+        box.innerHTML = teams.map(t => {
+          const channels = (t.channels||[]).map(ch =>
+            `<div class="channel-item" data-team-id="${t.id}" data-channel-id="${ch.id}" data-name="${ch.displayName}">
+              <i class="bi bi-hash me-1"></i>${ch.displayName}
+            </div>`
+          ).join('');
+          return `<div class="mb-2">
+            <div class="team-item fw-semibold" style="font-size:.85rem;color:#1e293b;">
+              <i class="bi bi-people-fill me-2" style="color:#6366f1;"></i>${t.displayName}
+            </div>
+            ${channels}
+          </div>`;
+        }).join('');
+        // Bind channel clicks
+        box.querySelectorAll('.channel-item').forEach(el => {
+          el.addEventListener('click', function() {
+            box.querySelectorAll('.channel-item').forEach(c=>c.classList.remove('active'));
+            this.classList.add('active');
+            activeTeamId = this.dataset.teamId;
+            activeChannelId = this.dataset.channelId;
+            document.getElementById('channelHeaderTitle').textContent = this.dataset.name;
+            document.getElementById('channelHeader').style.display = '';
+            document.getElementById('channelInput').style.display = '';
+            loadChannelMessages(activeTeamId, activeChannelId);
+          });
+        });
+      });
+  }
+
+  function loadChannelMessages(teamId, channelId) {
+    const box = document.getElementById('channelMessages');
+    box.innerHTML = '<div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>';
+    fetch(`/microsoft/api/teams/${teamId}/channels/${channelId}/messages/`)
+      .then(r=>r.json())
+      .then(data => {
+        if (data.error) { box.innerHTML = '<div class="text-danger p-3">'+data.error+'</div>'; return; }
+        const msgs = data.messages || [];
+        if (!msgs.length) { box.innerHTML = '<div class="text-muted text-center py-4">No messages</div>'; return; }
+        box.innerHTML = msgs.map(m => {
+          const sender = m.from?.user?.displayName || 'System';
+          const content = m.body?.content || '';
+          const time = m.createdDateTime ? new Date(m.createdDateTime).toLocaleString() : '';
+          return `<div class="msg-bubble msg-bubble--other">
+            <div class="msg-sender">${sender}</div>
+            <div>${content}</div>
+            <div class="msg-time">${time}</div>
+          </div>`;
+        }).join('');
+        box.scrollTop = box.scrollHeight;
+      });
+  }
+
+  // Send channel message
+  document.getElementById('channelSendBtn')?.addEventListener('click', sendChannelMsg);
+  document.getElementById('channelMsgInput')?.addEventListener('keydown', e => { if(e.key==='Enter') sendChannelMsg(); });
+  function sendChannelMsg() {
+    if (!activeTeamId || !activeChannelId) return;
+    const inp = document.getElementById('channelMsgInput');
+    const content = inp.value.trim();
+    if (!content) return;
+    inp.value = '';
+    fetch(`/microsoft/api/teams/${activeTeamId}/channels/${activeChannelId}/send/`, {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrf},
+      body:JSON.stringify({content})
+    }).then(r=>r.json()).then(()=> loadChannelMessages(activeTeamId, activeChannelId));
+  }
+});
+</script>
+{% endblock %}

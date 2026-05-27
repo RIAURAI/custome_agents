@@ -164,3 +164,38 @@ def _get_client_ip(request):
     if xff:
         return xff.split(",")[0].strip()
     return request.META.get("REMOTE_ADDR")
+
+
+# ── Rate limiting ─────────────────────────────────────────────────────────────
+
+def ratelimit(max_calls=30, period=60, key="user"):
+    """Decorator: rate-limit a view per user (or IP for anonymous).
+
+    Args:
+        max_calls: Maximum number of calls within the period.
+        period: Time window in seconds.
+        key: "user" (default) or "ip".
+
+    Returns 429 JSON response if limit exceeded.
+    """
+    from django.http import JsonResponse
+    from django.core.cache import cache
+
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            if key == "user" and request.user.is_authenticated:
+                ident = f"rl:{view_func.__module__}.{view_func.__name__}:u:{request.user.pk}"
+            else:
+                ident = f"rl:{view_func.__module__}.{view_func.__name__}:ip:{_get_client_ip(request)}"
+
+            count = cache.get(ident, 0)
+            if count >= max_calls:
+                return JsonResponse(
+                    {"error": "Rate limit exceeded. Please slow down."},
+                    status=429,
+                )
+            cache.set(ident, count + 1, period)
+            return view_func(request, *args, **kwargs)
+        return wrapper
+    return decorator

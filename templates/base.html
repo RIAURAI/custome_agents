@@ -41,6 +41,42 @@
           <i class="bi bi-camera-video me-2"></i>Meetings
         </a>
       </li>
+      <li>
+        <a href="{% url 'microsoft:presence' %}"
+           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'presence' %}active{% endif %}">
+          <i class="bi bi-circle-fill me-2"></i>Presence
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'microsoft:chat' %}"
+           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'chat' %}active{% endif %}">
+          <i class="bi bi-chat-dots me-2"></i>Teams Chat
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'microsoft:onedrive' %}"
+           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'onedrive' %}active{% endif %}">
+          <i class="bi bi-cloud me-2"></i>OneDrive
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'microsoft:todo' %}"
+           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'todo' %}active{% endif %}">
+          <i class="bi bi-check2-square me-2"></i>To Do
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'microsoft:planner' %}"
+           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'planner' %}active{% endif %}">
+          <i class="bi bi-kanban me-2"></i>Planner
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'microsoft:contacts' %}"
+           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'contacts' %}active{% endif %}">
+          <i class="bi bi-person-lines-fill me-2"></i>Contacts
+        </a>
+      </li>
       {% endif %}
       <li>
         <a href="{% url 'ai_assistant:home' %}"
@@ -99,6 +135,12 @@
         <a href="{% url 'companies:activity_log' %}"
            class="nav-link text-white {% if request.resolver_match.url_name == 'activity_log' %}active{% endif %}">
           <i class="bi bi-clock-history me-2"></i>Activity Log
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'companies:admin_dashboard' %}"
+           class="nav-link text-white {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+          <i class="bi bi-bar-chart me-2"></i>Admin Stats
         </a>
       </li>
       {% endif %}
