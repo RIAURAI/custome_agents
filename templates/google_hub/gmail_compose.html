@@ -23,14 +23,14 @@
       <div class="mb-3">
         <label for="to_email" class="form-label fw-semibold" style="font-size:.85rem;">To</label>
         <input type="email" class="form-control" id="to_email" name="to_email"
-               value="{{ to_email|default:request.GET.to }}" placeholder="recipient@example.com" required
+               value="{{ to_email }}" placeholder="recipient@example.com" required
                style="border-radius:10px;">
       </div>
 
       <div class="mb-3">
         <label for="subject" class="form-label fw-semibold" style="font-size:.85rem;">Subject</label>
         <input type="text" class="form-control" id="subject" name="subject"
-               value="{{ subject|default:request.GET.subject }}" placeholder="Email subject" required
+               value="{{ subject }}" placeholder="Email subject" required
                style="border-radius:10px;">
       </div>
 

@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% block title %}Google Drive — WorkHub{% endblock %}
+{% block page_title %}Google Drive{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#4285F4,#34A853);display:flex;align-items:center;justify-content:center;">
+    <i class="bi bi-cloud-fill text-white" style="font-size:1.1rem;"></i>
+  </div>
+  <div>
+    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">Google Drive</h4>
+    <p class="mb-0" style="color:#64748b;font-size:.85rem;">Browse, upload, download, and manage your Drive files</p>
+  </div>
+</div>
+
+{% if not google_connected or not has_access %}
+<div class="dash-connect-banner mb-4">
+  <div class="dash-connect-icon"><i class="bi bi-google"></i></div>
+  <div class="flex-grow-1">
+    <div class="dash-connect-title">Connect Google Workspace</div>
+    <div class="dash-connect-sub">Enable Google Drive to browse and manage your files.</div>
+  </div>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Connect</a>
+</div>
+{% else %}
+
+<!-- Workspace nav pills -->
+<div class="d-flex gap-2 mb-4 flex-wrap">
+  <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:20px;font-size:.78rem;"><i class="bi bi-envelope me-1"></i>Gmail</a>
+  <span class="btn btn-sm" style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;border:none;border-radius:20px;font-size:.78rem;"><i class="bi bi-cloud me-1"></i>Drive</span>
+  <a href="{% url 'google_hub:docs' %}" class="btn btn-sm" style="background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;font-size:.78rem;"><i class="bi bi-file-earmark-text me-1"></i>Docs</a>
+  <a href="{% url 'google_hub:sheets' %}" class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:20px;font-size:.78rem;"><i class="bi bi-table me-1"></i>Sheets</a>
+  <a href="{% url 'google_hub:forms' %}" class="btn btn-sm" style="background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff;border-radius:20px;font-size:.78rem;"><i class="bi bi-ui-checks me-1"></i>Forms</a>
+  <a href="{% url 'google_hub:calendar' %}" class="btn btn-sm" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:20px;font-size:.78rem;"><i class="bi bi-calendar3 me-1"></i>Calendar</a>
+</div>
+
+<!-- Toolbar -->
+<div class="dash-panel mb-4">
+  <div class="d-flex flex-wrap align-items-center gap-2 p-3">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="flex-grow-1" id="breadcrumb">
+      <ol class="breadcrumb mb-0" style="font-size:.82rem;">
+        <li class="breadcrumb-item"><a href="#" onclick="navigate('root')" style="color:#4285F4;text-decoration:none;"><i class="bi bi-house-fill me-1"></i>My Drive</a></li>
+      </ol>
+    </nav>
+    <!-- Search -->
+    <div class="input-group" style="width:240px;">
+      <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search Drive…" style="border-radius:8px 0 0 8px;font-size:.8rem;">
+      <button class="btn btn-sm" id="searchBtn" style="background:#eef2ff;color:#4285F4;border:1px solid #bfdbfe;border-radius:0 8px 8px 0;font-size:.8rem;">
+        <i class="bi bi-search"></i>
+      </button>
+      <button class="btn btn-sm ms-1" id="clearSearchBtn" style="display:none;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;font-size:.78rem;">
+        <i class="bi bi-x"></i> Clear
+      </button>
+    </div>
+    <!-- Upload -->
+    <button class="btn btn-sm" onclick="document.getElementById('uploadInput').click()"
+            style="background:#eef2ff;color:#4285F4;border:1px solid #bfdbfe;border-radius:8px;font-size:.78rem;">
+      <i class="bi bi-cloud-arrow-up me-1"></i>Upload
+    </button>
+    <input type="file" id="uploadInput" style="display:none;" multiple>
+  </div>
+</div>
+
+<!-- Upload progress -->
+<div id="uploadProgress" style="display:none;" class="mb-3">
+  <div class="alert alert-info py-2" style="font-size:.83rem;border-radius:10px;">
+    <div class="spinner-border spinner-border-sm me-2"></div>Uploading…
+  </div>
+</div>
+<div id="uploadMsg"></div>
+
+<!-- File table -->
+<div class="dash-panel">
+  <div class="dash-panel-body p-0">
+    <table class="table table-hover mb-0" style="font-size:.84rem;">
+      <thead style="background:#f8fafc;">
+        <tr>
+          <th style="width:46%;padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Name</th>
+          <th style="padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Modified</th>
+          <th style="padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Size</th>
+          <th style="width:130px;padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="fileTable">
+        <tr><td colspan="4" class="text-center py-5 text-muted">
+          <div class="spinner-border spinner-border-sm me-2"></div>Loading Drive…
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Delete confirm modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;box-shadow:0 20px 60px rgba(0,0,0,.15);">
+      <div class="modal-header border-0"><h6 class="modal-title fw-bold">Move to Trash?</h6><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body" style="font-size:.84rem;">
+        <span id="deleteFileName" class="fw-semibold"></span> will be moved to trash.
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-sm" data-bs-dismiss="modal" style="border-radius:8px;">Cancel</button>
+        <button class="btn btn-sm btn-danger" id="confirmDeleteBtn" style="border-radius:8px;">Trash it</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+<script>
+const CSRF = '{{ csrf_token }}';
+let currentFolderId = 'root';
+let deleteFileId = null;
+
+const MIME_ICONS = {
+  'application/vnd.google-apps.folder':      {icon:'bi-folder-fill', color:'#FBBC05'},
+  'application/vnd.google-apps.document':    {icon:'bi-file-earmark-text-fill', color:'#4285F4'},
+  'application/vnd.google-apps.spreadsheet': {icon:'bi-table', color:'#34A853'},
+  'application/vnd.google-apps.presentation':{icon:'bi-easel-fill', color:'#EA4335'},
+  'application/vnd.google-apps.form':        {icon:'bi-ui-checks', color:'#7e22ce'},
+  'application/pdf':                         {icon:'bi-file-pdf-fill', color:'#dc2626'},
+};
+
+function getIcon(mimeType) {
+  return MIME_ICONS[mimeType] || {icon:'bi-file-earmark-fill', color:'#64748b'};
+}
+
+function formatSize(bytes) {
+  if (!bytes) return '—';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+function formatDate(dt) {
+  if (!dt) return '—';
+  return new Date(dt).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+}
+
+function navigate(folderId, folderName) {
+  currentFolderId = folderId || 'root';
+  loadFiles(currentFolderId);
+  updateBreadcrumb(folderId, folderName);
+}
+
+function updateBreadcrumb(folderId, folderName) {
+  const bc = document.getElementById('breadcrumb').querySelector('ol');
+  if (!folderId || folderId === 'root') {
+    bc.innerHTML = '<li class="breadcrumb-item active"><i class="bi bi-house-fill me-1"></i>My Drive</li>';
+  } else {
+    bc.innerHTML = `<li class="breadcrumb-item"><a href="#" onclick="navigate('root')" style="color:#4285F4;text-decoration:none;"><i class="bi bi-house-fill me-1"></i>My Drive</a></li>
+                   <li class="breadcrumb-item active">${folderName || 'Folder'}</li>`;
+  }
+}
+
+function loadFiles(folderId, searchQ) {
+  const tbody = document.getElementById('fileTable');
+  tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</td></tr>';
+
+  let url = '{% url "google_hub:drive_list" %}?';
+  if (searchQ) url += `q=${encodeURIComponent(searchQ)}`;
+  else url += `folder_id=${encodeURIComponent(folderId || 'root')}`;
+
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>${data.error}</td></tr>`; return; }
+      const files = data.files || [];
+      if (!files.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-5 text-muted"><i class="bi bi-folder2-open me-2"></i>Empty folder</td></tr>';
+        return;
+      }
+      tbody.innerHTML = files.map(f => {
+        const {icon, color} = getIcon(f.mimeType);
+        const isFolder = f.mimeType === 'application/vnd.google-apps.folder';
+        const nameCell = isFolder
+          ? `<a href="#" onclick="navigate('${f.id}','${(f.name||'').replace(/'/g,"\\'")}');return false;" style="color:#1e293b;text-decoration:none;font-weight:600;">${f.name}</a>`
+          : `<a href="${f.webViewLink||'#'}" target="_blank" rel="noopener" style="color:#1e293b;text-decoration:none;">${f.name}</a>`;
+        return `<tr>
+          <td style="padding:10px 16px;">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi ${icon}" style="color:${color};font-size:1rem;flex-shrink:0;"></i>
+              ${nameCell}
+            </div>
+          </td>
+          <td style="padding:10px 16px;color:#64748b;">${formatDate(f.modifiedTime)}</td>
+          <td style="padding:10px 16px;color:#64748b;">${formatSize(f.size)}</td>
+          <td style="padding:10px 16px;">
+            <div class="d-flex gap-1">
+              ${f.webViewLink ? `<a href="${f.webViewLink}" target="_blank" rel="noopener" class="btn btn-sm" style="background:#eef2ff;color:#4285F4;border:none;border-radius:6px;font-size:.72rem;" title="Open"><i class="bi bi-box-arrow-up-right"></i></a>` : ''}
+              <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:.72rem;" title="Trash"
+                      onclick="confirmDelete('${f.id}','${(f.name||'').replace(/'/g,"\\'")}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    })
+    .catch(() => { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-danger">Failed to load files.</td></tr>'; });
+}
+
+function confirmDelete(fileId, fileName) {
+  deleteFileId = fileId;
+  document.getElementById('deleteFileName').textContent = fileName;
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  loadFiles('root');
+
+  // Search
+  document.getElementById('searchBtn').addEventListener('click', function () {
+    const q = document.getElementById('searchInput').value.trim();
+    if (q) {
+      loadFiles(null, q);
+      document.getElementById('clearSearchBtn').style.display = '';
+    }
+  });
+  document.getElementById('searchInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') document.getElementById('searchBtn').click();
+  });
+  document.getElementById('clearSearchBtn').addEventListener('click', function () {
+    document.getElementById('searchInput').value = '';
+    this.style.display = 'none';
+    loadFiles('root');
+  });
+
+  // Upload
+  document.getElementById('uploadInput').addEventListener('change', function () {
+    const files = this.files;
+    if (!files.length) return;
+    const prog = document.getElementById('uploadProgress');
+    const msg  = document.getElementById('uploadMsg');
+    prog.style.display = '';
+    msg.innerHTML = '';
+    const promises = Array.from(files).map(file => {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('folder_id', currentFolderId === 'root' ? '' : currentFolderId);
+      return fetch('{% url "google_hub:drive_upload" %}', {
+        method: 'POST', headers: {'X-CSRFToken': CSRF}, body: fd,
+      }).then(r => r.json());
+    });
+    Promise.all(promises).then(results => {
+      prog.style.display = 'none';
+      const ok = results.filter(r => r.ok).length;
+      const fail = results.filter(r => !r.ok).length;
+      msg.innerHTML = `<div class="alert alert-${fail ? 'warning' : 'success'} py-2" style="font-size:.83rem;border-radius:10px;">
+        ${ok} file${ok !== 1 ? 's' : ''} uploaded${fail ? `, ${fail} failed` : ''}.
+      </div>`;
+      loadFiles(currentFolderId);
+    }).catch(() => { prog.style.display = 'none'; });
+    this.value = '';
+  });
+
+  // Delete confirm
+  document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+    if (!deleteFileId) return;
+    this.disabled = true;
+    fetch(`{% url "google_hub:drive_delete" file_id="__ID__" %}`.replace('__ID__', deleteFileId), {
+      method: 'POST', headers: {'X-CSRFToken': CSRF},
+    })
+    .then(r => r.json())
+    .then(data => {
+      bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+      if (data.ok) loadFiles(currentFolderId);
+      else alert(data.error || 'Delete failed.');
+    })
+    .finally(() => { this.disabled = false; deleteFileId = null; });
+  });
+});
+</script>
+{% endblock %}

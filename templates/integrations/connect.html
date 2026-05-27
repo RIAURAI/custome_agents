@@ -21,7 +21,7 @@
 
   <!-- ── Microsoft 365 ─────────────────────────────────────────────────── -->
   <div class="col-md-6 col-xl-4 d-flex flex-column">
-    <div class="int-card {% if integrations.microsoft and integrations.microsoft.access_token_enc %}int-card--connected{% endif %} flex-grow-1">
+    <div class="int-card {% if integrations.microsoft and integrations.microsoft.access_token_enc %}int-card--connected{% elif not integrations.microsoft or not integrations.microsoft.ms_client_id_enc %}int-card--compact{% endif %} flex-grow-1">
       <div class="int-card-inner">
 
         <!-- Header row -->
@@ -173,6 +173,9 @@
 
         {% else %}
           {# ── Not configured at all ── #}
+          <p class="int-compact-hint mb-3" style="font-size:.78rem;color:#64748b;margin:0;">
+            Access Outlook, Teams, OneDrive & more
+          </p>
           <p class="int-card-desc mb-4">
             Connect your Microsoft 365 account to access <strong>Outlook emails</strong>,
             <strong>Teams</strong>, <strong>OneDrive</strong>, and more in WorkHub.
@@ -193,7 +196,7 @@
 
   <!-- ── Google Workspace ──────────────────────────────────────────────── -->
   <div class="col-md-6 col-xl-4 d-flex flex-column">
-    <div class="int-card {% if integrations.google %}int-card--connected{% endif %} flex-grow-1">
+    <div class="int-card {% if google_truly_connected %}int-card--connected{% else %}int-card--compact{% endif %} flex-grow-1">
       <div class="int-card-inner">
 
         <!-- Header row -->
@@ -208,9 +211,9 @@
           </div>
           <div class="flex-grow-1 min-w-0">
             <div class="int-card-name">Google Workspace</div>
-            <div class="int-card-sub">Gmail · Calendar · Meet</div>
+            <div class="int-card-sub">Gmail · Drive · Docs · Sheets · Calendar · Meet · Forms</div>
           </div>
-          {% if integrations.google %}
+          {% if google_truly_connected %}
             <span class="int-badge int-badge--connected"><i class="bi bi-check-circle-fill me-1"></i>Connected</span>
           {% else %}
             <span class="int-badge int-badge--disconnected"><i class="bi bi-x-circle-fill me-1"></i>Not connected</span>
@@ -218,7 +221,7 @@
         </div>
 
         <!-- Body -->
-        {% if integrations.google %}
+        {% if google_truly_connected %}
           <div class="int-account-box mb-4">
             <div class="d-flex align-items-center gap-2 mb-1">
               <i class="bi bi-google" style="color:#4285F4;font-size:1rem;"></i>
@@ -233,19 +236,35 @@
             <span class="int-feature-chip"><i class="bi bi-envelope me-1"></i>Gmail</span>
             <span class="int-feature-chip"><i class="bi bi-calendar3 me-1"></i>Calendar</span>
             <span class="int-feature-chip"><i class="bi bi-camera-video me-1"></i>Google Meet</span>
+            <span class="int-feature-chip"><i class="bi bi-cloud me-1"></i>Google Drive</span>
+            <span class="int-feature-chip"><i class="bi bi-file-earmark-text me-1"></i>Docs</span>
+            <span class="int-feature-chip"><i class="bi bi-table me-1"></i>Sheets</span>
+            <span class="int-feature-chip"><i class="bi bi-ui-checks me-1"></i>Forms</span>
           </div>
 
           <!-- Quick access links to Google Workspace features -->
           <div class="mb-3">
             <div class="d-flex flex-wrap gap-2">
               <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:8px;font-size:.78rem;font-weight:600;">
-                <i class="bi bi-envelope me-1"></i>Gmail Inbox
+                <i class="bi bi-envelope me-1"></i>Gmail
               </a>
               <a href="{% url 'google_hub:calendar' %}" class="btn btn-sm" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:8px;font-size:.78rem;font-weight:600;">
                 <i class="bi bi-calendar3 me-1"></i>Calendar
               </a>
               <a href="{% url 'google_hub:meet' %}" class="btn btn-sm" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:8px;font-size:.78rem;font-weight:600;">
-                <i class="bi bi-camera-video me-1"></i>Google Meet
+                <i class="bi bi-camera-video me-1"></i>Meet
+              </a>
+              <a href="{% url 'google_hub:drive' %}" class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:8px;font-size:.78rem;font-weight:600;">
+                <i class="bi bi-cloud me-1"></i>Drive
+              </a>
+              <a href="{% url 'google_hub:docs' %}" class="btn btn-sm" style="background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;border-radius:8px;font-size:.78rem;font-weight:600;">
+                <i class="bi bi-file-earmark-text me-1"></i>Docs
+              </a>
+              <a href="{% url 'google_hub:sheets' %}" class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:8px;font-size:.78rem;font-weight:600;">
+                <i class="bi bi-table me-1"></i>Sheets
+              </a>
+              <a href="{% url 'google_hub:forms' %}" class="btn btn-sm" style="background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff;border-radius:8px;font-size:.78rem;font-weight:600;">
+                <i class="bi bi-ui-checks me-1"></i>Forms
               </a>
             </div>
           </div>
@@ -266,14 +285,22 @@
             </form>
           </div>
         {% else %}
+          <p class="int-compact-hint mb-3" style="font-size:.78rem;color:#64748b;margin:0;">
+            Gmail, Drive, Docs, Calendar, Meet & more
+          </p>
           <p class="int-card-desc mb-4">
-            Connect your Google Workspace account to read <strong>Gmail</strong>, manage
-            <strong>Google Calendar</strong>, and join <strong>Google Meet</strong> directly in WorkHub.
+            Connect your Google Workspace account to access <strong>Gmail</strong>, <strong>Google Drive</strong>,
+            <strong>Docs</strong>, <strong>Sheets</strong>, <strong>Google Calendar</strong>,
+            <strong>Google Meet</strong>, and <strong>Forms</strong> — all in one place.
           </p>
           <div class="int-features mb-4">
             <span class="int-feature-chip"><i class="bi bi-envelope me-1"></i>Gmail</span>
             <span class="int-feature-chip"><i class="bi bi-calendar3 me-1"></i>Calendar</span>
             <span class="int-feature-chip"><i class="bi bi-camera-video me-1"></i>Google Meet</span>
+            <span class="int-feature-chip"><i class="bi bi-cloud me-1"></i>Drive</span>
+            <span class="int-feature-chip"><i class="bi bi-file-earmark-text me-1"></i>Docs</span>
+            <span class="int-feature-chip"><i class="bi bi-table me-1"></i>Sheets</span>
+            <span class="int-feature-chip"><i class="bi bi-ui-checks me-1"></i>Forms</span>
           </div>
           <button type="button" class="btn int-btn-connect w-100 mt-auto"
                   data-bs-toggle="modal" data-bs-target="#googleConnectModal">
@@ -287,7 +314,7 @@
 
   <!-- ── Slack ──────────────────────────────────────────────────────────── -->
   <div class="col-md-6 col-xl-4 d-flex flex-column">
-    <div class="int-card {% if integrations.slack %}int-card--connected{% endif %} flex-grow-1">
+    <div class="int-card {% if integrations.slack %}int-card--connected{% else %}int-card--compact{% endif %} flex-grow-1">
       <div class="int-card-inner">
 
         <!-- Header row -->
@@ -370,6 +397,9 @@
             </form>
           </div>
         {% else %}
+          <p class="int-compact-hint mb-3" style="font-size:.78rem;color:#64748b;margin:0;">
+            Messages, AI auto-reply & smart responses
+          </p>
           <p class="int-card-desc mb-4">
             Connect your Slack workspace to track messages, AI auto-detect intent, and generate
             <strong>smart replies</strong> directly in WorkHub.
@@ -391,7 +421,7 @@
   <!-- Coming Soon cards -->
   <!-- ── Calendly ──────────────────────────────────────────────────────── -->
   <div class="col-md-6 col-xl-4 d-flex flex-column">
-    <div class="int-card {% if integrations.calendly %}int-card--connected{% endif %} flex-grow-1">
+    <div class="int-card {% if integrations.calendly %}int-card--connected{% else %}int-card--compact{% endif %} flex-grow-1">
       <div class="int-card-inner">
 
         <!-- Header row -->
@@ -455,6 +485,9 @@
             </form>
           </div>
         {% else %}
+          <p class="int-compact-hint mb-3" style="font-size:.78rem;color:#64748b;margin:0;">
+            Event scheduling & meeting management
+          </p>
           <p class="int-card-desc mb-4">
             Connect your Calendly account to manage <strong>event scheduling</strong> and view
             <strong>upcoming meetings</strong> directly in WorkHub.
@@ -476,7 +509,7 @@
 
   <!-- ── Discord ────────────────────────────────────────────────────────── -->
   <div class="col-md-6 col-xl-4 d-flex flex-column">
-    <div class="int-card {% if integrations.discord %}int-card--connected{% endif %} flex-grow-1">
+    <div class="int-card {% if integrations.discord %}int-card--connected{% else %}int-card--compact{% endif %} flex-grow-1">
       <div class="int-card-inner">
 
         <div class="d-flex align-items-center gap-3 mb-4">
@@ -528,6 +561,9 @@
             </form>
           </div>
         {% else %}
+          <p class="int-compact-hint mb-3" style="font-size:.78rem;color:#64748b;margin:0;">
+            Bot messaging & AI-powered responses
+          </p>
           <p class="int-card-desc mb-4">
             Connect your Discord bot to receive and send messages in your server channels
             with <strong>AI-powered responses</strong>.
@@ -549,7 +585,7 @@
 
   <!-- ── Jira ──────────────────────────────────────────────────────────── -->
   <div class="col-md-6 col-xl-4 d-flex flex-column">
-    <div class="int-card {% if integrations.jira %}int-card--connected{% endif %} flex-grow-1">
+    <div class="int-card {% if integrations.jira %}int-card--connected{% else %}int-card--compact{% endif %} flex-grow-1">
       <div class="int-card-inner">
 
         <div class="d-flex align-items-center gap-3 mb-4">
@@ -605,6 +641,9 @@
             </form>
           </div>
         {% else %}
+          <p class="int-compact-hint mb-3" style="font-size:.78rem;color:#64748b;margin:0;">
+            Issues, projects & boards management
+          </p>
           <p class="int-card-desc mb-4">
             Connect your Atlassian Jira account to create, track, and manage <strong>issues & projects</strong>
             directly from WorkHub.

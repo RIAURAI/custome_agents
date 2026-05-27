@@ -1,5 +1,472 @@
 <!-- Google Workspace Dynamic Credentials Modal — reusable partial -->
 <div class="modal fade" id="googleConnectModal" tabindex="-1" aria-labelledby="googleConnectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width:860px;">
+    <div class="modal-content" style="border-radius:18px;border:none;box-shadow:0 24px 80px rgba(0,0,0,.18);">
+
+      <!-- Header -->
+      <div class="modal-header border-0 pb-0 px-4 pt-4">
+        <div class="d-flex align-items-center gap-3">
+          <div style="background:linear-gradient(135deg,#4285F4,#34A853);border-radius:12px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="bi bi-google" style="color:#fff;font-size:1.25rem;"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="googleConnectModalLabel" style="color:#1e1b4b;letter-spacing:-.02em;">
+              Connect Google Workspace
+            </h5>
+            <p class="mb-0" style="font-size:.78rem;color:#64748b;">Follow the steps below to enable Gmail, Drive, Docs, Sheets, Forms, Calendar &amp; Meet</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body px-4 pt-3 pb-0" style="max-height:82vh;overflow-y:auto;">
+
+        <!-- ── SETUP GUIDE ────────────────────────────────────────────── -->
+        <div class="accordion" id="googleGuideAccordion">
+
+          <!-- STEP 1 — Create / select project -->
+          <div class="accordion-item mb-2" style="border:1px solid #e2e8f0;border-radius:12px!important;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2 px-3" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#step1"
+                      style="font-size:.82rem;font-weight:600;color:#1e293b;background:#f8fafc;border-radius:12px!important;">
+                <span style="background:#4285F4;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">1</span>
+                Create or Select a Google Cloud Project
+              </button>
+            </h2>
+            <div id="step1" class="accordion-collapse collapse">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:#334155;">
+                <ol class="mb-2 ps-3" style="line-height:2.1;">
+                  <li>Open <a href="https://console.cloud.google.com/" target="_blank" rel="noopener" class="text-primary fw-semibold">console.cloud.google.com</a></li>
+                  <li>Click the <strong>project selector</strong> at the top → <strong>New Project</strong></li>
+                  <li>Enter a Project Name (e.g. <em>WorkHub Integration</em>) → Click <strong>Create</strong></li>
+                  <li>Make sure the new project is selected in the top bar before continuing</li>
+                </ol>
+                <div class="alert alert-info py-2" style="font-size:.77rem;border-radius:8px;"><i class="bi bi-info-circle me-1"></i>One Google Cloud project per company is recommended.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2 — Enable APIs -->
+          <div class="accordion-item mb-2" style="border:1px solid #e2e8f0;border-radius:12px!important;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2 px-3" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#step2"
+                      style="font-size:.82rem;font-weight:600;color:#1e293b;background:#f8fafc;border-radius:12px!important;">
+                <span style="background:#EA4335;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">2</span>
+                Enable Required Google APIs (7 APIs)
+              </button>
+            </h2>
+            <div id="step2" class="accordion-collapse collapse">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:#334155;">
+                <p class="mb-2">Go to <strong>APIs &amp; Services → Library</strong> and enable each API below:</p>
+                <div class="row g-2 mb-3">
+                  {% for api in google_apis %}
+                  {% empty %}
+                  <!-- rendered by static list below -->
+                  {% endfor %}
+                  <div class="col-md-6">
+                    <a href="https://console.cloud.google.com/apis/library/gmail.googleapis.com" target="_blank" rel="noopener"
+                       class="d-flex align-items-center gap-2 p-2 text-decoration-none"
+                       style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;transition:box-shadow .15s;"
+                       onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
+                      <i class="bi bi-envelope-fill" style="color:#EA4335;font-size:.9rem;flex-shrink:0;"></i>
+                      <div>
+                        <div class="fw-semibold" style="font-size:.78rem;">Gmail API</div>
+                        <div class="text-muted" style="font-size:.7rem;">Read · Send · Modify labels · Drafts</div>
+                      </div>
+                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                  </div>
+                  <div class="col-md-6">
+                    <a href="https://console.cloud.google.com/apis/library/calendar-json.googleapis.com" target="_blank" rel="noopener"
+                       class="d-flex align-items-center gap-2 p-2 text-decoration-none"
+                       style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
+                       onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
+                      <i class="bi bi-calendar3-fill" style="color:#4285F4;font-size:.9rem;flex-shrink:0;"></i>
+                      <div>
+                        <div class="fw-semibold" style="font-size:.78rem;">Google Calendar API</div>
+                        <div class="text-muted" style="font-size:.7rem;">Read · Create · Update · Delete events</div>
+                      </div>
+                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                  </div>
+                  <div class="col-md-6">
+                    <a href="https://console.cloud.google.com/apis/library/meet.googleapis.com" target="_blank" rel="noopener"
+                       class="d-flex align-items-center gap-2 p-2 text-decoration-none"
+                       style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
+                       onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
+                      <i class="bi bi-camera-video-fill" style="color:#34A853;font-size:.9rem;flex-shrink:0;"></i>
+                      <div>
+                        <div class="fw-semibold" style="font-size:.78rem;">Google Meet REST API</div>
+                        <div class="text-muted" style="font-size:.7rem;">Create meeting spaces · Get links</div>
+                      </div>
+                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                  </div>
+                  <div class="col-md-6">
+                    <a href="https://console.cloud.google.com/apis/library/drive.googleapis.com" target="_blank" rel="noopener"
+                       class="d-flex align-items-center gap-2 p-2 text-decoration-none"
+                       style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
+                       onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
+                      <i class="bi bi-cloud-fill" style="color:#1d4ed8;font-size:.9rem;flex-shrink:0;"></i>
+                      <div>
+                        <div class="fw-semibold" style="font-size:.78rem;">Google Drive API</div>
+                        <div class="text-muted" style="font-size:.7rem;">Browse · Upload · Download · Delete files</div>
+                      </div>
+                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                  </div>
+                  <div class="col-md-6">
+                    <a href="https://console.cloud.google.com/apis/library/docs.googleapis.com" target="_blank" rel="noopener"
+                       class="d-flex align-items-center gap-2 p-2 text-decoration-none"
+                       style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
+                       onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
+                      <i class="bi bi-file-earmark-text-fill" style="color:#4285F4;font-size:.9rem;flex-shrink:0;"></i>
+                      <div>
+                        <div class="fw-semibold" style="font-size:.78rem;">Google Docs API</div>
+                        <div class="text-muted" style="font-size:.7rem;">Create · Read · Update documents</div>
+                      </div>
+                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                  </div>
+                  <div class="col-md-6">
+                    <a href="https://console.cloud.google.com/apis/library/sheets.googleapis.com" target="_blank" rel="noopener"
+                       class="d-flex align-items-center gap-2 p-2 text-decoration-none"
+                       style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
+                       onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
+                      <i class="bi bi-table" style="color:#34A853;font-size:.9rem;flex-shrink:0;"></i>
+                      <div>
+                        <div class="fw-semibold" style="font-size:.78rem;">Google Sheets API</div>
+                        <div class="text-muted" style="font-size:.7rem;">Read · Write cells · Create spreadsheets</div>
+                      </div>
+                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                  </div>
+                  <div class="col-md-6">
+                    <a href="https://console.cloud.google.com/apis/library/forms.googleapis.com" target="_blank" rel="noopener"
+                       class="d-flex align-items-center gap-2 p-2 text-decoration-none"
+                       style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
+                       onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
+                      <i class="bi bi-ui-checks" style="color:#7c3aed;font-size:.9rem;flex-shrink:0;"></i>
+                      <div>
+                        <div class="fw-semibold" style="font-size:.78rem;">Google Forms API</div>
+                        <div class="text-muted" style="font-size:.7rem;">Create · Read · Manage forms</div>
+                      </div>
+                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                  </div>
+                </div>
+                <div class="alert alert-warning py-2" style="font-size:.77rem;border-radius:8px;">
+                  <i class="bi bi-exclamation-triangle me-1"></i>Click each card to open the API in Google Cloud Console, then click <strong>Enable</strong>.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3 — OAuth Consent Screen -->
+          <div class="accordion-item mb-2" style="border:1px solid #e2e8f0;border-radius:12px!important;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2 px-3" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#step3"
+                      style="font-size:.82rem;font-weight:600;color:#1e293b;background:#f8fafc;border-radius:12px!important;">
+                <span style="background:#FBBC05;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">3</span>
+                Configure OAuth Consent Screen
+              </button>
+            </h2>
+            <div id="step3" class="accordion-collapse collapse">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:#334155;">
+                <ol class="mb-2 ps-3" style="line-height:2.1;">
+                  <li>Go to <strong>APIs &amp; Services → OAuth consent screen</strong></li>
+                  <li>Choose User Type:
+                    <ul class="mt-1">
+                      <li><strong>Internal</strong> — only for Google Workspace org users (recommended for businesses)</li>
+                      <li><strong>External</strong> — any Google account (requires Google verification for production)</li>
+                    </ul>
+                  </li>
+                  <li>Fill in <strong>App name</strong> (e.g. <em>WorkHub</em>), <strong>User support email</strong>, <strong>Developer contact email</strong></li>
+                  <li>Under <strong>Scopes</strong> → click <strong>Add or Remove Scopes</strong> → add the scopes listed in Step 5 below</li>
+                  <li>Click <strong>Save and Continue</strong> through all sections</li>
+                </ol>
+                <div class="alert alert-info py-2" style="font-size:.77rem;border-radius:8px;">
+                  <i class="bi bi-info-circle me-1"></i>For <strong>External</strong> apps in testing mode, add your email addresses as <strong>Test users</strong>.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 4 — Create OAuth Credentials -->
+          <div class="accordion-item mb-2" style="border:1px solid #e2e8f0;border-radius:12px!important;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2 px-3" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#step4"
+                      style="font-size:.82rem;font-weight:600;color:#1e293b;background:#f8fafc;border-radius:12px!important;">
+                <span style="background:#34A853;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">4</span>
+                Create OAuth 2.0 Client ID &amp; Secret
+              </button>
+            </h2>
+            <div id="step4" class="accordion-collapse collapse">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:#334155;">
+                <ol class="mb-2 ps-3" style="line-height:2.1;">
+                  <li>Go to <strong>APIs &amp; Services → Credentials</strong></li>
+                  <li>Click <strong>+ Create Credentials → OAuth client ID</strong></li>
+                  <li>Application type → choose <strong>Web application</strong></li>
+                  <li>Name it (e.g. <em>WorkHub Web Client</em>)</li>
+                  <li>Under <strong>Authorized redirect URIs</strong> — click <strong>+ Add URI</strong> and paste:<br>
+                    <div class="d-flex align-items-center gap-2 mt-1">
+                      <code id="redirectUriCode" style="font-size:.75rem;background:#e2e8f0;padding:4px 10px;border-radius:6px;word-break:break-all;">{{ google_redirect_uri }}</code>
+                      <button type="button" onclick="copyUri()" title="Copy URI"
+                              style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:6px;padding:3px 8px;font-size:.72rem;cursor:pointer;flex-shrink:0;">
+                        <i class="bi bi-clipboard" id="copyIcon"></i>
+                      </button>
+                    </div>
+                  </li>
+                  <li>Click <strong>Create</strong></li>
+                  <li>A dialog shows your <strong>Client ID</strong> and <strong>Client Secret</strong> — copy both</li>
+                </ol>
+                <div class="alert alert-warning py-2" style="font-size:.77rem;border-radius:8px;">
+                  <i class="bi bi-exclamation-triangle me-1"></i>The Client Secret is shown only once. Copy it immediately or download the JSON file.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 5 — OAuth Scopes reference -->
+          <div class="accordion-item mb-2" style="border:1px solid #e2e8f0;border-radius:12px!important;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2 px-3" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#step5"
+                      style="font-size:.82rem;font-weight:600;color:#1e293b;background:#f8fafc;border-radius:12px!important;">
+                <span style="background:#6366f1;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">5</span>
+                OAuth Scopes &amp; Permissions Reference
+              </button>
+            </h2>
+            <div id="step5" class="accordion-collapse collapse">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.79rem;color:#334155;">
+                <p class="mb-2 text-muted" style="font-size:.77rem;">These scopes are automatically requested when the user authorizes via Google. No manual configuration needed — for reference only.</p>
+                <table class="table table-sm table-bordered mb-0" style="font-size:.76rem;">
+                  <thead style="background:#eef2ff;">
+                    <tr>
+                      <th style="padding:6px 10px;font-weight:600;color:#4f46e5;">Scope</th>
+                      <th style="padding:6px 10px;font-weight:600;color:#4f46e5;">Service</th>
+                      <th style="padding:6px 10px;font-weight:600;color:#4f46e5;">What it allows</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">gmail.readonly</td><td>Gmail</td><td>Read emails, labels, threads</td></tr>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">gmail.send</td><td>Gmail</td><td>Send emails on behalf of user</td></tr>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">gmail.modify</td><td>Gmail</td><td>Mark read/unread, manage labels, save drafts</td></tr>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">calendar</td><td>Calendar</td><td>Full calendar access — read, create, update, delete events</td></tr>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">calendar.events</td><td>Calendar</td><td>Manage calendar events (create Google Meet links)</td></tr>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">meetings.space.created</td><td>Meet</td><td>Create Google Meet meeting spaces</td></tr>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">meetings.space.readonly</td><td>Meet</td><td>Read Google Meet space details</td></tr>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">drive</td><td>Drive</td><td>Full Drive access — read/write/delete ALL files (images, PDFs, videos, Docs, Sheets)</td></tr>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">documents</td><td>Docs</td><td>Create and edit Google Docs</td></tr>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">spreadsheets</td><td>Sheets</td><td>Create, read, and write Google Sheets</td></tr>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">forms.body</td><td>Forms</td><td>Create and manage Google Forms structure</td></tr>
+                    <tr><td style="padding:5px 10px;font-family:monospace;font-size:.7rem;">forms.responses.readonly</td><td>Forms</td><td>Read form submission responses</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 6 — Enter credentials (always expanded) -->
+          <div class="accordion-item mb-2" style="border:2px solid #4285F4;border-radius:12px!important;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button py-2 px-3" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#step6"
+                      style="font-size:.82rem;font-weight:700;color:#1e293b;background:#eff6ff;border-radius:12px!important;">
+                <span style="background:#4285F4;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">6</span>
+                Enter Your Client ID &amp; Secret — Then Connect
+              </button>
+            </h2>
+            <div id="step6" class="accordion-collapse collapse show">
+              <div class="accordion-body px-3 py-3" style="background:#fff;">
+                <form id="googleCredentialsForm" novalidate>
+                  {% csrf_token %}
+                  <div class="row g-3">
+
+                    <!-- Client ID -->
+                    <div class="col-12">
+                      <label for="googleClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
+                        <i class="bi bi-key-fill me-1" style="color:#4285F4;"></i>Client ID <span class="text-danger">*</span>
+                      </label>
+                      <div class="input-group">
+                        <input type="text" class="form-control" id="googleClientId" name="client_id"
+                               placeholder="e.g. 123456789-abcdef.apps.googleusercontent.com"
+                               autocomplete="off" required
+                               style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
+                        <button class="btn btn-outline-secondary" type="button" id="toggleGoogleClientId" title="Show / hide" style="border-radius:0 10px 10px 0;">
+                          <i class="bi bi-eye" id="eyeIconGoogleId"></i>
+                        </button>
+                      </div>
+                      <div class="form-text" style="font-size:.73rem;">
+                        <strong>Cloud Console → APIs &amp; Services → Credentials → OAuth 2.0 Client IDs → Client ID</strong>
+                      </div>
+                    </div>
+
+                    <!-- Client Secret -->
+                    <div class="col-12">
+                      <label for="googleClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
+                        <i class="bi bi-shield-lock-fill me-1" style="color:#34A853;"></i>Client Secret <span class="text-danger">*</span>
+                      </label>
+                      <div class="input-group">
+                        <input type="password" class="form-control" id="googleClientSecret" name="client_secret"
+                               placeholder="Enter your Google OAuth Client Secret"
+                               autocomplete="off" required
+                               style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
+                        <button class="btn btn-outline-secondary" type="button" id="toggleGoogleSecret" title="Show / hide" style="border-radius:0 10px 10px 0;">
+                          <i class="bi bi-eye" id="eyeIconGoogleSecret"></i>
+                        </button>
+                      </div>
+                      <div class="form-text" style="font-size:.73rem;">
+                        <strong>Cloud Console → APIs &amp; Services → Credentials → OAuth 2.0 Client IDs → Client Secret</strong>
+                      </div>
+                    </div>
+                  </div><!-- /row -->
+
+                  <!-- What gets enabled -->
+                  <div class="mt-4 p-3" style="background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
+                    <div class="fw-semibold mb-2" style="font-size:.78rem;color:#166534;">
+                      <i class="bi bi-check2-all me-1"></i>After connecting, you will have access to:
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-envelope me-1"></i>Gmail (Read · Send · Drafts · Labels)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-cloud me-1"></i>Google Drive (Browse · Upload · Download)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-file-earmark-text me-1"></i>Google Docs (Create · Read · Edit)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-table me-1"></i>Google Sheets (Create · Read · Write)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-ui-checks me-1"></i>Google Forms (Create · Manage)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-calendar3 me-1"></i>Calendar (Read · Create · Delete events)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-camera-video me-1"></i>Google Meet (Create meeting links)</span>
+                    </div>
+                  </div>
+
+                  <!-- Alert feedback -->
+                  <div id="googleConnectAlert" class="alert d-none py-2 px-3 mt-3" style="border-radius:10px;font-size:.83rem;"></div>
+
+                  <div class="d-flex gap-2 mt-3 pb-2">
+                    <button type="submit" class="btn flex-grow-1 fw-semibold" id="googleConnectBtn"
+                            style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-size:.88rem;">
+                      <span id="googleBtnText"><i class="bi bi-plug-fill me-2"></i>Save &amp; Connect Google Workspace</span>
+                      <span id="googleBtnSpinner" class="d-none">
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving credentials…
+                      </span>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius:10px;font-size:.88rem;">Cancel</button>
+                  </div>
+
+                </form>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /accordion -->
+      </div><!-- /modal-body -->
+
+    </div>
+  </div>
+</div>
+
+<!-- Google Success toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1100">
+  <div id="googleSuccessToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive">
+    <div class="d-flex">
+      <div class="toast-body" id="googleToastMsg">
+        <i class="bi bi-check-circle-fill me-2"></i>Google credentials saved! Redirecting to authorize…
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Copy redirect URI
+  window.copyUri = function () {
+    const code = document.getElementById('redirectUriCode');
+    if (!code) return;
+    navigator.clipboard.writeText(code.textContent.trim()).then(function () {
+      const icon = document.getElementById('copyIcon');
+      icon.className = 'bi bi-check2';
+      setTimeout(() => { icon.className = 'bi bi-clipboard'; }, 2000);
+    });
+  };
+
+  function makeToggle(btnId, inputId, iconId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      const inp = document.getElementById(inputId);
+      const ico = document.getElementById(iconId);
+      if (inp.type === "password") { inp.type = "text"; ico.className = "bi bi-eye-slash"; }
+      else { inp.type = "password"; ico.className = "bi bi-eye"; }
+    });
+  }
+  makeToggle("toggleGoogleClientId",  "googleClientId",     "eyeIconGoogleId");
+  makeToggle("toggleGoogleSecret",    "googleClientSecret", "eyeIconGoogleSecret");
+
+  const form    = document.getElementById("googleCredentialsForm");
+  const alertEl = document.getElementById("googleConnectAlert");
+  const btnText = document.getElementById("googleBtnText");
+  const spinner = document.getElementById("googleBtnSpinner");
+  const btn     = document.getElementById("googleConnectBtn");
+
+  if (!form) return;
+
+  function showAlert(type, msg) {
+    alertEl.className = `alert alert-${type} py-2 px-3`;
+    alertEl.innerHTML = msg;
+    alertEl.classList.remove("d-none");
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    alertEl.classList.add("d-none");
+
+    const clientId     = document.getElementById("googleClientId").value.trim();
+    const clientSecret = document.getElementById("googleClientSecret").value.trim();
+
+    if (!clientId) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client ID is required."); return; }
+    if (!clientSecret) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client Secret is required."); return; }
+
+    btn.disabled = true;
+    btnText.classList.add("d-none");
+    spinner.classList.remove("d-none");
+
+    try {
+      const fd = new FormData(form);
+      const resp = await fetch("{% url 'integrations:google_save_credentials' %}", {
+        method: "POST",
+        body: fd,
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      const data = await resp.json();
+
+      if (data.ok) {
+        showAlert("success", "<i class='bi bi-check-circle-fill me-1'></i>" + data.message);
+        const toast = new bootstrap.Toast(document.getElementById("googleSuccessToast"));
+        toast.show();
+        setTimeout(() => { window.location.href = data.redirect_url; }, 1200);
+      } else {
+        showAlert("danger", "<i class='bi bi-x-circle-fill me-1'></i>" + (data.error || "Unknown error"));
+        btn.disabled = false;
+        btnText.classList.remove("d-none");
+        spinner.classList.add("d-none");
+      }
+    } catch (err) {
+      showAlert("danger", "<i class='bi bi-x-circle-fill me-1'></i>Network error — please try again.");
+      btn.disabled = false;
+      btnText.classList.remove("d-none");
+      spinner.classList.add("d-none");
+    }
+  });
+
+})();
+</script>
+<div class="modal fade" id="googleConnectModal" tabindex="-1" aria-labelledby="googleConnectModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content" style="border-radius:18px;border:none;box-shadow:0 24px 80px rgba(0,0,0,.18);">
 
@@ -41,7 +508,12 @@
                   <li>Under <strong>Authorized redirect URIs</strong>, add:<br>
                     <code style="font-size:.75rem;background:#e2e8f0;padding:2px 8px;border-radius:4px;">{{ google_redirect_uri }}</code>
                   </li>
-                  <li>Enable the required APIs: <strong>Gmail API</strong>, <strong>Google Calendar API</strong>, <strong>Google Meet REST API</strong> in <em>APIs &amp; Services → Library</em>.</li>
+                  <li>Enable the required APIs in <em>APIs &amp; Services → Library</em>:
+                    <strong>Gmail API</strong>, <strong>Google Calendar API</strong>,
+                    <strong>Google Meet REST API</strong>, <strong>Google Drive API</strong>,
+                    <strong>Google Docs API</strong>, <strong>Google Sheets API</strong>,
+                    <strong>Google Forms API</strong>.
+                  </li>
                   <li>Copy the <strong>Client ID</strong> and <strong>Client Secret</strong> from the credentials page.</li>
                   <li>Paste them below and click <strong>Save &amp; Connect</strong>. You'll be redirected to Google to authorize.</li>
                 </ol>

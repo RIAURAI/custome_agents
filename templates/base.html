@@ -28,56 +28,141 @@
           <i class="bi bi-speedometer2 me-2"></i>Dashboard
         </a>
       </li>
+
       {% if has_ms_access %}
-      <li>
-        <a href="{% url 'email_hub:inbox' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'email_hub' %}active{% endif %}">
-          <i class="bi bi-envelope me-2"></i>Email
+      <!-- Microsoft 365 Dropdown -->
+      <li class="sb-section">
+        <a href="#msSidebarMenu" class="nav-link text-white sb-toggle {% if request.resolver_match.app_name == 'email_hub' or request.resolver_match.app_name == 'meetings' or request.resolver_match.app_name == 'microsoft' %}active{% endif %}"
+           data-bs-toggle="collapse" role="button"
+           aria-expanded="{% if request.resolver_match.app_name == 'email_hub' or request.resolver_match.app_name == 'meetings' or request.resolver_match.app_name == 'microsoft' %}true{% else %}false{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 23 23" class="me-2" style="flex-shrink:0;">
+            <rect x="1" y="1" width="10" height="10" fill="#f25022"/>
+            <rect x="12" y="1" width="10" height="10" fill="#7fba00"/>
+            <rect x="1" y="12" width="10" height="10" fill="#00a4ef"/>
+            <rect x="12" y="12" width="10" height="10" fill="#ffb900"/>
+          </svg>
+          Microsoft 365
+          <i class="bi bi-chevron-down ms-auto sb-chevron"></i>
         </a>
-      </li>
-      <li>
-        <a href="{% url 'meetings:list' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'meetings' %}active{% endif %}">
-          <i class="bi bi-camera-video me-2"></i>Meetings
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'microsoft:presence' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'presence' %}active{% endif %}">
-          <i class="bi bi-circle-fill me-2"></i>Presence
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'microsoft:chat' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'chat' %}active{% endif %}">
-          <i class="bi bi-chat-dots me-2"></i>Teams Chat
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'microsoft:onedrive' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'onedrive' %}active{% endif %}">
-          <i class="bi bi-cloud me-2"></i>OneDrive
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'microsoft:todo' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'todo' %}active{% endif %}">
-          <i class="bi bi-check2-square me-2"></i>To Do
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'microsoft:planner' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'planner' %}active{% endif %}">
-          <i class="bi bi-kanban me-2"></i>Planner
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'microsoft:contacts' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'contacts' %}active{% endif %}">
-          <i class="bi bi-person-lines-fill me-2"></i>Contacts
-        </a>
+        <div class="collapse {% if request.resolver_match.app_name == 'email_hub' or request.resolver_match.app_name == 'meetings' or request.resolver_match.app_name == 'microsoft' %}show{% endif %}" id="msSidebarMenu">
+          <ul class="nav flex-column sb-submenu">
+            <li>
+              <a href="{% url 'email_hub:inbox' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'email_hub' %}active{% endif %}">
+                <i class="bi bi-envelope me-2"></i>Email
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'meetings:list' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'meetings' %}active{% endif %}">
+                <i class="bi bi-camera-video me-2"></i>Meetings
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'microsoft:presence' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'presence' %}active{% endif %}">
+                <i class="bi bi-circle-fill me-2"></i>Presence
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'microsoft:chat' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'chat' %}active{% endif %}">
+                <i class="bi bi-chat-dots me-2"></i>Teams Chat
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'microsoft:onedrive' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'onedrive' %}active{% endif %}">
+                <i class="bi bi-cloud me-2"></i>OneDrive
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'microsoft:todo' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'todo' %}active{% endif %}">
+                <i class="bi bi-check2-square me-2"></i>To Do
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'microsoft:planner' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'planner' %}active{% endif %}">
+                <i class="bi bi-kanban me-2"></i>Planner
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'microsoft:contacts' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'contacts' %}active{% endif %}">
+                <i class="bi bi-person-lines-fill me-2"></i>Contacts
+              </a>
+            </li>
+          </ul>
+        </div>
       </li>
       {% endif %}
+
+      {% if has_google_access %}
+      <!-- Google Workspace Dropdown -->
+      <li class="sb-section">
+        <a href="#googleSidebarMenu" class="nav-link text-white sb-toggle {% if request.resolver_match.app_name == 'google_hub' %}active{% endif %}"
+           data-bs-toggle="collapse" role="button"
+           aria-expanded="{% if request.resolver_match.app_name == 'google_hub' %}true{% else %}false{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 48 48" class="me-2" style="flex-shrink:0;">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Google
+          <i class="bi bi-chevron-down ms-auto sb-chevron"></i>
+        </a>
+        <div class="collapse {% if request.resolver_match.app_name == 'google_hub' %}show{% endif %}" id="googleSidebarMenu">
+          <ul class="nav flex-column sb-submenu">
+            <li>
+              <a href="{% url 'google_hub:inbox' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name in 'inbox,sent,drafts,search,detail,compose' %}active{% endif %}">
+                <i class="bi bi-envelope me-2"></i>Gmail
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'google_hub:calendar' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'calendar' %}active{% endif %}">
+                <i class="bi bi-calendar3 me-2"></i>Calendar
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'google_hub:meet' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'meet' %}active{% endif %}">
+                <i class="bi bi-camera-video me-2"></i>Meet
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'google_hub:drive' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'drive' %}active{% endif %}">
+                <i class="bi bi-cloud me-2"></i>Drive
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'google_hub:docs' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'docs' %}active{% endif %}">
+                <i class="bi bi-file-earmark-text me-2"></i>Docs
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'google_hub:sheets' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'sheets' %}active{% endif %}">
+                <i class="bi bi-table me-2"></i>Sheets
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'google_hub:forms' %}"
+                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'forms' %}active{% endif %}">
+                <i class="bi bi-ui-checks me-2"></i>Forms
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+      {% endif %}
+
       <li>
         <a href="{% url 'ai_assistant:home' %}"
            class="nav-link text-white {% if request.resolver_match.app_name == 'ai_assistant' %}active{% endif %}">
@@ -89,26 +174,6 @@
         <a href="{% url 'slack_hub:channels' %}"
            class="nav-link text-white {% if request.resolver_match.app_name == 'slack_hub' %}active{% endif %}">
           <i class="bi bi-slack me-2"></i>Slack
-        </a>
-      </li>
-      {% endif %}
-      {% if has_google_access %}
-      <li>
-        <a href="{% url 'google_hub:inbox' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'inbox' or request.resolver_match.url_name == 'detail' or request.resolver_match.url_name == 'compose' %}active{% endif %}">
-          <i class="bi bi-google me-2"></i>Gmail
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'google_hub:calendar' %}"
-           class="nav-link text-white {% if request.resolver_match.url_name == 'calendar' and request.resolver_match.app_name == 'google_hub' %}active{% endif %}">
-          <i class="bi bi-calendar3 me-2"></i>G-Calendar
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'google_hub:meet' %}"
-           class="nav-link text-white {% if request.resolver_match.url_name == 'meet' and request.resolver_match.app_name == 'google_hub' %}active{% endif %}">
-          <i class="bi bi-camera-video me-2"></i>G-Meet
         </a>
       </li>
       {% endif %}

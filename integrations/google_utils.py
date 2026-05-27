@@ -21,17 +21,30 @@ GOOGLE_REDIRECT_URI = getattr(
     "http://localhost:8000/integrations/google/callback/",
 )
 
-# Scopes for Gmail + Google Calendar + Google Meet
+# Scopes for full Google Workspace (Gmail · Calendar · Meet · Drive · Docs · Sheets · Forms)
 GOOGLE_SCOPES = [
     "openid",
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
+    # Gmail — read, send, modify labels / drafts
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/gmail.send",
-    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/gmail.modify",
+    # Calendar
+    "https://www.googleapis.com/auth/calendar",
     "https://www.googleapis.com/auth/calendar.events",
+    # Google Meet
     "https://www.googleapis.com/auth/meetings.space.created",
     "https://www.googleapis.com/auth/meetings.space.readonly",
+    # Drive — full access to all files (images, PDFs, videos, etc.)
+    "https://www.googleapis.com/auth/drive",
+    # Docs
+    "https://www.googleapis.com/auth/documents",
+    # Sheets
+    "https://www.googleapis.com/auth/spreadsheets",
+    # Forms — create/manage forms + read responses
+    "https://www.googleapis.com/auth/forms.body",
+    "https://www.googleapis.com/auth/forms.responses.readonly",
 ]
 
 
@@ -265,6 +278,83 @@ def calendar_list_events(access_token: str, days: int = 7, max_results: int = 20
     )
     resp.raise_for_status()
     return resp.json().get("items", [])
+
+
+# ── Gmail extras ─────────────────────────────────────────────────────────────
+
+def gmail_list_labels(access_token: str) -> list[dict]:
+    """Fetch all Gmail labels for the authenticated user."""
+    resp = requests.get(
+        f"{GMAIL_API_BASE}/labels",
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=15,
+    )
+    resp.raise_for_status()
+    return resp.json().get("labels", [])
+
+
+def gmail_get_unread_count(access_token: str) -> int:
+    """Return total unread message count in the inbox."""
+    resp = requests.get(
+        f"{GMAIL_API_BASE}/labels/INBOX",
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=15,
+    )
+    resp.raise_for_status()
+    return resp.json().get("messagesUnread", 0)
+
+
+def gmail_create_draft(access_token: str, raw_message: str) -> dict:
+    """Save an email as a Gmail draft. raw_message is base64url-encoded RFC 2822."""
+    resp = requests.post(
+        f"{GMAIL_API_BASE}/drafts",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+        },
+        json={"message": {"raw": raw_message}},
+        timeout=15,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+# ── Google Calendar extras ────────────────────────────────────────────────────
+
+def calendar_create_event(access_token: str, event_body: dict) -> dict:
+    """Create a new event in the primary calendar."""
+    resp = requests.post(
+        f"{CALENDAR_API_BASE}/calendars/primary/events",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+        },
+        json=event_body,
+        timeout=15,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def calendar_delete_event(access_token: str, event_id: str) -> None:
+    """Delete (cancel) an event from the primary calendar."""
+    resp = requests.delete(
+        f"{CALENDAR_API_BASE}/calendars/primary/events/{event_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=15,
+    )
+    resp.raise_for_status()
+
+
+def calendar_get_event(access_token: str, event_id: str) -> dict:
+    """Fetch a single calendar event by ID."""
+    resp = requests.get(
+        f"{CALENDAR_API_BASE}/calendars/primary/events/{event_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=15,
+    )
+    resp.raise_for_status()
+    return resp.json()
 
 
 # ── Google Meet API Helpers ───────────────────────────────────────────────────
