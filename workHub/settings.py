@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "slack_hub",
     "google_hub",
     "social_media",
+    "microsoft",
 ]
 
 MIDDLEWARE = [
@@ -333,3 +334,42 @@ OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
 
 # ── Fernet encryption (for token storage) ────────────────────────────────────
 FERNET_KEY = config("FERNET_KEY", default="")
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] {levelname} {name} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "WARNING",
+        },
+        "integrations": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "integrations.token_health": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "microsoft": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}

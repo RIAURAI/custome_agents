@@ -1,0 +1,15 @@
+{% extends "base_public.html" %}
+{% block title %}Page Not Found{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column align-items-center justify-content-center" style="min-height:60vh;">
+  <div style="font-size:5rem;font-weight:800;color:#e2e8f0;line-height:1;">404</div>
+  <h5 class="fw-bold mt-2" style="color:#1e293b;">Page Not Found</h5>
+  <p class="text-muted" style="font-size:.85rem;max-width:360px;text-align:center;">
+    The page you're looking for doesn't exist or has been moved.
+  </p>
+  <a href="/" class="btn btn-sm mt-2" style="background:#6366f1;color:#fff;border-radius:8px;">
+    <i class="bi bi-house me-1"></i>Go to Dashboard
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}People — WorkHub{% endblock %}
+{% block page_title %}People & Contacts{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);display:flex;align-items:center;justify-content:center;">
+    <i class="bi bi-person-lines-fill text-white" style="font-size:1.1rem;"></i>
+  </div>
+  <div>
+    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">People & Contacts</h4>
+    <p class="mb-0" style="color:#64748b;font-size:.85rem;">Search your relevant contacts and organization directory</p>
+  </div>
+</div>
+
+{% if not ms_connected or not has_access %}
+<div class="dash-connect-banner mb-4">
+  <div class="dash-connect-icon"><i class="bi bi-microsoft"></i></div>
+  <div class="flex-grow-1">
+    <div class="dash-connect-title">Connect Microsoft 365</div>
+    <div class="dash-connect-sub">Enable the Contacts feature to browse your people.</div>
+  </div>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Setup</a>
+</div>
+{% else %}
+
+{% if error %}
+<div class="alert alert-warning mb-4" style="font-size:.85rem;border-radius:12px;">
+  <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+</div>
+{% endif %}
+
+<!-- Tab Nav -->
+<ul class="nav nav-tabs mb-4" id="contactsTabs" role="tablist" style="border-bottom:2px solid #e2e8f0;">
+  <li class="nav-item">
+    <button class="nav-link active" id="people-tab" data-bs-toggle="tab" data-bs-target="#peoplePane" type="button" style="font-size:.85rem;font-weight:600;">
+      <i class="bi bi-people me-1"></i>Relevant People
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" id="directory-tab" data-bs-toggle="tab" data-bs-target="#directoryPane" type="button" style="font-size:.85rem;font-weight:600;">
+      <i class="bi bi-building me-1"></i>Organization Directory
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content">
+  <!-- Relevant People -->
+  <div class="tab-pane fade show active" id="peoplePane">
+    <div class="mb-3">
+      <div class="input-group" style="max-width:380px;">
+        <input type="text" class="form-control form-control-sm" id="peopleSearch" placeholder="Search people…" style="border-radius:8px 0 0 8px;font-size:.82rem;">
+        <button class="btn btn-sm" id="peopleSearchBtn" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:0 8px 8px 0;">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </div>
+    <div id="peopleGrid" class="row g-3">
+      {% for person in people %}
+      <div class="col-sm-6 col-lg-4 col-xl-3 person-card-wrap">
+        <div class="person-card">
+          <div class="person-avatar" style="background:#8b5cf6;">
+            {{ person.displayName|first|upper }}
+          </div>
+          <div class="flex-grow-1 min-w-0">
+            <div class="person-name text-truncate">{{ person.displayName }}</div>
+            {% if person.jobTitle %}
+            <div class="person-info text-truncate">{{ person.jobTitle }}</div>
+            {% endif %}
+            {% if person.department %}
+            <div class="person-info text-truncate"><i class="bi bi-building me-1"></i>{{ person.department }}</div>
+            {% endif %}
+            {% for email in person.emailAddresses|slice:":1" %}
+            <div class="person-email text-truncate">
+              <a href="mailto:{{ email.address }}" style="color:#4f46e5;text-decoration:none;font-size:.72rem;">{{ email.address }}</a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-4 text-muted">
+        <i class="bi bi-people" style="font-size:2rem;color:#cbd5e1;"></i>
+        <div class="mt-2" style="font-size:.85rem;">No people found</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Directory -->
+  <div class="tab-pane fade" id="directoryPane">
+    <div class="mb-3">
+      <div class="input-group" style="max-width:380px;">
+        <input type="text" class="form-control form-control-sm" id="dirSearch" placeholder="Search directory…" style="border-radius:8px 0 0 8px;font-size:.82rem;">
+        <button class="btn btn-sm" id="dirSearchBtn" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:0 8px 8px 0;">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </div>
+    <div id="directoryGrid" class="row g-3">
+      <div class="col-12 text-center py-4 text-muted">
+        <div class="spinner-border spinner-border-sm me-2"></div>Loading directory…
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+<style>
+.person-card {
+  display:flex; align-items:flex-start; gap:12px; padding:14px;
+  background:#fff; border:1px solid #e2e8f0; border-radius:12px;
+  transition:all .15s; height:100%;
+}
+.person-card:hover { border-color:#c7d2fe; box-shadow:0 2px 12px rgba(99,102,241,.08); }
+.person-avatar {
+  width:42px; height:42px; border-radius:12px; display:flex;
+  align-items:center; justify-content:center; color:#fff;
+  font-weight:700; font-size:1rem; flex-shrink:0;
+}
+.person-name { font-size:.84rem; font-weight:600; color:#1e293b; margin-bottom:2px; }
+.person-info { font-size:.74rem; color:#64748b; }
+.person-email { margin-top:4px; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const COLORS = ['#8b5cf6','#6366f1','#ec4899','#0ea5e9','#14b8a6','#f97316','#f43f5e','#84cc16'];
+  function hashColor(name) {
+    let h=0; for(let i=0;i<name.length;i++) h=name.charCodeAt(i)+((h<<5)-h);
+    return COLORS[Math.abs(h)%COLORS.length];
+  }
+
+  function renderPersonCard(p) {
+    const name = p.displayName||'Unknown';
+    const initial = name[0].toUpperCase();
+    const color = hashColor(name);
+    const email = (p.emailAddresses||p.mail) ?
+      (Array.isArray(p.emailAddresses) ? (p.emailAddresses[0]||{}).address : p.mail) : '';
+    return `<div class="col-sm-6 col-lg-4 col-xl-3 person-card-wrap">
+      <div class="person-card">
+        <div class="person-avatar" style="background:${color};">${initial}</div>
+        <div class="flex-grow-1 min-w-0">
+          <div class="person-name text-truncate">${name}</div>
+          ${p.jobTitle?`<div class="person-info text-truncate">${p.jobTitle}</div>`:''}
+          ${p.department?`<div class="person-info text-truncate"><i class="bi bi-building me-1"></i>${p.department}</div>`:''}
+          ${p.officeLocation?`<div class="person-info text-truncate"><i class="bi bi-geo-alt me-1"></i>${p.officeLocation}</div>`:''}
+          ${email?`<div class="person-email text-truncate"><a href="mailto:${email}" style="color:#4f46e5;text-decoration:none;font-size:.72rem;">${email}</a></div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // People search
+  document.getElementById('peopleSearchBtn').addEventListener('click', searchPeople);
+  document.getElementById('peopleSearch').addEventListener('keydown', e => { if(e.key==='Enter') searchPeople(); });
+  function searchPeople() {
+    const q = document.getElementById('peopleSearch').value.trim();
+    const grid = document.getElementById('peopleGrid');
+    grid.innerHTML = '<div class="col-12 text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>';
+    const qs = q ? '?q='+encodeURIComponent(q) : '';
+    fetch('{% url "microsoft:people_api" %}'+qs)
+      .then(r=>r.json())
+      .then(data => {
+        if (data.error) { grid.innerHTML = '<div class="col-12 text-danger p-3">'+data.error+'</div>'; return; }
+        const people = data.people||[];
+        if (!people.length) { grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No results</div>'; return; }
+        grid.innerHTML = people.map(renderPersonCard).join('');
+      });
+  }
+
+  // Directory
+  let dirLoaded = false;
+  document.getElementById('directory-tab').addEventListener('shown.bs.tab', function() {
+    if (!dirLoaded) { loadDirectory(); dirLoaded = true; }
+  });
+  document.getElementById('dirSearchBtn').addEventListener('click', loadDirectory);
+  document.getElementById('dirSearch').addEventListener('keydown', e => { if(e.key==='Enter') loadDirectory(); });
+  function loadDirectory() {
+    const q = document.getElementById('dirSearch').value.trim();
+    const grid = document.getElementById('directoryGrid');
+    grid.innerHTML = '<div class="col-12 text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>';
+    const qs = q ? '?q='+encodeURIComponent(q) : '';
+    fetch('{% url "microsoft:directory_api" %}'+qs)
+      .then(r=>r.json())
+      .then(data => {
+        if (data.error) { grid.innerHTML = '<div class="col-12 text-danger p-3">'+data.error+'</div>'; return; }
+        const users = data.users||[];
+        if (!users.length) { grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No users found</div>'; return; }
+        grid.innerHTML = users.map(renderPersonCard).join('');
+      });
+  }
+});
+</script>
+{% endblock %}

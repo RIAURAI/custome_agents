@@ -7,6 +7,7 @@ urlpatterns = [
     # Team management (admin only)
     path("team/", views.team_view, name="team"),
     path("activity/", views.activity_log_view, name="activity_log"),
+    path("admin-dashboard/", views.admin_dashboard_view, name="admin_dashboard"),
     path("invite/", views.invite_member, name="invite"),
     path("invite/<uuid:token>/revoke/", views.revoke_invite, name="revoke_invite"),
     path("member/<int:membership_id>/access/", views.manage_access, name="manage_access"),

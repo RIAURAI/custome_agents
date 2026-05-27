@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import redirect, render
 
-from companies.middleware import log_activity, platform_access_required
+from companies.middleware import log_activity, platform_access_required, ratelimit
 from integrations.utils import get_company_integration, get_valid_access_token, graph_get, graph_patch, graph_post, friendly_graph_error
 
 
@@ -57,6 +57,7 @@ def email_detail(request, email_id):
 
 
 @platform_access_required("microsoft", "reply")
+@ratelimit(max_calls=10, period=60)
 def compose(request):
     _, token = _get_token_or_redirect(request)
     if not token:

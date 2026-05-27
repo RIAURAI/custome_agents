@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
 
-from companies.middleware import has_platform_access, log_activity
+from companies.middleware import has_platform_access, log_activity, ratelimit
 
 import openai
 
@@ -22,6 +22,7 @@ def home(request):
 
 @login_required
 @require_POST
+@ratelimit(max_calls=15, period=60)
 def ask(request):
     """
     POST /ai/ask/

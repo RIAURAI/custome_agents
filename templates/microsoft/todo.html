@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %}To Do — WorkHub{% endblock %}
+{% block page_title %}Microsoft To Do{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;">
+    <i class="bi bi-check2-square text-white" style="font-size:1.1rem;"></i>
+  </div>
+  <div>
+    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">Microsoft To Do</h4>
+    <p class="mb-0" style="color:#64748b;font-size:.85rem;">Manage your tasks and to-do lists</p>
+  </div>
+</div>
+
+{% if not ms_connected or not has_access %}
+<div class="dash-connect-banner mb-4">
+  <div class="dash-connect-icon"><i class="bi bi-microsoft"></i></div>
+  <div class="flex-grow-1">
+    <div class="dash-connect-title">Connect Microsoft 365</div>
+    <div class="dash-connect-sub">Enable the Tasks feature to manage your to-do lists.</div>
+  </div>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Setup</a>
+</div>
+{% else %}
+
+{% if error %}
+<div class="alert alert-warning mb-4" style="font-size:.85rem;border-radius:12px;">
+  <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+</div>
+{% endif %}
+
+<div class="row g-0" style="min-height:600px;">
+  <!-- Lists sidebar -->
+  <div class="col-md-3" style="border-right:1px solid #e2e8f0;background:#f8fafc;border-radius:12px 0 0 12px;">
+    <div class="p-3">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <span class="fw-semibold" style="font-size:.85rem;color:#1e293b;">My Lists</span>
+        <button class="btn btn-sm" id="newListBtn" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:8px;font-size:.72rem;">
+          <i class="bi bi-plus me-1"></i>New
+        </button>
+      </div>
+      <div id="todoLists">
+        {% for lst in todo_lists %}
+        <div class="todo-list-item{% if forloop.first %} active{% endif %}" data-list-id="{{ lst.id }}" data-name="{{ lst.displayName }}">
+          <i class="bi bi-list-task me-2" style="color:#6366f1;"></i>{{ lst.displayName }}
+        </div>
+        {% empty %}
+        <div class="text-muted text-center py-3" style="font-size:.82rem;">No lists found</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Tasks area -->
+  <div class="col-md-9" style="background:#fff;border-radius:0 12px 12px 0;">
+    <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
+      <span class="fw-semibold" id="activeListName" style="font-size:.9rem;">
+        {% if todo_lists %}{{ todo_lists.0.displayName }}{% else %}Tasks{% endif %}
+      </span>
+      <div class="d-flex gap-2">
+        <select id="taskFilter" class="form-select form-select-sm" style="width:auto;border-radius:8px;font-size:.78rem;">
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Add task -->
+    <div class="p-3 border-bottom" style="background:#f8fafc;">
+      <div class="d-flex gap-2">
+        <input type="text" id="newTaskInput" class="form-control form-control-sm" placeholder="Add a task…" style="border-radius:8px;">
+        <input type="date" id="newTaskDue" class="form-control form-control-sm" style="width:140px;border-radius:8px;font-size:.78rem;">
+        <button id="addTaskBtn" class="btn btn-sm" style="background:#4f46e5;color:#fff;border-radius:8px;white-space:nowrap;padding:4px 16px;">
+          <i class="bi bi-plus"></i>Add
+        </button>
+      </div>
+    </div>
+
+    <!-- Task list -->
+    <div id="taskList" class="p-3" style="max-height:500px;overflow-y:auto;">
+      <div class="text-center py-4 text-muted" style="font-size:.85rem;">
+        <div class="spinner-border spinner-border-sm me-2"></div>Loading tasks…
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+<style>
+.todo-list-item {
+  padding:8px 12px; border-radius:8px; cursor:pointer; font-size:.84rem;
+  color:#475569; margin-bottom:2px; transition:background .1s;
+}
+.todo-list-item:hover { background:#eef2ff; }
+.todo-list-item.active { background:#eef2ff; color:#4f46e5; font-weight:600; }
+.task-row {
+  display:flex; align-items:center; gap:10px; padding:10px 12px;
+  border-bottom:1px solid #f1f5f9; transition:background .1s;
+}
+.task-row:hover { background:#f8fafc; }
+.task-check { width:18px; height:18px; border-radius:50%; border:2px solid #cbd5e1; cursor:pointer; flex-shrink:0; transition:all .15s; }
+.task-check:hover { border-color:#4f46e5; }
+.task-check.completed { background:#4f46e5; border-color:#4f46e5; }
+.task-check.completed::after { content:'✓'; color:#fff; font-size:.7rem; display:flex; align-items:center; justify-content:center; height:100%; }
+.task-title { flex-grow:1; font-size:.84rem; color:#1e293b; }
+.task-title.completed { text-decoration:line-through; color:#94a3b8; }
+.task-due { font-size:.72rem; color:#64748b; white-space:nowrap; }
+.task-due.overdue { color:#dc2626; font-weight:600; }
+.task-importance { font-size:.7rem; padding:1px 6px; border-radius:10px; }
+.task-importance--high { background:#fee2e2; color:#dc2626; }
+.task-importance--normal { background:#f1f5f9; color:#64748b; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const csrf = '{{ csrf_token }}';
+  let activeListId = '{{ todo_lists.0.id|default:"" }}';
+  let allTasks = [];
+
+  // List click
+  document.querySelectorAll('.todo-list-item').forEach(el => {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('.todo-list-item').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      activeListId = this.dataset.listId;
+      document.getElementById('activeListName').textContent = this.dataset.name;
+      loadTasks();
+    });
+  });
+
+  function loadTasks() {
+    if (!activeListId) return;
+    const box = document.getElementById('taskList');
+    box.innerHTML = '<div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>';
+    fetch(`/microsoft/api/todo/${activeListId}/tasks/`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { box.innerHTML = '<div class="text-danger p-3">'+data.error+'</div>'; return; }
+        allTasks = data.tasks || [];
+        renderTasks();
+      });
+  }
+
+  function renderTasks() {
+    const box = document.getElementById('taskList');
+    const filter = document.getElementById('taskFilter').value;
+    let tasks = allTasks;
+    if (filter === 'active') tasks = tasks.filter(t => t.status !== 'completed');
+    if (filter === 'completed') tasks = tasks.filter(t => t.status === 'completed');
+
+    if (!tasks.length) {
+      box.innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-check2-square" style="font-size:1.5rem;"></i><div class="mt-2">No tasks</div></div>';
+      return;
+    }
+
+    const today = new Date().toISOString().slice(0,10);
+    box.innerHTML = tasks.map(t => {
+      const done = t.status === 'completed';
+      const due = t.dueDateTime?.dateTime?.slice(0,10) || '';
+      const overdue = due && due < today && !done;
+      const imp = t.importance || 'normal';
+      return `<div class="task-row" data-task-id="${t.id}">
+        <div class="task-check${done?' completed':''}" onclick="toggleTask('${t.id}',${!done})"></div>
+        <div class="task-title${done?' completed':''}">${t.title}</div>
+        ${imp==='high'?'<span class="task-importance task-importance--high">High</span>':''}
+        ${due?`<span class="task-due${overdue?' overdue':''}">${overdue?'<i class=\\"bi bi-exclamation-circle me-1\\"></i>':''}${due}</span>`:''}
+        <button class="file-action" onclick="deleteTask('${t.id}')" title="Delete"><i class="bi bi-trash"></i></button>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('taskFilter').addEventListener('change', renderTasks);
+
+  // Toggle complete
+  window.toggleTask = function(taskId, complete) {
+    const body = complete
+      ? {status: 'completed', completedDateTime: {dateTime: new Date().toISOString(), timeZone:'UTC'}}
+      : {status: 'notStarted', completedDateTime: null};
+    fetch(`/microsoft/api/todo/${activeListId}/tasks/${taskId}/update/`, {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrf},
+      body:JSON.stringify(body)
+    }).then(r=>r.json()).then(()=>loadTasks());
+  };
+
+  // Delete task
+  window.deleteTask = function(taskId) {
+    fetch(`/microsoft/api/todo/${activeListId}/tasks/${taskId}/delete/`, {
+      method:'POST', headers:{'X-CSRFToken':csrf}
+    }).then(r=>r.json()).then(data => {
+      if (data.success) loadTasks();
+      else if (data.error) alert(data.error);
+    });
+  };
+
+  // Add task
+  document.getElementById('addTaskBtn').addEventListener('click', addTask);
+  document.getElementById('newTaskInput').addEventListener('keydown', e => { if(e.key==='Enter') addTask(); });
+  function addTask() {
+    if (!activeListId) return;
+    const title = document.getElementById('newTaskInput').value.trim();
+    if (!title) return;
+    const due = document.getElementById('newTaskDue').value;
+    const payload = {title};
+    if (due) payload.dueDateTime = due;
+    document.getElementById('newTaskInput').value = '';
+    document.getElementById('newTaskDue').value = '';
+    fetch(`/microsoft/api/todo/${activeListId}/tasks/create/`, {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrf},
+      body:JSON.stringify(payload)
+    }).then(r=>r.json()).then(data => {
+      if (data.error) alert(data.error);
+      else loadTasks();
+    });
+  }
+
+  // New list
+  document.getElementById('newListBtn')?.addEventListener('click', function() {
+    const name = prompt('New list name:');
+    if (!name) return;
+    fetch('/microsoft/api/todo/lists/create/', {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrf},
+      body:JSON.stringify({displayName: name})
+    }).then(r=>r.json()).then(data => {
+      if (data.error) alert(data.error);
+      else location.reload();
+    });
+  });
+
+  // Initial load
+  if (activeListId) loadTasks();
+});
+</script>
+{% endblock %}

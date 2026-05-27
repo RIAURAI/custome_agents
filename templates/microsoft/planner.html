@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Planner — WorkHub{% endblock %}
+{% block page_title %}Microsoft Planner{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#059669,#34d399);display:flex;align-items:center;justify-content:center;">
+    <i class="bi bi-kanban text-white" style="font-size:1.1rem;"></i>
+  </div>
+  <div>
+    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">Planner</h4>
+    <p class="mb-0" style="color:#64748b;font-size:.85rem;">Your assigned Planner tasks in a kanban view</p>
+  </div>
+</div>
+
+{% if not ms_connected or not has_access %}
+<div class="dash-connect-banner mb-4">
+  <div class="dash-connect-icon"><i class="bi bi-microsoft"></i></div>
+  <div class="flex-grow-1">
+    <div class="dash-connect-title">Connect Microsoft 365</div>
+    <div class="dash-connect-sub">Enable the Tasks feature to view your Planner boards.</div>
+  </div>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Setup</a>
+</div>
+{% else %}
+
+{% if error %}
+<div class="alert alert-warning mb-4" style="font-size:.85rem;border-radius:12px;">
+  <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+</div>
+{% endif %}
+
+<!-- Kanban board -->
+<div class="d-flex gap-3 pb-3" style="overflow-x:auto;">
+  <!-- Not Started -->
+  <div class="kanban-column">
+    <div class="kanban-header" style="border-top:3px solid #94a3b8;">
+      <span class="fw-semibold" style="font-size:.82rem;color:#475569;">Not Started</span>
+      <span class="badge rounded-pill" id="countNotStarted" style="background:#f1f5f9;color:#64748b;font-size:.7rem;">0</span>
+    </div>
+    <div class="kanban-body" id="colNotStarted"></div>
+  </div>
+  <!-- In Progress -->
+  <div class="kanban-column">
+    <div class="kanban-header" style="border-top:3px solid #3b82f6;">
+      <span class="fw-semibold" style="font-size:.82rem;color:#1d4ed8;">In Progress</span>
+      <span class="badge rounded-pill" id="countInProgress" style="background:#dbeafe;color:#1d4ed8;font-size:.7rem;">0</span>
+    </div>
+    <div class="kanban-body" id="colInProgress"></div>
+  </div>
+  <!-- Completed -->
+  <div class="kanban-column">
+    <div class="kanban-header" style="border-top:3px solid #22c55e;">
+      <span class="fw-semibold" style="font-size:.82rem;color:#16a34a;">Completed</span>
+      <span class="badge rounded-pill" id="countCompleted" style="background:#dcfce7;color:#16a34a;font-size:.7rem;">0</span>
+    </div>
+    <div class="kanban-body" id="colCompleted"></div>
+  </div>
+</div>
+
+<div id="plannerEmpty" class="text-center py-5 text-muted" style="display:none;">
+  <i class="bi bi-kanban" style="font-size:2.5rem;color:#cbd5e1;"></i>
+  <div class="mt-2" style="font-size:.85rem;">No Planner tasks assigned to you</div>
+</div>
+
+{% endif %}
+
+<style>
+.kanban-column {
+  min-width:280px; flex:1; background:#f8fafc; border-radius:12px;
+  display:flex; flex-direction:column;
+}
+.kanban-header {
+  padding:12px 14px; display:flex; align-items:center; justify-content:space-between;
+  border-radius:12px 12px 0 0;
+}
+.kanban-body { padding:8px; flex-grow:1; min-height:200px; }
+.kanban-card {
+  background:#fff; border-radius:10px; padding:12px; margin-bottom:8px;
+  border:1px solid #e2e8f0; transition:all .15s;
+}
+.kanban-card:hover { border-color:#c7d2fe; box-shadow:0 2px 8px rgba(99,102,241,.08); }
+.kanban-card-title { font-size:.82rem; font-weight:600; color:#1e293b; margin-bottom:6px; }
+.kanban-meta { font-size:.72rem; color:#64748b; display:flex; gap:10px; flex-wrap:wrap; }
+.kanban-priority { font-size:.65rem; padding:1px 6px; border-radius:10px; font-weight:600; }
+.priority-urgent { background:#fee2e2; color:#dc2626; }
+.priority-important { background:#fef3c7; color:#d97706; }
+.priority-medium, .priority-low { background:#f1f5f9; color:#64748b; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tasks = {{ planner_tasks|safe }};
+
+  function priorityLabel(p) {
+    const map = {1:'Urgent',3:'Important',5:'Medium',9:'Low'};
+    return map[p] || 'Normal';
+  }
+  function priorityClass(p) {
+    const map = {1:'urgent',3:'important',5:'medium',9:'low'};
+    return map[p] || 'low';
+  }
+
+  function renderBoard(tasks) {
+    const cols = {notStarted:[], inProgress:[], completed:[]};
+    tasks.forEach(t => {
+      const pct = t.percentComplete || 0;
+      if (pct === 100) cols.completed.push(t);
+      else if (pct > 0) cols.inProgress.push(t);
+      else cols.notStarted.push(t);
+    });
+
+    document.getElementById('countNotStarted').textContent = cols.notStarted.length;
+    document.getElementById('countInProgress').textContent = cols.inProgress.length;
+    document.getElementById('countCompleted').textContent = cols.completed.length;
+
+    if (!tasks.length) {
+      document.getElementById('plannerEmpty').style.display = '';
+      return;
+    }
+
+    ['notStarted','inProgress','completed'].forEach(key => {
+      const colId = key === 'notStarted' ? 'colNotStarted' : key === 'inProgress' ? 'colInProgress' : 'colCompleted';
+      const el = document.getElementById(colId);
+      if (!cols[key].length) {
+        el.innerHTML = '<div class="text-center text-muted py-3" style="font-size:.78rem;">No tasks</div>';
+        return;
+      }
+      el.innerHTML = cols[key].map(t => {
+        const due = t.dueDateTime ? new Date(t.dueDateTime).toLocaleDateString() : '';
+        const pri = t.priority || 5;
+        return `<div class="kanban-card">
+          <div class="kanban-card-title">${t.title || 'Untitled'}</div>
+          <div class="kanban-meta">
+            ${due ? '<span><i class="bi bi-calendar3 me-1"></i>'+due+'</span>' : ''}
+            <span class="kanban-priority priority-${priorityClass(pri)}">${priorityLabel(pri)}</span>
+            ${t.percentComplete > 0 && t.percentComplete < 100 ? '<span><i class="bi bi-bar-chart me-1"></i>'+t.percentComplete+'%</span>' : ''}
+          </div>
+        </div>`;
+      }).join('');
+    });
+  }
+
+  renderBoard(tasks);
+});
+</script>
+{% endblock %}
