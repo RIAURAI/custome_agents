@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Google Forms — WorkHub{% endblock %}
+{% block page_title %}Google Forms{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#9333ea);display:flex;align-items:center;justify-content:center;">
+    <i class="bi bi-ui-checks text-white" style="font-size:1.1rem;"></i>
+  </div>
+  <div>
+    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">Google Forms</h4>
+    <p class="mb-0" style="color:#64748b;font-size:.85rem;">Create and manage your Google Forms surveys</p>
+  </div>
+</div>
+
+{% if not google_connected or not has_access %}
+<div class="dash-connect-banner mb-4">
+  <div class="dash-connect-icon"><i class="bi bi-google"></i></div>
+  <div class="flex-grow-1">
+    <div class="dash-connect-title">Connect Google Workspace</div>
+    <div class="dash-connect-sub">Enable Google Forms to manage surveys and responses.</div>
+  </div>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Connect</a>
+</div>
+{% else %}
+
+<!-- Workspace nav -->
+<div class="d-flex gap-2 mb-4 flex-wrap">
+  <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:20px;font-size:.78rem;"><i class="bi bi-envelope me-1"></i>Gmail</a>
+  <a href="{% url 'google_hub:drive' %}" class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:20px;font-size:.78rem;"><i class="bi bi-cloud me-1"></i>Drive</a>
+  <a href="{% url 'google_hub:docs' %}" class="btn btn-sm" style="background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;font-size:.78rem;"><i class="bi bi-file-earmark-text me-1"></i>Docs</a>
+  <a href="{% url 'google_hub:sheets' %}" class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:20px;font-size:.78rem;"><i class="bi bi-table me-1"></i>Sheets</a>
+  <span class="btn btn-sm" style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;border:none;border-radius:20px;font-size:.78rem;"><i class="bi bi-ui-checks me-1"></i>Forms</span>
+  <a href="{% url 'google_hub:calendar' %}" class="btn btn-sm" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:20px;font-size:.78rem;"><i class="bi bi-calendar3 me-1"></i>Calendar</a>
+</div>
+
+<!-- Toolbar -->
+<div class="dash-panel mb-4">
+  <div class="d-flex flex-wrap align-items-center gap-2 p-3">
+    <div class="flex-grow-1">
+      <div class="input-group" style="max-width:320px;">
+        <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search forms…" style="border-radius:8px 0 0 8px;font-size:.8rem;">
+        <button class="btn btn-sm" id="searchBtn" style="background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff;border-radius:0 8px 8px 0;">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </div>
+    <button class="btn btn-sm" id="newFormBtn"
+            style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;">
+      <i class="bi bi-plus-circle me-1"></i>New Form
+    </button>
+  </div>
+</div>
+
+<div id="createMsg"></div>
+
+<!-- Forms grid -->
+<div id="formsGrid" class="row g-3">
+  <div class="col-12 text-center py-5 text-muted">
+    <div class="spinner-border spinner-border-sm me-2"></div>Loading forms…
+  </div>
+</div>
+
+<!-- New Form modal -->
+<div class="modal fade" id="newFormModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;box-shadow:0 20px 60px rgba(0,0,0,.15);">
+      <div class="modal-header border-0 px-4 pt-4">
+        <h6 class="modal-title fw-bold">New Google Form</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body px-4">
+        <label class="form-label fw-semibold mb-1" style="font-size:.84rem;">Form title <span class="text-danger">*</span></label>
+        <input type="text" id="newFormTitle" class="form-control" placeholder="e.g. Customer Survey" style="border-radius:10px;">
+        <label class="form-label fw-semibold mb-1 mt-3" style="font-size:.84rem;">Description</label>
+        <textarea id="newFormDesc" class="form-control" rows="2" placeholder="Optional description" style="border-radius:10px;"></textarea>
+        <div id="newFormMsg" class="mt-2"></div>
+      </div>
+      <div class="modal-footer border-0 px-4 pb-4">
+        <button class="btn btn-sm" data-bs-dismiss="modal" style="border-radius:8px;">Cancel</button>
+        <button class="btn btn-sm" id="createFormBtn"
+                style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;border:none;border-radius:8px;font-weight:600;">
+          <i class="bi bi-plus me-1"></i>Create
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+<script>
+const CSRF = '{{ csrf_token }}';
+
+function loadForms(q) {
+  const grid = document.getElementById('formsGrid');
+  grid.innerHTML = '<div class="col-12 text-center py-5 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</div>';
+  let url = '{% url "google_hub:forms_list" %}';
+  if (q) url += `?q=${encodeURIComponent(q)}`;
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { grid.innerHTML = `<div class="col-12 text-center py-4 text-danger">${data.error}</div>`; return; }
+      const forms = data.forms || [];
+      if (!forms.length) {
+        grid.innerHTML = '<div class="col-12 text-center py-5 text-muted"><i class="bi bi-ui-checks" style="font-size:2rem;opacity:.3;"></i><p class="mt-2">No forms found. Create your first form!</p></div>';
+        return;
+      }
+      grid.innerHTML = forms.map(f => {
+        const owner = (f.owners && f.owners[0]) ? f.owners[0].displayName || '' : '';
+        const modified = new Date(f.modifiedTime).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+        return `<div class="col-md-6 col-xl-4">
+          <div class="card h-100" style="border-radius:14px;border:1px solid #e2e8f0;cursor:pointer;transition:box-shadow .15s;"
+               onmouseenter="this.style.boxShadow='0 4px 20px rgba(124,58,237,.12)'"
+               onmouseleave="this.style.boxShadow=''">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-start gap-3 mb-3">
+                <div style="background:linear-gradient(135deg,#7c3aed,#9333ea);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <i class="bi bi-ui-checks text-white"></i>
+                </div>
+                <div class="flex-grow-1 min-w-0">
+                  <div class="fw-semibold text-truncate" style="color:#1e293b;">${f.name}</div>
+                  ${owner ? `<div class="text-muted" style="font-size:.75rem;">${owner}</div>` : ''}
+                </div>
+              </div>
+              <div class="text-muted mb-3" style="font-size:.75rem;">
+                <i class="bi bi-clock me-1"></i>Modified ${modified}
+              </div>
+              <a href="${f.webViewLink}" target="_blank" rel="noopener"
+                 class="btn btn-sm w-100"
+                 style="background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff;border-radius:8px;font-size:.78rem;font-weight:600;">
+                <i class="bi bi-box-arrow-up-right me-1"></i>Open Form
+              </a>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    })
+    .catch(() => { grid.innerHTML = '<div class="col-12 text-center py-4 text-danger">Failed to load forms.</div>'; });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  loadForms();
+
+  document.getElementById('searchBtn').addEventListener('click', () => loadForms(document.getElementById('searchInput').value.trim()));
+  document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('searchBtn').click(); });
+
+  document.getElementById('newFormBtn').addEventListener('click', () => {
+    document.getElementById('newFormTitle').value = '';
+    document.getElementById('newFormDesc').value = '';
+    document.getElementById('newFormMsg').innerHTML = '';
+    new bootstrap.Modal(document.getElementById('newFormModal')).show();
+  });
+
+  document.getElementById('createFormBtn').addEventListener('click', function () {
+    const title = document.getElementById('newFormTitle').value.trim();
+    if (!title) { document.getElementById('newFormMsg').innerHTML = '<div class="alert alert-danger py-1" style="font-size:.8rem;">Title is required.</div>'; return; }
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Creating…';
+    fetch('{% url "google_hub:forms_create" %}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF},
+      body: JSON.stringify({title, description: document.getElementById('newFormDesc').value}),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        document.getElementById('newFormMsg').innerHTML = '<div class="alert alert-success py-1" style="font-size:.8rem;">Created!</div>';
+        setTimeout(() => { bootstrap.Modal.getInstance(document.getElementById('newFormModal')).hide(); loadForms(); }, 900);
+      } else {
+        document.getElementById('newFormMsg').innerHTML = `<div class="alert alert-danger py-1" style="font-size:.8rem;">${data.error}</div>`;
+      }
+    })
+    .finally(() => { this.disabled = false; this.innerHTML = '<i class="bi bi-plus me-1"></i>Create'; });
+  });
+});
+</script>
+{% endblock %}

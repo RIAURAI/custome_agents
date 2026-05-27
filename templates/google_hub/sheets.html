@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}Google Sheets — WorkHub{% endblock %}
+{% block page_title %}Google Sheets{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#34A853,#1e8e3e);display:flex;align-items:center;justify-content:center;">
+    <i class="bi bi-table text-white" style="font-size:1.1rem;"></i>
+  </div>
+  <div>
+    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">Google Sheets</h4>
+    <p class="mb-0" style="color:#64748b;font-size:.85rem;">View, create, and manage your Google Spreadsheets</p>
+  </div>
+</div>
+
+{% if not google_connected or not has_access %}
+<div class="dash-connect-banner mb-4">
+  <div class="dash-connect-icon"><i class="bi bi-google"></i></div>
+  <div class="flex-grow-1">
+    <div class="dash-connect-title">Connect Google Workspace</div>
+    <div class="dash-connect-sub">Enable Google Sheets to read and edit spreadsheets.</div>
+  </div>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Connect</a>
+</div>
+{% else %}
+
+<!-- Workspace nav -->
+<div class="d-flex gap-2 mb-4 flex-wrap">
+  <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:20px;font-size:.78rem;"><i class="bi bi-envelope me-1"></i>Gmail</a>
+  <a href="{% url 'google_hub:drive' %}" class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:20px;font-size:.78rem;"><i class="bi bi-cloud me-1"></i>Drive</a>
+  <a href="{% url 'google_hub:docs' %}" class="btn btn-sm" style="background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;font-size:.78rem;"><i class="bi bi-file-earmark-text me-1"></i>Docs</a>
+  <span class="btn btn-sm" style="background:linear-gradient(135deg,#34A853,#1e8e3e);color:#fff;border:none;border-radius:20px;font-size:.78rem;"><i class="bi bi-table me-1"></i>Sheets</span>
+  <a href="{% url 'google_hub:forms' %}" class="btn btn-sm" style="background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff;border-radius:20px;font-size:.78rem;"><i class="bi bi-ui-checks me-1"></i>Forms</a>
+  <a href="{% url 'google_hub:calendar' %}" class="btn btn-sm" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:20px;font-size:.78rem;"><i class="bi bi-calendar3 me-1"></i>Calendar</a>
+</div>
+
+<!-- Toolbar -->
+<div class="dash-panel mb-4">
+  <div class="d-flex flex-wrap align-items-center gap-2 p-3">
+    <div class="flex-grow-1">
+      <div class="input-group" style="max-width:320px;">
+        <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search spreadsheets…" style="border-radius:8px 0 0 8px;font-size:.8rem;">
+        <button class="btn btn-sm" id="searchBtn" style="background:#ecfdf5;color:#15803d;border:1px solid #bbf7d0;border-radius:0 8px 8px 0;">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </div>
+    <button class="btn btn-sm" id="newSheetBtn"
+            style="background:linear-gradient(135deg,#34A853,#1e8e3e);color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;">
+      <i class="bi bi-plus-circle me-1"></i>New Spreadsheet
+    </button>
+  </div>
+</div>
+
+<div id="createMsg"></div>
+
+<!-- Sheet list + inline data viewer -->
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="dash-panel h-100">
+      <div class="dash-panel-body p-0">
+        <table class="table table-hover mb-0" style="font-size:.84rem;">
+          <thead style="background:#f8fafc;">
+            <tr>
+              <th style="padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Spreadsheet</th>
+              <th style="padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Modified</th>
+            </tr>
+          </thead>
+          <tbody id="sheetTable">
+            <tr><td colspan="2" class="text-center py-5 text-muted">
+              <div class="spinner-border spinner-border-sm me-2"></div>Loading…
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data viewer panel -->
+  <div class="col-lg-7">
+    <div class="dash-panel h-100" id="dataPanel" style="display:none;">
+      <div class="p-3 border-bottom d-flex align-items-center justify-content-between" style="border-color:#e2e8f0!important;">
+        <div>
+          <div class="fw-semibold" id="dataPanelTitle" style="font-size:.9rem;color:#1e293b;"></div>
+          <div class="text-muted" style="font-size:.75rem;">Sheet data preview</div>
+        </div>
+        <div class="d-flex gap-2">
+          <input type="text" id="rangeInput" class="form-control form-control-sm" placeholder="e.g. Sheet1!A1:E20" style="width:160px;border-radius:8px;font-size:.78rem;">
+          <button id="loadRangeBtn" class="btn btn-sm" style="background:#ecfdf5;color:#15803d;border:1px solid #bbf7d0;border-radius:8px;font-size:.78rem;">Load</button>
+          <a id="openSheetLink" href="#" target="_blank" rel="noopener" class="btn btn-sm" style="background:#eef2ff;color:#4285F4;border:none;border-radius:8px;font-size:.78rem;">
+            <i class="bi bi-box-arrow-up-right"></i>
+          </a>
+        </div>
+      </div>
+      <div class="dash-panel-body p-0" style="overflow:auto;max-height:420px;">
+        <table class="table table-sm table-bordered mb-0" id="dataTable" style="font-size:.78rem;min-width:400px;">
+          <tbody id="dataBody">
+            <tr><td class="text-center py-4 text-muted" colspan="99">Select a range above and click Load</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="noSelectionMsg" class="dash-panel d-flex align-items-center justify-content-center" style="min-height:200px;">
+      <div class="text-center text-muted">
+        <i class="bi bi-table" style="font-size:2rem;opacity:.3;"></i>
+        <p class="mt-2 mb-0" style="font-size:.84rem;">Select a spreadsheet to preview its data</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Sheet modal -->
+<div class="modal fade" id="newSheetModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;box-shadow:0 20px 60px rgba(0,0,0,.15);">
+      <div class="modal-header border-0 px-4 pt-4">
+        <h6 class="modal-title fw-bold">New Google Spreadsheet</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body px-4">
+        <label class="form-label fw-semibold mb-1" style="font-size:.84rem;">Spreadsheet title</label>
+        <input type="text" id="newSheetTitle" class="form-control" placeholder="Untitled Spreadsheet" style="border-radius:10px;">
+        <div id="newSheetMsg" class="mt-2"></div>
+      </div>
+      <div class="modal-footer border-0 px-4 pb-4">
+        <button class="btn btn-sm" data-bs-dismiss="modal" style="border-radius:8px;">Cancel</button>
+        <button class="btn btn-sm" id="createSheetBtn"
+                style="background:linear-gradient(135deg,#34A853,#1e8e3e);color:#fff;border:none;border-radius:8px;font-weight:600;">
+          <i class="bi bi-plus me-1"></i>Create
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+<script>
+const CSRF = '{{ csrf_token }}';
+let activeSheetId = null;
+
+function loadSheets(q) {
+  const tbody = document.getElementById('sheetTable');
+  tbody.innerHTML = '<tr><td colspan="2" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</td></tr>';
+  let url = '{% url "google_hub:sheets_list" %}';
+  if (q) url += `?q=${encodeURIComponent(q)}`;
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { tbody.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-danger">${data.error}</td></tr>`; return; }
+      const sheets = data.sheets || [];
+      if (!sheets.length) { tbody.innerHTML = '<tr><td colspan="2" class="text-center py-5 text-muted"><i class="bi bi-table me-2"></i>No spreadsheets found</td></tr>'; return; }
+      tbody.innerHTML = sheets.map(s => `
+        <tr style="cursor:pointer;" onclick="selectSheet('${s.id}','${(s.name||'').replace(/'/g,"\\'")}','${s.webViewLink||''}')">
+          <td style="padding:10px 16px;">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-table" style="color:#34A853;font-size:1rem;"></i>
+              <span class="fw-semibold" style="color:#1e293b;">${s.name}</span>
+            </div>
+          </td>
+          <td style="padding:10px 16px;color:#64748b;">${new Date(s.modifiedTime).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
+        </tr>`).join('');
+    })
+    .catch(() => { tbody.innerHTML = '<tr><td colspan="2" class="text-center py-4 text-danger">Failed to load.</td></tr>'; });
+}
+
+function selectSheet(sheetId, name, link) {
+  activeSheetId = sheetId;
+  document.getElementById('dataPanel').style.display = '';
+  document.getElementById('noSelectionMsg').style.display = 'none';
+  document.getElementById('dataPanelTitle').textContent = name;
+  document.getElementById('openSheetLink').href = link || '#';
+  document.getElementById('dataBody').innerHTML = '<tr><td class="text-center py-4 text-muted" colspan="99">Enter a range and click Load, or leave blank for default</td></tr>';
+}
+
+function loadRange() {
+  if (!activeSheetId) return;
+  const range = document.getElementById('rangeInput').value.trim();
+  const url = `{% url "google_hub:sheets_get" spreadsheet_id="__ID__" %}`.replace('__ID__', activeSheetId) + (range ? `?range=${encodeURIComponent(range)}` : '');
+  document.getElementById('dataBody').innerHTML = '<tr><td class="text-center py-3 text-muted" colspan="99"><div class="spinner-border spinner-border-sm"></div></td></tr>';
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      const rows = data.values && data.values.values ? data.values.values : [];
+      if (!rows.length) {
+        document.getElementById('dataBody').innerHTML = '<tr><td class="text-center py-4 text-muted" colspan="99">No data in this range</td></tr>';
+        return;
+      }
+      document.getElementById('dataBody').innerHTML = rows.map((row, i) =>
+        `<tr>${row.map(cell => `<td style="padding:5px 8px;${i===0?'font-weight:600;background:#f8fafc;':''}">${cell}</td>`).join('')}</tr>`
+      ).join('');
+    })
+    .catch(() => { document.getElementById('dataBody').innerHTML = '<tr><td class="text-center py-4 text-danger" colspan="99">Failed to load data.</td></tr>'; });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  loadSheets();
+
+  document.getElementById('searchBtn').addEventListener('click', () => loadSheets(document.getElementById('searchInput').value.trim()));
+  document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('searchBtn').click(); });
+  document.getElementById('loadRangeBtn').addEventListener('click', loadRange);
+  document.getElementById('rangeInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadRange(); });
+
+  document.getElementById('newSheetBtn').addEventListener('click', () => {
+    document.getElementById('newSheetTitle').value = '';
+    document.getElementById('newSheetMsg').innerHTML = '';
+    new bootstrap.Modal(document.getElementById('newSheetModal')).show();
+  });
+
+  document.getElementById('createSheetBtn').addEventListener('click', function () {
+    const title = document.getElementById('newSheetTitle').value.trim() || 'Untitled Spreadsheet';
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Creating…';
+    fetch('{% url "google_hub:sheets_create" %}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF},
+      body: JSON.stringify({title}),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        document.getElementById('newSheetMsg').innerHTML = '<div class="alert alert-success py-1" style="font-size:.8rem;">Created!</div>';
+        setTimeout(() => { bootstrap.Modal.getInstance(document.getElementById('newSheetModal')).hide(); loadSheets(); }, 900);
+      } else {
+        document.getElementById('newSheetMsg').innerHTML = `<div class="alert alert-danger py-1" style="font-size:.8rem;">${data.error}</div>`;
+      }
+    })
+    .finally(() => { this.disabled = false; this.innerHTML = '<i class="bi bi-plus me-1"></i>Create'; });
+  });
+});
+</script>
+{% endblock %}

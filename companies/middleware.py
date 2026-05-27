@@ -71,8 +71,8 @@ def company_context(request):
         company = getattr(request, "company", None)
         if company:
             ctx["has_google_access"] = CompanyIntegration.objects.filter(
-                company=company, service="google", status="active"
-            ).exists()
+                company=company, service="google", status="active",
+            ).exclude(access_token_enc=None).exclude(access_token_enc=b"").exists()
 
     return ctx
 

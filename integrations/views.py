@@ -24,6 +24,8 @@ from .utils import (
 )
 from companies.middleware import log_activity
 
+logger = logging.getLogger(__name__)
+
 
 def company_admin_required(view_func):
     """Decorator: user must be logged in AND be a company owner/admin."""
@@ -78,6 +80,12 @@ def connect_view(request):
         "ms_redirect_uri": settings.MS_REDIRECT_URI,
         "calendly_redirect_uri": settings.CALENDLY_REDIRECT_URI,
         "google_redirect_uri": settings.GOOGLE_REDIRECT_URI,
+        # Google is truly connected only when token exists and status is active
+        "google_truly_connected": (
+            "google" in integrations
+            and getattr(integrations["google"], "access_token_enc", None)
+            and getattr(integrations["google"], "status", "") == "active"
+        ),
         "coming_soon": [
             ("onedrive", "bi bi-cloud", "OneDrive"),
         ],
@@ -643,6 +651,7 @@ def google_save_credentials(request):
     integration.google_client_id_enc = encrypt_token(client_id)
     integration.google_client_secret_enc = encrypt_token(client_secret)
     integration.connected_by = request.user
+    integration.status = "pending"  # Will be set to 'active' only after OAuth completes
     integration.save()
 
     # Generate OAuth state and build authorization URL
@@ -682,16 +691,24 @@ def google_callback(request):
     """Handle OAuth callback from Google."""
     error = request.GET.get("error")
     if error:
-        messages.error(request, f"Google login failed: {request.GET.get('error_description', error)}")
+        err_desc = request.GET.get("error_description", error)
+        logger.error("[Google OAuth] Authorization denied: %s — %s", error, err_desc)
+        messages.error(request, f"Google login failed: {err_desc}")
         return redirect("integrations:connect")
 
     state = request.GET.get("state")
-    if state != request.session.pop("google_oauth_state", None):
-        messages.error(request, "Invalid OAuth state. Please try again.")
+    stored_state = request.session.pop("google_oauth_state", None)
+    if state != stored_state:
+        logger.error(
+            "[Google OAuth] State mismatch — received: %s  stored: %s  (session may have expired)",
+            state, stored_state,
+        )
+        messages.error(request, "Invalid OAuth state. Please try again (session may have expired).")
         return redirect("integrations:connect")
 
     code = request.GET.get("code")
     if not code:
+        logger.error("[Google OAuth] Callback received but no authorization code in params: %s", dict(request.GET))
         messages.error(request, "No authorization code received.")
         return redirect("integrations:connect")
 
@@ -699,19 +716,26 @@ def google_callback(request):
     company = request.company
     integration = CompanyIntegration.objects.filter(company=company, service="google").first()
     if not integration or not integration.google_client_id_enc:
+        logger.error("[Google OAuth] No credentials found for company %s", company)
         messages.error(request, "Google credentials not found. Please reconfigure.")
         return redirect("integrations:connect")
 
     try:
         client_id, client_secret = _get_company_google_creds(integration)
     except ValueError as e:
+        logger.error("[Google OAuth] Failed to decrypt credentials for company %s: %s", company, e)
         messages.error(request, str(e))
         return redirect("integrations:connect")
 
     result = exchange_google_code(code, client_id, client_secret)
+    logger.info("[Google OAuth] Token exchange response keys: %s", list(result.keys()))
 
     if "access_token" not in result:
         err_msg = result.get("error_description", result.get("error", "unknown"))
+        logger.error(
+            "[Google OAuth] Token exchange FAILED for company %s: %s — full response: %s",
+            company, err_msg, result,
+        )
         messages.error(request, f"Google token exchange failed: {err_msg}")
         return redirect("integrations:connect")
 
@@ -727,7 +751,8 @@ def google_callback(request):
         user_info = get_google_user_info(access_token)
         display_name = user_info.get("name", "")
         email = user_info.get("email", "")
-    except Exception:
+    except Exception as e:
+        logger.warning("[Google OAuth] Could not fetch user profile: %s", e)
         display_name, email = "", ""
 
     integration.access_token_enc = encrypt_token(access_token)
@@ -739,6 +764,7 @@ def google_callback(request):
     integration.status = "active"
     integration.save()
 
+    logger.info("[Google OAuth] ✓ Connected successfully for company %s — account: %s", company, email)
     messages.success(request, f"Google Workspace connected for {company.name}! ({email})")
     log_activity(request, "integration_connected", "google", f"Account: {email}")
     return redirect("integrations:connect")

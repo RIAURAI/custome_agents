@@ -103,6 +103,40 @@ body {
 }
 #sidebar .nav-link.active i { color: #a5b4fc; }
 
+/* Sidebar collapsible sections */
+.sb-section { margin-bottom: 2px; }
+.sb-toggle { position: relative; }
+.sb-toggle .sb-chevron {
+  font-size: .65rem; transition: transform .2s ease;
+  opacity: .5;
+}
+.sb-toggle[aria-expanded="true"] .sb-chevron {
+  transform: rotate(180deg);
+}
+.sb-toggle svg { width: 16px; height: 16px; }
+.sb-submenu {
+  padding-left: 14px;
+  margin-top: 2px;
+  border-left: 2px solid rgba(255,255,255,.08);
+  margin-left: 18px;
+}
+.sb-submenu .nav-link {
+  padding: 6px 10px !important;
+  font-size: .8rem !important;
+  color: rgba(255,255,255,.5) !important;
+  border-radius: 7px;
+}
+.sb-submenu .nav-link:hover {
+  color: rgba(255,255,255,.85) !important;
+  background: rgba(255,255,255,.06) !important;
+}
+.sb-submenu .nav-link.active {
+  color: #fff !important;
+  background: rgba(99,102,241,.25) !important;
+  box-shadow: none !important;
+}
+.sb-submenu .nav-link i { font-size: .82rem; width: 18px; }
+
 /* User area */
 .sidebar-user {
   border-top: 1px solid rgba(255,255,255,.07);
@@ -478,6 +512,10 @@ body {
   font-size: .65rem; font-weight: 800; letter-spacing: .04em;
   background: #6366f1; color: #fff;
   border-radius: 20px; padding: 2px 8px;
+}
+.ibx-attachment-icon {
+  display: inline-flex; align-items: center;
+  margin-left: 6px; color: #94a3b8; font-size: .78rem;
 }
 
 /* Empty state */
@@ -858,6 +896,25 @@ body {
 .int-card--connected:hover { border-color: #6ee7b7; box-shadow: 0 12px 36px rgba(16,185,129,.12); }
 .int-card--soon { border-color: #e2e8f0; }
 .int-card--soon:hover { transform: none; box-shadow: none; border-color: #e2e8f0; cursor: default; }
+
+/* Compact card (not connected) */
+.int-compact-hint { display: none; }
+.int-card--compact .int-compact-hint { display: block; }
+.int-card--compact .int-card-inner { padding: 18px 20px 16px; }
+.int-card--compact .int-card-desc { display: none; }
+.int-card--compact .int-features { display: none; }
+.int-card--compact .int-logo-box { width: 42px; height: 42px; border-radius: 10px; }
+.int-card--compact .int-card-name { font-size: .88rem; }
+.int-card--compact .int-card-sub { font-size: .7rem; }
+.int-card--compact .int-btn-connect { padding: 8px 14px !important; font-size: .8rem !important; }
+.int-card--compact .d-flex.align-items-center.gap-3.mb-4 { margin-bottom: 12px !important; }
+.int-card--compact { border-style: dashed; border-color: #cbd5e1; background: #fafbfc; }
+.int-card--compact:hover { border-color: #818cf8; background: #fff; border-style: solid; }
+
+/* Expanded card (connected) - show details with subtle glow */
+.int-card--connected .int-card-inner { padding: 22px 22px 20px; }
+.int-card--connected .int-details { display: block; }
+.int-card--connected { background: linear-gradient(135deg, #ffffff 0%, #f0fdf8 100%); }
 
 .int-card-inner {
   padding: 24px 24px 22px;

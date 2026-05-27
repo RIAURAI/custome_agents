@@ -1,0 +1,189 @@
+<!-- WhatsApp Business Connect Modal -->
+<div class="modal fade" id="whatsappConnectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content" style="border:none;border-radius:20px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.25);">
+      <div class="modal-header" style="border:none;padding:1.8rem 2.2rem 1.2rem;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);">
+        <div class="d-flex align-items-center gap-3">
+          <div style="width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#25D36620;">
+            <i class="bi bi-whatsapp" style="font-size:1.5rem;color:#25D366;"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0">Connect WhatsApp Business</h5>
+            <p class="text-muted small mb-0">Set up your AI bot with WhatsApp Business API</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="padding:1.2rem 2.2rem 2rem;">
+
+        <!-- Step-by-step guide -->
+        <div class="accordion mb-3" id="waSteps">
+
+          <div class="accordion-item" style="border:1px solid #e2e8f0;border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#wa1" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:#25D366;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">1</span>
+                Create a Meta App & Enable WhatsApp
+              </button>
+            </h2>
+            <div id="wa1" class="accordion-collapse collapse show" data-bs-parent="#waSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                1. Go to <a href="https://developers.facebook.com/apps/" target="_blank" class="fw-semibold text-success">developers.facebook.com/apps</a><br>
+                2. Click <strong>Create App</strong> → Select <strong>"Business"</strong> type → Fill in details<br>
+                3. In your App dashboard → <strong>Add Product</strong> → Choose <strong>WhatsApp</strong><br>
+                4. Follow the setup wizard and link your <strong>WhatsApp Business Account (WABA)</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item" style="border:1px solid #e2e8f0;border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#wa2" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:#6366f1;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">2</span>
+                Get Phone Number ID & WABA ID
+              </button>
+            </h2>
+            <div id="wa2" class="accordion-collapse collapse" data-bs-parent="#waSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                1. In your app → <strong>WhatsApp → Getting Started</strong><br>
+                2. Copy your <strong>Phone Number ID</strong> (e.g. <code>123456789012345</code>)<br>
+                3. Copy your <strong>WhatsApp Business Account ID</strong> (WABA ID)<br>
+                4. For production, go to <strong>Business Settings → System Users</strong> → Generate a permanent token with <code>whatsapp_business_messaging</code> permission
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item" style="border:1px solid #e2e8f0;border-radius:12px!important;margin-bottom:.5rem;overflow:hidden;">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#wa3" style="font-weight:600;font-size:.85rem;background:#fafbfc;border-radius:12px!important;">
+                <span style="width:22px;height:22px;border-radius:50%;background:#6366f1;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-right:.6rem;">3</span>
+                Configure Webhook (for AI Auto-Reply)
+              </button>
+            </h2>
+            <div id="wa3" class="accordion-collapse collapse" data-bs-parent="#waSteps">
+              <div class="accordion-body" style="font-size:.82rem;color:#475569;line-height:1.7;">
+                In your App → <strong>WhatsApp → Configuration → Webhooks</strong>:<br>
+                • <strong>Callback URL:</strong> <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">https://your-domain.com/social/webhooks/whatsapp/</code><br>
+                • <strong>Verify Token:</strong> any secret string you choose (enter it below)<br>
+                • Subscribe to: <code>messages</code><br><br>
+                <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:.65rem 1rem;">
+                  <i class="bi bi-exclamation-triangle-fill me-1" style="color:#d97706;"></i>
+                  <strong>Auto-reply requires webhook</strong> — the AI bot reads each incoming message and sends a reply on your behalf.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Credentials form -->
+        <form method="post" action="{% url 'integrations:whatsapp_save_credentials' %}" id="whatsappCredForm">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:.83rem;">Business / Account Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="account_name" placeholder="e.g. Acme Corp Support"
+                   value="{{ integrations.whatsapp.account_name|default:'' }}" required
+                   style="border-radius:10px;font-size:.85rem;">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:.83rem;">Access Token (Permanent) <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <input type="password" class="form-control" name="access_token" id="waAccessToken"
+                     placeholder="EAAxxxxx... (permanent system user token)"
+                     style="border-radius:10px 0 0 10px;font-size:.85rem;" required>
+              <button class="btn btn-outline-secondary" type="button" onclick="toggleWaToken()"
+                      style="border-radius:0 10px 10px 0;font-size:.82rem;">
+                <i class="bi bi-eye" id="waTokenEye"></i>
+              </button>
+            </div>
+            <div class="form-text" style="font-size:.75rem;">From Meta Business Settings → System Users → Generate Token</div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold" style="font-size:.83rem;">Phone Number ID <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="phone_number_id"
+                     placeholder="e.g. 123456789012345"
+                     value="{{ integrations.whatsapp.phone_number_id|default:'' }}"
+                     style="border-radius:10px;font-size:.85rem;" required>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold" style="font-size:.83rem;">WABA ID (Business Account ID)</label>
+              <input type="text" class="form-control" name="waba_id"
+                     placeholder="e.g. 987654321098765"
+                     value="{{ integrations.whatsapp.waba_id|default:'' }}"
+                     style="border-radius:10px;font-size:.85rem;">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:.83rem;">Webhook Verify Token</label>
+            <input type="text" class="form-control" name="webhook_secret"
+                   placeholder="Your custom verify token (matches what you set in Meta)"
+                   value="{{ integrations.whatsapp.webhook_secret|default:'' }}"
+                   style="border-radius:10px;font-size:.85rem;">
+            <div class="form-text" style="font-size:.75rem;">Required for incoming messages (AI auto-reply)</div>
+          </div>
+
+          <!-- AI Bot Permissions -->
+          <div class="mb-4 p-3" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;">
+            <div class="fw-semibold mb-2" style="font-size:.85rem;color:#1e1b4b;">
+              <i class="bi bi-robot me-2" style="color:#6366f1;"></i>AI Bot Permissions
+            </div>
+            <div class="d-flex flex-column gap-2">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="can_read_messages" id="waReadMessages"
+        now muej google work space  m muej eh impalcmentkrnah ki jo  gmail jati mere   chek krnah google work spcae ka acocutnko conent rkenjsismere gmail etc  ka sb  yha es prejct chalnachiymeujlsitign showhoncie chiaye ksi amilgyi h or ksi amil aayi h   muej whats ki shwokrnah deytasils  krna h  make th code kro                    {% if not integrations.whatsapp or integrations.whatsapp.can_read_messages %}checked{% endif %}>
+                <label class="form-check-label" for="waReadMessages" style="font-size:.83rem;">
+                  <strong>Read Messages</strong> — AI bot can read incoming WhatsApp messages
+                </label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="can_auto_reply" id="waAutoReply"
+                       {% if integrations.whatsapp and integrations.whatsapp.can_auto_reply %}checked{% endif %}>
+                <label class="form-check-label" for="waAutoReply" style="font-size:.83rem;">
+                  <strong>AI Auto-Reply</strong> — Bot automatically generates and sends smart replies on your behalf
+                </label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="can_send_messages" id="waSendMessages"
+                       {% if integrations.whatsapp and integrations.whatsapp.can_send_messages %}checked{% endif %}>
+                <label class="form-check-label" for="waSendMessages" style="font-size:.83rem;">
+                  <strong>Manual Send</strong> — Allow sending messages manually from WorkHub
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary flex-shrink-0" data-bs-dismiss="modal"
+                    style="border-radius:10px;font-size:.85rem;">
+              Cancel
+            </button>
+            <button type="submit" class="btn flex-grow-1 fw-semibold"
+                    style="background:#25D366;color:#fff;border-radius:10px;font-size:.85rem;border:none;">
+              <i class="bi bi-whatsapp me-2"></i>Save & Connect WhatsApp
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleWaToken() {
+  var input = document.getElementById('waAccessToken');
+  var eye = document.getElementById('waTokenEye');
+  if (input.type === 'password') {
+    input.type = 'text';
+    eye.className = 'bi bi-eye-slash';
+  } else {
+    input.type = 'password';
+    eye.className = 'bi bi-eye';
+  }
+}
+</script>  
