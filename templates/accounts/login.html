@@ -6,9 +6,8 @@
   <div style="width:100%;max-width:420px;position:relative;z-index:1;">
 
     <div class="text-center mb-5">
-      <div class="d-inline-flex align-items-center justify-content-center mb-3"
-           style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 8px 24px rgba(99,102,241,.4);">
-        <i class="bi bi-grid-fill text-white fs-5"></i>
+      <div class="auth-brand-icon">
+        <i data-lucide="layout-grid" class="lucide"></i>
       </div>
       <h2 class="text-white fw-bold mb-1" style="letter-spacing:-.03em;">WorkHub</h2>
       <p class="mb-0" style="color:rgba(255,255,255,.5);font-size:.875rem;">Your unified business workspace</p>
@@ -38,7 +37,7 @@
           <div class="alert alert-danger py-2 small">{{ form.non_field_errors|join:", " }}</div>
         {% endif %}
         <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
-          <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+          <i data-lucide="log-in" class="lucide me-2"></i>Sign In
         </button>
       </form>
 

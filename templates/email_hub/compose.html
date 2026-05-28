@@ -5,13 +5,13 @@
 {% block content %}
 <div class="page-header mb-4">
   <div class="d-flex align-items-center gap-2">
-    <div style="width:32px;height:32px;border-radius:9px;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
-      <i class="bi bi-pencil-square" style="color:#6366f1;"></i>
+    <div style="width:32px;height:32px;border-radius:9px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;">
+      <i data-lucide="pencil" class="lucide" style="color:var(--primary);"></i>
     </div>
     <h5 class="mb-0" style="font-size:.95rem;">New Email</h5>
   </div>
   <a href="{% url 'email_hub:inbox' %}" class="btn btn-sm btn-outline-secondary">
-    <i class="bi bi-arrow-left me-1"></i>Back to Inbox
+    <i data-lucide="arrow-left" class="lucide me-1"></i>Back to Inbox
   </a>
 </div>
 
@@ -40,7 +40,7 @@
           </div>
           <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary px-4">
-              <i class="bi bi-send me-2"></i>Send
+              <i data-lucide="send" class="lucide me-2"></i>Send
             </button>
             <a href="{% url 'email_hub:inbox' %}" class="btn btn-outline-secondary">Cancel</a>
           </div>

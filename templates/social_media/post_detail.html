@@ -55,7 +55,7 @@
           {% if post.media_url %}
           <div class="mb-4">
             <a href="{{ post.media_url }}" target="_blank" class="btn btn-sm btn-outline-primary" style="border-radius:8px;">
-              <i class="bi bi-image me-1"></i>View Media
+              <i data-lucide="image" class="lucide me-1"></i>View Media
             </a>
           </div>
           {% endif %}
@@ -82,7 +82,7 @@
             <form method="post" action="{% url 'social_media:delete_post' post.pk %}">
               {% csrf_token %}
               <button class="btn btn-outline-danger" style="border-radius:10px;">
-                <i class="bi bi-trash me-1"></i>Delete Draft
+                <i data-lucide="trash-2" class="lucide me-1"></i>Delete Draft
               </button>
             </form>
           </div>

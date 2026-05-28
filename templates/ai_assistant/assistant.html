@@ -11,7 +11,7 @@
       <div class="ai-hero-glow"></div>
       <div class="d-flex align-items-center gap-3 mb-3">
         <div class="ai-hero-icon">
-          <i class="bi bi-robot"></i>
+          <i data-lucide="bot" class="lucide"></i>
         </div>
         <div>
           <h5 class="ai-hero-title">AI Assistant</h5>
@@ -19,16 +19,16 @@
         </div>
       </div>
       <div class="ai-hero-chips">
-        <span class="ai-chip"><i class="bi bi-lightning-charge-fill me-1"></i>Instant Results</span>
-        <span class="ai-chip"><i class="bi bi-lock-fill me-1"></i>Private &amp; Secure</span>
-        <span class="ai-chip"><i class="bi bi-lightbulb-fill me-1"></i>Context-Aware</span>
+        <span class="ai-chip"><i data-lucide="zap" class="lucide me-1"></i>Instant Results</span>
+        <span class="ai-chip"><i data-lucide="lock" class="lucide me-1"></i>Private &amp; Secure</span>
+        <span class="ai-chip"><i data-lucide="lightbulb" class="lucide me-1"></i>Context-Aware</span>
       </div>
     </div>
 
     <!-- Input card -->
     <div class="ai-input-card mb-4">
       <div class="ai-input-header">
-        <i class="bi bi-envelope-open-fill"></i>
+        <i data-lucide="mail-open" class="lucide"></i>
         <span>Paste email content</span>
       </div>
       <textarea id="email-input" class="ai-textarea" rows="9"
@@ -36,13 +36,13 @@
       <div class="ai-actions">
         <div class="d-flex gap-2 flex-wrap">
           <button class="btn ai-btn-primary" onclick="triggerAI('summarize')">
-            <i class="bi bi-file-earmark-text me-2"></i>Summarize
+            <i data-lucide="file-text" class="lucide me-2"></i>Summarize
           </button>
           <button class="btn ai-btn-secondary" onclick="triggerAI('reply')">
-            <i class="bi bi-send me-2"></i>Generate Reply
+            <i data-lucide="send" class="lucide me-2"></i>Generate Reply
           </button>
         </div>
-        <span class="ai-hint"><i class="bi bi-arrow-down-circle-fill me-1"></i>Result appears below</span>
+        <span class="ai-hint"><i data-lucide="arrow-down-circle" class="lucide me-1"></i>Result appears below</span>
       </div>
     </div>
 
@@ -50,11 +50,11 @@
     <div id="ai-response-box" class="ai-response-card d-none">
       <div class="ai-response-header">
         <div class="d-flex align-items-center gap-2">
-          <div class="ai-response-icon"><i class="bi bi-robot"></i></div>
+          <div class="ai-response-icon"><i data-lucide="bot" class="lucide"></i></div>
           <span class="ai-response-title">AI Response</span>
         </div>
         <button class="btn ai-copy-btn" onclick="copyResult()">
-          <i class="bi bi-clipboard2 me-1"></i>Copy
+          <i data-lucide="clipboard" class="lucide me-1"></i>Copy
         </button>
       </div>
       <div class="ai-response-body">
@@ -82,8 +82,8 @@ function copyResult() {
   const text = document.getElementById("ai-content").textContent;
   navigator.clipboard.writeText(text).then(() => {
     const btn = event.target.closest("button");
-    btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Copied!';
-    setTimeout(() => btn.innerHTML = '<i class="bi bi-clipboard2 me-1"></i>Copy', 1500);
+    btn.innerHTML = '<i data-lucide="check-circle-2" class="lucide me-1"></i>Copied!';
+    setTimeout(() => btn.innerHTML = '<i data-lucide="clipboard" class="lucide me-1"></i>Copy', 1500);
   });
 }
 </script>

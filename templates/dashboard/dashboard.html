@@ -11,7 +11,7 @@
     <p class="dash-greeting-sub">Here’s your workspace summary for today</p>
   </div>
   <div class="dash-greeting-date">
-    <i class="bi bi-calendar3 me-2"></i>{% now "N j, Y" %}
+    <i data-lucide="calendar" class="lucide me-2"></i>{% now "N j, Y" %}
   </div>
 </div>
 
@@ -24,14 +24,14 @@
     <div class="dash-connect-sub">Unlock Outlook inbox, Teams meetings, and calendar sync directly in WorkHub.</div>
   </div>
   <a href="{% url 'integrations:microsoft_connect' %}" class="btn dash-connect-btn flex-shrink-0">
-    <i class="bi bi-box-arrow-in-right me-2"></i>Connect Now
+    <i data-lucide="log-in" class="lucide me-2"></i>Connect Now
   </a>
 </div>
 {% endif %}
 
 {% if graph_error %}
 <div class="alert alert-warning mb-4" style="font-size:.85rem;border-radius:12px;">
-  <i class="bi bi-exclamation-triangle me-2"></i>{{ graph_error }}
+  <i data-lucide="triangle-alert" class="lucide me-2"></i>{{ graph_error }}
 </div>
 {% endif %}
 
@@ -41,36 +41,36 @@
   <div class="col-6 col-lg-3 d-flex flex-column">
     <div class="dash-stat dash-stat--indigo flex-grow-1">
       <div class="dash-stat-top">
-        <div class="dash-stat-icon"><i class="bi bi-envelope-fill"></i></div>
-        {% if ms_connected %}<span class="dash-stat-trend"><i class="bi bi-circle-fill me-1"></i>Live</span>{% endif %}
+        <div class="dash-stat-icon"><i data-lucide="mail" class="lucide"></i></div>
+        {% if ms_connected %}<span class="dash-stat-trend"><i data-lucide="circle" class="lucide me-1"></i>Live</span>{% endif %}
       </div>
       <div class="dash-stat-num">{{ unread_count|default:"0" }}</div>
       <div class="dash-stat-label">Unread Emails</div>
-      <a href="{% url 'email_hub:inbox' %}" class="dash-stat-link">Open Inbox <i class="bi bi-arrow-right"></i></a>
+      <a href="{% url 'email_hub:inbox' %}" class="dash-stat-link">Open Inbox <i data-lucide="arrow-right" class="lucide"></i></a>
     </div>
   </div>
 
   <div class="col-6 col-lg-3 d-flex flex-column">
     <div class="dash-stat dash-stat--emerald flex-grow-1">
       <div class="dash-stat-top">
-        <div class="dash-stat-icon"><i class="bi bi-calendar-check-fill"></i></div>
-        {% if ms_connected %}<span class="dash-stat-trend"><i class="bi bi-circle-fill me-1"></i>Live</span>{% endif %}
+        <div class="dash-stat-icon"><i data-lucide="calendar-check" class="lucide"></i></div>
+        {% if ms_connected %}<span class="dash-stat-trend"><i data-lucide="circle" class="lucide me-1"></i>Live</span>{% endif %}
       </div>
       <div class="dash-stat-num">{{ upcoming_meetings|length|default:"0" }}</div>
       <div class="dash-stat-label">Meetings Today</div>
-      <a href="{% url 'meetings:list' %}" class="dash-stat-link">View Schedule <i class="bi bi-arrow-right"></i></a>
+      <a href="{% url 'meetings:list' %}" class="dash-stat-link">View Schedule <i data-lucide="arrow-right" class="lucide"></i></a>
     </div>
   </div>
 
   <div class="col-6 col-lg-3 d-flex flex-column">
     <div class="dash-stat dash-stat--violet flex-grow-1">
       <div class="dash-stat-top">
-        <div class="dash-stat-icon"><i class="bi bi-stars"></i></div>
+        <div class="dash-stat-icon"><i data-lucide="sparkles" class="lucide"></i></div>
         <span class="dash-stat-trend">Ready</span>
       </div>
       <div class="dash-stat-num" style="font-size:2rem;">AI</div>
       <div class="dash-stat-label">Assistant</div>
-      <a href="{% url 'ai_assistant:home' %}" class="dash-stat-link">Open Chat <i class="bi bi-arrow-right"></i></a>
+      <a href="{% url 'ai_assistant:home' %}" class="dash-stat-link">Open Chat <i data-lucide="arrow-right" class="lucide"></i></a>
     </div>
   </div>
 
@@ -79,9 +79,9 @@
       <div class="dash-stat-top">
         {% if ms_connected %}
         <div class="dash-stat-icon dash-stat-icon--sky"><i class="bi bi-microsoft"></i></div>
-        <span class="dash-stat-trend dash-stat-trend--connected"><i class="bi bi-check-circle-fill me-1"></i>Active</span>
+        <span class="dash-stat-trend dash-stat-trend--connected"><i data-lucide="check-circle" class="lucide me-1"></i>Active</span>
         {% else %}
-        <div class="dash-stat-icon dash-stat-icon--slate"><i class="bi bi-plug"></i></div>
+        <div class="dash-stat-icon dash-stat-icon--slate"><i data-lucide="plug" class="lucide"></i></div>
         <span class="dash-stat-trend dash-stat-trend--off">Offline</span>
         {% endif %}
       </div>
@@ -89,7 +89,7 @@
         {% if ms_connected %}365{% else %}—{% endif %}
       </div>
       <div class="dash-stat-label">Microsoft 365</div>
-      <a href="{% url 'integrations:connect' %}" class="dash-stat-link">Manage <i class="bi bi-arrow-right"></i></a>
+      <a href="{% url 'integrations:connect' %}" class="dash-stat-link">Manage <i data-lucide="arrow-right" class="lucide"></i></a>
     </div>
   </div>
 
@@ -103,10 +103,10 @@
     <div class="dash-panel h-100">
       <div class="dash-panel-header">
         <div class="d-flex align-items-center gap-2">
-          <div class="dash-panel-icon dash-panel-icon--indigo"><i class="bi bi-envelope"></i></div>
+          <div class="dash-panel-icon dash-panel-icon--indigo"><i data-lucide="mail" class="lucide"></i></div>
           <span class="dash-panel-title">Recent Emails</span>
         </div>
-        <a href="{% url 'email_hub:inbox' %}" class="dash-view-all">View All <i class="bi bi-arrow-right"></i></a>
+        <a href="{% url 'email_hub:inbox' %}" class="dash-view-all">View All <i data-lucide="arrow-right" class="lucide"></i></a>
       </div>
       <div class="dash-panel-body">
         {% if recent_emails %}
@@ -128,7 +128,7 @@
           {% endfor %}
         {% else %}
           <div class="dash-empty">
-            <div class="dash-empty-icon"><i class="bi bi-inbox"></i></div>
+            <div class="dash-empty-icon"><i data-lucide="inbox" class="lucide"></i></div>
             <div class="dash-empty-text">
               {% if not ms_connected %}No emails yet — connect Microsoft to get started{% else %}Your inbox is empty{% endif %}
             </div>
@@ -146,10 +146,10 @@
     <div class="dash-panel h-100">
       <div class="dash-panel-header">
         <div class="d-flex align-items-center gap-2">
-          <div class="dash-panel-icon dash-panel-icon--emerald"><i class="bi bi-camera-video"></i></div>
+          <div class="dash-panel-icon dash-panel-icon--emerald"><i data-lucide="video" class="lucide"></i></div>
           <span class="dash-panel-title">Upcoming Meetings</span>
         </div>
-        <a href="{% url 'meetings:list' %}" class="dash-view-all">View All <i class="bi bi-arrow-right"></i></a>
+        <a href="{% url 'meetings:list' %}" class="dash-view-all">View All <i data-lucide="arrow-right" class="lucide"></i></a>
       </div>
       <div class="dash-panel-body">
         {% if upcoming_meetings %}
@@ -160,7 +160,7 @@
               <div class="dash-meeting-title">{{ meeting.subject|default:"(no title)"|truncatechars:45 }}</div>
               {% if meeting.onlineMeeting.joinUrl %}
               <a href="{{ meeting.onlineMeeting.joinUrl }}" target="_blank" rel="noopener noreferrer" class="dash-join-btn">
-                <i class="bi bi-camera-video-fill me-1"></i>Join
+                <i data-lucide="video" class="lucide me-1"></i>Join
               </a>
               {% endif %}
             </div>
@@ -168,7 +168,7 @@
           {% endfor %}
         {% else %}
           <div class="dash-empty">
-            <div class="dash-empty-icon"><i class="bi bi-calendar-check"></i></div>
+            <div class="dash-empty-icon"><i data-lucide="calendar-check" class="lucide"></i></div>
             <div class="dash-empty-text">No meetings scheduled today</div>
           </div>
         {% endif %}

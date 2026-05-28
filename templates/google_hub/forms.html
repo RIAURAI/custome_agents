@@ -5,10 +5,10 @@
 {% block content %}
 <div class="d-flex align-items-center gap-3 mb-4">
   <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#9333ea);display:flex;align-items:center;justify-content:center;">
-    <i class="bi bi-ui-checks text-white" style="font-size:1.1rem;"></i>
+    <i data-lucide="clipboard-list" class="lucide text-white" style="font-size:1.1rem;"></i>
   </div>
   <div>
-    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">Google Forms</h4>
+    <h4 class="mb-0 fw-bold" style="color:var(--ink-dark);letter-spacing:-.02em;">Google Forms</h4>
     <p class="mb-0" style="color:#64748b;font-size:.85rem;">Create and manage your Google Forms surveys</p>
   </div>
 </div>
@@ -20,18 +20,18 @@
     <div class="dash-connect-title">Connect Google Workspace</div>
     <div class="dash-connect-sub">Enable Google Forms to manage surveys and responses.</div>
   </div>
-  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Connect</a>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i data-lucide="plug" class="lucide me-2"></i>Connect</a>
 </div>
 {% else %}
 
 <!-- Workspace nav -->
 <div class="d-flex gap-2 mb-4 flex-wrap">
-  <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:20px;font-size:.78rem;"><i class="bi bi-envelope me-1"></i>Gmail</a>
-  <a href="{% url 'google_hub:drive' %}" class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:20px;font-size:.78rem;"><i class="bi bi-cloud me-1"></i>Drive</a>
-  <a href="{% url 'google_hub:docs' %}" class="btn btn-sm" style="background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;font-size:.78rem;"><i class="bi bi-file-earmark-text me-1"></i>Docs</a>
-  <a href="{% url 'google_hub:sheets' %}" class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:20px;font-size:.78rem;"><i class="bi bi-table me-1"></i>Sheets</a>
-  <span class="btn btn-sm" style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;border:none;border-radius:20px;font-size:.78rem;"><i class="bi bi-ui-checks me-1"></i>Forms</span>
-  <a href="{% url 'google_hub:calendar' %}" class="btn btn-sm" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:20px;font-size:.78rem;"><i class="bi bi-calendar3 me-1"></i>Calendar</a>
+  <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:20px;font-size:.78rem;"><i data-lucide="mail" class="lucide"></i>Gmail</a>
+  <a href="{% url 'google_hub:drive' %}" class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:20px;font-size:.78rem;"><i data-lucide="cloud" class="lucide"></i>Drive</a>
+  <a href="{% url 'google_hub:docs' %}" class="btn btn-sm" style="background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;font-size:.78rem;"><i data-lucide="file-text" class="lucide"></i>Docs</a>
+  <a href="{% url 'google_hub:sheets' %}" class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:20px;font-size:.78rem;"><i data-lucide="table" class="lucide"></i>Sheets</a>
+  <span class="btn btn-sm" style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;border:none;border-radius:20px;font-size:.78rem;"><i data-lucide="clipboard-list" class="lucide"></i>Forms</span>
+  <a href="{% url 'google_hub:calendar' %}" class="btn btn-sm" style="background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-pale);border-radius:20px;font-size:.78rem;"><i data-lucide="calendar" class="lucide"></i>Calendar</a>
 </div>
 
 <!-- Toolbar -->
@@ -41,13 +41,13 @@
       <div class="input-group" style="max-width:320px;">
         <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search forms…" style="border-radius:8px 0 0 8px;font-size:.8rem;">
         <button class="btn btn-sm" id="searchBtn" style="background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff;border-radius:0 8px 8px 0;">
-          <i class="bi bi-search"></i>
+          <i data-lucide="search" class="lucide"></i>
         </button>
       </div>
     </div>
     <button class="btn btn-sm" id="newFormBtn"
             style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;">
-      <i class="bi bi-plus-circle me-1"></i>New Form
+      <i data-lucide="circle-plus" class="lucide"></i>New Form
     </button>
   </div>
 </div>
@@ -80,7 +80,7 @@
         <button class="btn btn-sm" data-bs-dismiss="modal" style="border-radius:8px;">Cancel</button>
         <button class="btn btn-sm" id="createFormBtn"
                 style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;border:none;border-radius:8px;font-weight:600;">
-          <i class="bi bi-plus me-1"></i>Create
+          <i data-lucide="plus" class="lucide"></i>Create
         </button>
       </div>
     </div>
@@ -103,7 +103,7 @@ function loadForms(q) {
       if (data.error) { grid.innerHTML = `<div class="col-12 text-center py-4 text-danger">${data.error}</div>`; return; }
       const forms = data.forms || [];
       if (!forms.length) {
-        grid.innerHTML = '<div class="col-12 text-center py-5 text-muted"><i class="bi bi-ui-checks" style="font-size:2rem;opacity:.3;"></i><p class="mt-2">No forms found. Create your first form!</p></div>';
+        grid.innerHTML = '<div class="col-12 text-center py-5 text-muted"><i data-lucide="clipboard-list" class="lucide" style="font-size:2rem;opacity:.3;"></i><p class="mt-2">No forms found. Create your first form!</p></div>';
         return;
       }
       grid.innerHTML = forms.map(f => {
@@ -116,7 +116,7 @@ function loadForms(q) {
             <div class="card-body p-4">
               <div class="d-flex align-items-start gap-3 mb-3">
                 <div style="background:linear-gradient(135deg,#7c3aed,#9333ea);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                  <i class="bi bi-ui-checks text-white"></i>
+                  <i data-lucide="clipboard-list" class="lucide text-white"></i>
                 </div>
                 <div class="flex-grow-1 min-w-0">
                   <div class="fw-semibold text-truncate" style="color:#1e293b;">${f.name}</div>
@@ -124,12 +124,12 @@ function loadForms(q) {
                 </div>
               </div>
               <div class="text-muted mb-3" style="font-size:.75rem;">
-                <i class="bi bi-clock me-1"></i>Modified ${modified}
+                <i data-lucide="clock" class="lucide"></i>Modified ${modified}
               </div>
               <a href="${f.webViewLink}" target="_blank" rel="noopener"
                  class="btn btn-sm w-100"
                  style="background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff;border-radius:8px;font-size:.78rem;font-weight:600;">
-                <i class="bi bi-box-arrow-up-right me-1"></i>Open Form
+                <i data-lucide="external-link" class="lucide"></i>Open Form
               </a>
             </div>
           </div>
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('newFormMsg').innerHTML = `<div class="alert alert-danger py-1" style="font-size:.8rem;">${data.error}</div>`;
       }
     })
-    .finally(() => { this.disabled = false; this.innerHTML = '<i class="bi bi-plus me-1"></i>Create'; });
+    .finally(() => { this.disabled = false; this.innerHTML = '<i data-lucide="plus" class="lucide"></i>Create'; });
   });
 });
 </script>

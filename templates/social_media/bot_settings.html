@@ -33,7 +33,7 @@
 
   .empty-state {
     text-align: center; padding: 3rem 1rem;
-    background: linear-gradient(135deg, #f8fafc, #eef2ff); border-radius: 16px;
+    background: linear-gradient(135deg, #f8fafc, var(--primary-light)); border-radius: 16px;
   }
   .empty-state i { font-size: 3rem; color: #94a3b8; }
 </style>
@@ -45,15 +45,15 @@
   <!-- Hero -->
   <div class="bot-hero d-flex flex-wrap justify-content-between align-items-center">
     <div>
-      <h2 class="mb-1"><i class="bi bi-robot me-2"></i>AI Bot Settings</h2>
+      <h2 class="mb-1"><i data-lucide="bot" class="lucide me-2"></i>AI Bot Settings</h2>
       <p>Configure auto-reply rules for your social media accounts.</p>
     </div>
     <div class="d-flex gap-2 mt-2 mt-md-0">
       <a href="{% url 'social_media:bot_analytics' %}" class="btn btn-outline-light" style="border-radius:10px;">
-        <i class="bi bi-graph-up me-1"></i>Analytics
+        <i data-lucide="trending-up" class="lucide me-1"></i>Analytics
       </a>
       <a href="{% url 'social_media:create_bot_rule' %}" class="btn btn-light text-dark fw-semibold" style="border-radius:10px;">
-        <i class="bi bi-plus-lg me-1"></i>New Rule
+        <i data-lucide="plus" class="lucide me-1"></i>New Rule
       </a>
     </div>
   </div>
@@ -77,15 +77,15 @@
 
       <!-- Scope Tags -->
       <div class="d-flex gap-1 flex-wrap">
-        {% if rule.reply_to_dms %}<span class="scope-tag"><i class="bi bi-envelope-fill me-1"></i>DMs</span>{% endif %}
-        {% if rule.reply_to_comments %}<span class="scope-tag"><i class="bi bi-chat-fill me-1"></i>Comments</span>{% endif %}
-        {% if rule.reply_to_groups %}<span class="scope-tag"><i class="bi bi-people-fill me-1"></i>Groups</span>{% endif %}
+        {% if rule.reply_to_dms %}<span class="scope-tag"><i data-lucide="mail" class="lucide me-1"></i>DMs</span>{% endif %}
+        {% if rule.reply_to_comments %}<span class="scope-tag"><i data-lucide="message-circle" class="lucide me-1"></i>Comments</span>{% endif %}
+        {% if rule.reply_to_groups %}<span class="scope-tag"><i data-lucide="users" class="lucide me-1"></i>Groups</span>{% endif %}
       </div>
 
       <!-- Auto Send -->
       {% if rule.auto_send %}
       <span class="badge bg-warning bg-opacity-10 text-warning fw-semibold" style="border-radius:8px; padding:.4rem .7rem;">
-        <i class="bi bi-lightning-fill me-1"></i>Auto
+        <i data-lucide="zap" class="lucide me-1"></i>Auto
       </span>
       {% else %}
       <span class="badge bg-secondary bg-opacity-10 text-secondary fw-semibold" style="border-radius:8px; padding:.4rem .7rem;">Manual</span>
@@ -103,12 +103,12 @@
       <!-- Actions -->
       <div class="d-flex gap-1">
         <a href="{% url 'social_media:edit_bot_rule' rule.pk %}" class="btn btn-sm btn-outline-primary" style="border-radius:8px;" title="Edit">
-          <i class="bi bi-pencil"></i>
+          <i data-lucide="pencil" class="lucide"></i>
         </a>
         <form method="post" action="{% url 'social_media:delete_bot_rule' rule.pk %}" class="d-inline">
           {% csrf_token %}
           <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" title="Delete">
-            <i class="bi bi-trash"></i>
+            <i data-lucide="trash-2" class="lucide"></i>
           </button>
         </form>
       </div>
@@ -118,11 +118,11 @@
 
   {% else %}
   <div class="empty-state">
-    <i class="bi bi-robot"></i>
+    <i data-lucide="bot" class="lucide"></i>
     <h5 class="mt-3 fw-bold">No auto-reply rules configured</h5>
     <p class="text-muted mb-3">Create your first rule to let AI handle incoming messages.</p>
     <a href="{% url 'social_media:create_bot_rule' %}" class="btn btn-primary" style="border-radius:10px;">
-      <i class="bi bi-plus-lg me-1"></i>Create First Rule
+      <i data-lucide="plus" class="lucide me-1"></i>Create First Rule
     </a>
   </div>
   {% endif %}
@@ -130,7 +130,7 @@
   <!-- Webhook Info -->
   <div class="card border-0 shadow-sm mt-4" style="border-radius:16px; overflow:hidden;">
     <div class="card-header bg-white py-3 px-4" style="border-bottom: 2px solid #f1f5f9;">
-      <h5 class="mb-0 fw-bold"><i class="bi bi-link-45deg me-2 text-muted"></i>Webhook Endpoints</h5>
+      <h5 class="mb-0 fw-bold"><i data-lucide="link" class="lucide me-2 text-muted"></i>Webhook Endpoints</h5>
     </div>
     <div class="card-body p-4">
       <p class="text-muted small mb-3">Configure these URLs in each platform's developer settings.</p>

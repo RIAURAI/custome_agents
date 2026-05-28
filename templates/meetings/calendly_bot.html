@@ -202,11 +202,11 @@
   <!-- Not Connected State -->
   <div class="clb-card">
     <div class="clb-not-connected">
-      <i class="bi bi-calendar-x"></i>
+      <i data-lucide="calendar-x" class="lucide"></i>
       <h4 class="fw-bold" style="color:#1e293b;">Calendly Not Connected</h4>
       <p class="mt-2">Connect your Calendly account to use the scheduling bot, view upcoming meetings, and manage your calendar.</p>
       <a href="{% url 'integrations:connect' %}" class="btn btn-primary mt-3">
-        <i class="bi bi-plug me-2"></i>Connect Calendly
+        <i data-lucide="plug" class="lucide me-2"></i>Connect Calendly
       </a>
     </div>
   </div>
@@ -217,16 +217,16 @@
   <div class="clb-card mb-4">
     <div class="clb-user-info">
       <div class="clb-avatar">
-        {% if user_info.name %}{{ user_info.name|first|upper }}{% else %}<i class="bi bi-person"></i>{% endif %}
+        {% if user_info.name %}{{ user_info.name|first|upper }}{% else %}<i data-lucide="user" class="lucide"></i>{% endif %}
       </div>
       <div>
         <div class="clb-user-name">{{ user_info.name|default:"Calendly Account" }}</div>
         <div class="clb-user-email">{{ user_info.email|default:"" }}</div>
-        {% if user_info.timezone %}<div class="clb-user-tz"><i class="bi bi-globe me-1"></i>{{ user_info.timezone }}</div>{% endif %}
+        {% if user_info.timezone %}<div class="clb-user-tz"><i data-lucide="globe" class="lucide me-1"></i>{{ user_info.timezone }}</div>{% endif %}
       </div>
       <div class="ms-auto">
         <span style="font-size:.75rem;background:#dcfce7;color:#166534;border-radius:20px;padding:4px 12px;font-weight:500;">
-          <i class="bi bi-check-circle-fill me-1"></i>Active
+          <i data-lucide="check-circle" class="lucide me-1"></i>Active
         </span>
       </div>
     </div>
@@ -235,7 +235,7 @@
 
   {% if error %}
   <div class="alert alert-warning mb-4" style="border-radius:12px;font-size:.85rem;">
-    <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+    <i data-lucide="triangle-alert" class="lucide me-2"></i>{{ error }}
   </div>
   {% endif %}
 
@@ -247,7 +247,7 @@
       <!-- Upcoming Meetings -->
       <div class="clb-card mb-4">
         <div class="clb-card-header">
-          <i class="bi bi-calendar-check" style="color:#006bff;"></i>
+          <i data-lucide="calendar-check" class="lucide" style="color:#006bff;"></i>
           <h6>Upcoming Meetings</h6>
           <span class="ms-auto" style="font-size:.72rem;color:#64748b;">Next 7 days</span>
         </div>
@@ -267,7 +267,7 @@
             {% endfor %}
           {% else %}
             <div class="clb-empty">
-              <i class="bi bi-calendar2 d-block mb-2" style="font-size:1.5rem;"></i>
+              <i data-lucide="calendar" class="lucide d-block mb-2" style="font-size:1.5rem;"></i>
               No upcoming meetings
             </div>
           {% endif %}
@@ -277,7 +277,7 @@
       <!-- Event Types -->
       <div class="clb-card">
         <div class="clb-card-header">
-          <i class="bi bi-bookmark" style="color:#6366f1;"></i>
+          <i data-lucide="bookmark" class="lucide" style="color:var(--primary);"></i>
           <h6>Meeting Types</h6>
         </div>
         <div class="clb-card-body">
@@ -285,7 +285,7 @@
             <div class="d-flex flex-wrap">
               {% for et in event_types %}
               <div class="clb-etype">
-                <i class="bi bi-calendar-plus"></i>
+                <i data-lucide="calendar-plus" class="lucide"></i>
                 {{ et.name }}
                 <span class="clb-etype-dur">{{ et.duration }} min</span>
               </div>
@@ -293,7 +293,7 @@
             </div>
           {% else %}
             <div class="clb-empty">
-              <i class="bi bi-bookmark-x d-block mb-2" style="font-size:1.5rem;"></i>
+              <i data-lucide="bookmark-x" class="lucide d-block mb-2" style="font-size:1.5rem;"></i>
               No event types found
             </div>
           {% endif %}
@@ -305,7 +305,7 @@
     <div>
       <div class="clb-card">
         <div class="clb-card-header">
-          <i class="bi bi-robot" style="color:#006bff;"></i>
+          <i data-lucide="bot" class="lucide" style="color:#006bff;"></i>
           <h6>Scheduling Assistant</h6>
           <span class="ms-auto" style="font-size:.7rem;background:#dcfce7;color:#166534;border-radius:12px;padding:2px 8px;">Online</span>
         </div>
@@ -328,7 +328,7 @@
           </div>
           <div class="clb-input-row">
             <input type="text" class="clb-input" id="clbInput" placeholder="Ask me to schedule, check availability..." autocomplete="off" />
-            <button class="clb-send" id="clbSendBtn" title="Send"><i class="bi bi-send-fill"></i></button>
+            <button class="clb-send" id="clbSendBtn" title="Send"><i data-lucide="send" class="lucide"></i></button>
           </div>
         </div>
       </div>

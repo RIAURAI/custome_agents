@@ -73,7 +73,7 @@
 
   <div class="rule-form-card card">
     <div class="rule-form-header">
-      <h5><i class="bi bi-pencil-square me-2"></i>Edit Auto-Reply Rule</h5>
+      <h5><i data-lucide="pencil" class="lucide me-2"></i>Edit Auto-Reply Rule</h5>
       <p>Update your bot's behavior and response settings</p>
     </div>
     <div class="rule-form-body">
@@ -123,17 +123,17 @@
         <div class="d-flex gap-2 mb-3 flex-wrap">
           <label class="scope-option">
             <input class="form-check-input" type="checkbox" name="reply_to_dms" {% if rule.reply_to_dms %}checked{% endif %}>
-            <i class="bi bi-envelope-fill text-muted"></i>
+            <i data-lucide="mail" class="lucide text-muted"></i>
             <span class="small fw-semibold">DMs</span>
           </label>
           <label class="scope-option">
             <input class="form-check-input" type="checkbox" name="reply_to_comments" {% if rule.reply_to_comments %}checked{% endif %}>
-            <i class="bi bi-chat-fill text-muted"></i>
+            <i data-lucide="message-circle" class="lucide text-muted"></i>
             <span class="small fw-semibold">Comments</span>
           </label>
           <label class="scope-option">
             <input class="form-check-input" type="checkbox" name="reply_to_groups" {% if rule.reply_to_groups %}checked{% endif %}>
-            <i class="bi bi-people-fill text-muted"></i>
+            <i data-lucide="users" class="lucide text-muted"></i>
             <span class="small fw-semibold">Groups</span>
           </label>
         </div>
@@ -160,7 +160,7 @@
 
         <div class="d-flex gap-2 mt-4">
           <button type="submit" class="btn btn-submit">
-            <i class="bi bi-check-lg me-1"></i>Save Changes
+            <i data-lucide="check" class="lucide me-1"></i>Save Changes
           </button>
           <a href="{% url 'social_media:bot_settings' %}" class="btn btn-outline-secondary btn-cancel">Cancel</a>
         </div>

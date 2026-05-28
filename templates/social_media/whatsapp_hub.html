@@ -110,7 +110,7 @@
       </p>
     </div>
     <a href="{% url 'social_media:dashboard' %}" class="btn btn-outline-light" style="border-radius:10px;">
-      <i class="bi bi-arrow-left me-1"></i>Social Hub
+      <i data-lucide="arrow-left" class="lucide me-1"></i>Social Hub
     </a>
   </div>
 
@@ -121,25 +121,25 @@
     <div class="col-6 col-md-3">
       <div class="wa-stat-card">
         <div class="stat-value">{{ total_inbound }}</div>
-        <div class="stat-label"><i class="bi bi-arrow-down-left me-1 text-success"></i>Received</div>
+        <div class="stat-label"><i data-lucide="arrow-down-left" class="lucide me-1 text-success"></i>Received</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
       <div class="wa-stat-card">
         <div class="stat-value">{{ total_outbound }}</div>
-        <div class="stat-label"><i class="bi bi-arrow-up-right me-1 text-primary"></i>Sent</div>
+        <div class="stat-label"><i data-lucide="arrow-up-right" class="lucide me-1 text-primary"></i>Sent</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
       <div class="wa-stat-card">
         <div class="stat-value" style="color:#f59e0b;">{{ unread_count }}</div>
-        <div class="stat-label"><i class="bi bi-envelope me-1"></i>Unread</div>
+        <div class="stat-label"><i data-lucide="mail" class="lucide me-1"></i>Unread</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
       <div class="wa-stat-card">
         <div class="stat-value" style="color:#25D366;">{{ conversations|length }}</div>
-        <div class="stat-label"><i class="bi bi-people me-1"></i>Contacts</div>
+        <div class="stat-label"><i data-lucide="users" class="lucide me-1"></i>Contacts</div>
       </div>
     </div>
   </div>
@@ -150,7 +150,7 @@
     <div class="col-lg-7">
 
       <!-- Account Info -->
-      <div class="wa-section-title"><i class="bi bi-info-circle"></i>Account Details</div>
+      <div class="wa-section-title"><i data-lucide="info" class="lucide"></i>Account Details</div>
       <div class="wa-account-box mb-4">
         <div class="account-row">
           <span class="account-label">Account Name</span>
@@ -198,7 +198,7 @@
       </div>
 
       <!-- Conversations -->
-      <div class="wa-section-title"><i class="bi bi-chat-dots"></i>Conversations</div>
+      <div class="wa-section-title"><i data-lucide="message-circle-more" class="lucide"></i>Conversations</div>
       <div class="wa-card mb-4">
         {% if conversations %}
           {% for conv in conversations %}
@@ -219,7 +219,7 @@
           {% endfor %}
         {% else %}
           <div class="text-center py-4">
-            <i class="bi bi-chat-dots text-muted" style="font-size:2rem;"></i>
+            <i data-lucide="message-circle-more" class="lucide text-muted" style="font-size:2rem;"></i>
             <p class="text-muted mt-2 mb-0" style="font-size:.85rem;">No conversations yet. Messages will appear when users contact your business number.</p>
           </div>
         {% endif %}
@@ -231,7 +231,7 @@
     <div class="col-lg-5">
 
       <!-- Recent Messages Feed -->
-      <div class="wa-section-title"><i class="bi bi-list-ul"></i>Recent Messages</div>
+      <div class="wa-section-title"><i data-lucide="list" class="lucide"></i>Recent Messages</div>
       <div class="wa-card mb-4" style="max-height:380px;overflow-y:auto;">
         {% if recent_messages %}
           {% for msg in recent_messages %}
@@ -241,7 +241,7 @@
             </span>
             <strong class="ms-2">{{ msg.sender_name|default:msg.sender_id }}</strong>
             {% if msg.direction == "outbound" %}
-              <i class="bi bi-arrow-right mx-1 text-muted" style="font-size:.7rem;"></i>
+              <i data-lucide="arrow-right" class="lucide mx-1 text-muted" style="font-size:.7rem;"></i>
               <span class="text-muted">{{ msg.recipient_id }}</span>
             {% endif %}
             <div class="mt-1 text-muted" style="font-size:.78rem;">{{ msg.content|truncatewords:25 }}</div>
@@ -255,21 +255,21 @@
           {% endfor %}
         {% else %}
           <div class="text-center py-4">
-            <i class="bi bi-inbox text-muted" style="font-size:2rem;"></i>
+            <i data-lucide="inbox" class="lucide text-muted" style="font-size:2rem;"></i>
             <p class="text-muted mt-2 mb-0" style="font-size:.85rem;">No messages received yet.</p>
           </div>
         {% endif %}
       </div>
 
       <!-- Auto-Reply Rules -->
-      <div class="wa-section-title"><i class="bi bi-robot"></i>AI Auto-Reply Rules</div>
+      <div class="wa-section-title"><i data-lucide="bot" class="lucide"></i>AI Auto-Reply Rules</div>
       <div class="wa-card p-3 mb-4">
         {% if auto_rules %}
           {% for rule in auto_rules %}
           <div class="d-flex align-items-center justify-content-between mb-2 pb-2" style="border-bottom:1px solid #f1f5f9;">
             <div>
               <span class="rule-chip {% if rule.is_enabled %}rule-on{% else %}rule-off{% endif %}">
-                {% if rule.is_enabled %}<i class="bi bi-check-circle-fill"></i>ON{% else %}<i class="bi bi-x-circle"></i>OFF{% endif %}
+                {% if rule.is_enabled %}<i data-lucide="check-circle" class="lucide"></i>ON{% else %}<i data-lucide="x-circle" class="lucide"></i>OFF{% endif %}
               </span>
               <span class="ms-2" style="font-size:.82rem;font-weight:500;">
                 {{ rule.persona_name|default:"Auto Reply" }}
@@ -284,7 +284,7 @@
           {% endfor %}
           {% if is_admin %}
           <a href="{% url 'social_media:bot_settings' %}" class="btn btn-outline-success btn-sm w-100 mt-2" style="border-radius:10px;">
-            <i class="bi bi-gear me-1"></i>Manage Rules
+            <i data-lucide="settings-2" class="lucide me-1"></i>Manage Rules
           </a>
           {% endif %}
         {% else %}
@@ -292,7 +292,7 @@
             <p class="text-muted mb-2" style="font-size:.82rem;">No auto-reply rules configured.</p>
             {% if is_admin %}
             <a href="{% url 'social_media:create_bot_rule' %}" class="btn btn-outline-success btn-sm" style="border-radius:10px;">
-              <i class="bi bi-plus-circle me-1"></i>Create Rule
+              <i data-lucide="circle-plus" class="lucide me-1"></i>Create Rule
             </a>
             {% endif %}
           </div>
@@ -301,7 +301,7 @@
 
       <!-- Bot Activity Log -->
       {% if bot_logs %}
-      <div class="wa-section-title"><i class="bi bi-clock-history"></i>Bot Activity</div>
+      <div class="wa-section-title"><i data-lucide="history" class="lucide"></i>Bot Activity</div>
       <div class="wa-card p-3" style="max-height:260px;overflow-y:auto;">
         {% for log in bot_logs %}
         <div class="d-flex align-items-center gap-2 mb-2 pb-2" style="border-bottom:1px solid #f8fafc;font-size:.78rem;">
@@ -328,7 +328,7 @@
       Connect your WhatsApp Business API account to see conversations, messages, groups, and enable AI auto-replies.
     </p>
     <a href="{% url 'social_media:dashboard' %}" class="btn btn-success px-4" style="border-radius:12px;">
-      <i class="bi bi-plug me-2"></i>Connect WhatsApp
+      <i data-lucide="plug" class="lucide me-2"></i>Connect WhatsApp
     </a>
   </div>
   {% endif %}

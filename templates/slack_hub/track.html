@@ -5,7 +5,7 @@
 {% block extra_head %}
 <style>
   .track-header {
-    background: linear-gradient(135deg, #1e1b4b, #312e81);
+    background: linear-gradient(135deg, var(--ink-dark), var(--ink-medium));
     border-radius: 16px;
     padding: 1.25rem 1.5rem;
     margin-bottom: 1.5rem;
@@ -13,7 +13,7 @@
   .msg-row:hover { background: #f8f9ff !important; }
   .incoming-bubble {
     background: #f1f5f9;
-    border-left: 3px solid #6366f1;
+    border-left: 3px solid var(--primary);
     border-radius: 0 8px 8px 0;
     padding: 6px 10px;
     font-size: .83rem;
@@ -39,7 +39,7 @@
   }
   .avatar-sm {
     width: 34px; height: 34px; border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, var(--primary), #8b5cf6);
     color: #fff; display: flex; align-items: center;
     justify-content: center; font-size: .8rem; font-weight: 700;
     flex-shrink: 0;
@@ -62,18 +62,18 @@
     <!-- Header -->
     <div class="track-header d-flex align-items-center gap-3">
       <a href="{% url 'slack_hub:channels' %}" class="btn btn-sm btn-outline-light me-1">
-        <i class="bi bi-arrow-left"></i>
+        <i data-lucide="arrow-left" class="lucide"></i>
       </a>
       <div>
-        <h5 class="text-white fw-bold mb-0"><i class="bi bi-robot me-2"></i>AI Auto-Reply Tracker</h5>
+        <h5 class="text-white fw-bold mb-0"><i data-lucide="bot" class="lucide me-2"></i>AI Auto-Reply Tracker</h5>
         <p class="mb-0" style="color:rgba(255,255,255,.55);font-size:.82rem;">Every Slack message received + what AI replied</p>
       </div>
       <div class="ms-auto d-flex gap-2">
         <a href="{% url 'slack_hub:settings' %}" class="btn btn-sm" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);">
-          <i class="bi bi-gear me-1"></i>Settings
+          <i data-lucide="settings-2" class="lucide me-1"></i>Settings
         </a>
         <a href="{% url 'slack_hub:auto_reply_history' %}" class="btn btn-sm" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);">
-          <i class="bi bi-clock-history me-1"></i>History
+          <i data-lucide="history" class="lucide me-1"></i>History
         </a>
       </div>
     </div>
@@ -94,7 +94,7 @@
       </div>
       <div class="col-6 col-md-2">
         <div class="stat-card">
-          <div class="stat-num" style="color:#6366f1;">{{ stats.replied }}</div>
+          <div class="stat-num" style="color:var(--primary);">{{ stats.replied }}</div>
           <div class="stat-label">Auto-Replied</div>
         </div>
       </div>
@@ -121,7 +121,7 @@
     <!-- Messages Table -->
     <div class="card" style="border-radius:16px;overflow:hidden;">
       <div class="card-header d-flex align-items-center" style="background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.25rem;">
-        <i class="bi bi-table me-2 text-primary"></i>
+        <i data-lucide="table" class="lucide me-2 text-primary"></i>
         <span class="fw-semibold" style="font-size:.9rem;">Messages + AI Replies</span>
         <span class="badge bg-primary ms-2">{{ tracked_messages|length }}</span>
       </div>
@@ -154,11 +154,11 @@
               <td style="padding:.85rem 1rem;vertical-align:top;">
                 {% if "DM" in msg.channel_name %}
                 <span class="badge" style="background:#7c3aed;font-size:.75rem;">
-                  <i class="bi bi-chat-dots me-1"></i>{{ msg.channel_name }}
+                  <i data-lucide="message-circle-more" class="lucide me-1"></i>{{ msg.channel_name }}
                 </span>
                 {% else %}
-                <span class="badge" style="background:#1e1b4b;font-size:.75rem;">
-                  <i class="bi bi-hash me-1"></i>{{ msg.channel_name }}
+                <span class="badge" style="background:var(--ink-dark);font-size:.75rem;">
+                  <i data-lucide="hash" class="lucide me-1"></i>{{ msg.channel_name }}
                 </span>
                 {% endif %}
               </td>
@@ -167,7 +167,7 @@
                 <div class="incoming-bubble" title="{{ msg.text }}">{{ msg.text|truncatechars:120 }}</div>
                 {% if msg.ai_summary %}
                 <div class="mt-1" style="font-size:.75rem;color:#6b7280;">
-                  <i class="bi bi-cpu me-1"></i>{{ msg.ai_summary|truncatechars:80 }}
+                  <i data-lucide="cpu" class="lucide me-1"></i>{{ msg.ai_summary|truncatechars:80 }}
                 </div>
                 {% endif %}
               </td>
@@ -190,11 +190,11 @@
                 {% if msg.ai_reply %}
                   {% if msg.is_auto_replied %}
                   <div class="reply-bubble" title="{{ msg.ai_reply }}">
-                    <i class="bi bi-robot me-1"></i>{{ msg.ai_reply|truncatechars:140 }}
+                    <i data-lucide="bot" class="lucide me-1"></i>{{ msg.ai_reply|truncatechars:140 }}
                   </div>
                   {% else %}
                   <div class="draft-bubble" title="{{ msg.ai_reply }}">
-                    <i class="bi bi-pencil me-1"></i>{{ msg.ai_reply|truncatechars:140 }}
+                    <i data-lucide="pencil" class="lucide me-1"></i>{{ msg.ai_reply|truncatechars:140 }}
                   </div>
                   {% endif %}
                 {% else %}
@@ -204,12 +204,12 @@
               <!-- Status -->
               <td style="padding:.85rem 1rem;vertical-align:top;">
                 {% if msg.is_auto_replied %}
-                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Sent</span>
+                <span class="badge bg-success"><i data-lucide="check-circle" class="lucide me-1"></i>Sent</span>
                 {% if msg.reply_sent_at %}
                 <div style="font-size:.72rem;color:#6b7280;margin-top:3px;">{{ msg.reply_sent_at|date:"H:i" }}</div>
                 {% endif %}
                 {% elif msg.ai_reply %}
-                <span class="badge bg-warning text-dark"><i class="bi bi-pencil me-1"></i>Draft</span>
+                <span class="badge bg-warning text-dark"><i data-lucide="pencil" class="lucide me-1"></i>Draft</span>
                 {% else %}
                 <span class="badge" style="background:#f1f5f9;color:#6b7280;">Tracked</span>
                 {% endif %}
@@ -227,7 +227,7 @@
       {% else %}
       <div class="text-center text-muted py-5">
         <div style="width:64px;height:64px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
-          <i class="bi bi-inbox" style="font-size:1.8rem;color:#9ca3af;"></i>
+          <i data-lucide="inbox" class="lucide" style="font-size:1.8rem;color:#9ca3af;"></i>
         </div>
         <h6 style="color:#374151;">No messages tracked yet</h6>
         <p style="font-size:.85rem;">Enable auto-reply in <a href="{% url 'slack_hub:settings' %}">Settings</a>, then send a message in Slack.</p>

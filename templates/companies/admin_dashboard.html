@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="d-flex align-items-center gap-3 mb-4">
-  <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;">
-    <i class="bi bi-bar-chart text-white" style="font-size:1.1rem;"></i>
+  <div style="width:42px;height:42px;border-radius:12px;background:var(--primary);display:flex;align-items:center;justify-content:center;">
+    <i data-lucide="bar-chart-3" class="lucide text-white" style="font-size:1.1rem;"></i>
   </div>
   <div>
-    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;">Admin Dashboard</h4>
+    <h4 class="mb-0 fw-bold" style="color:var(--ink-dark);">Admin Dashboard</h4>
     <p class="mb-0" style="color:#64748b;font-size:.85rem;">Team activity &amp; usage analytics (last 30 days)</p>
   </div>
 </div>
@@ -17,7 +17,7 @@
 <div class="row g-3 mb-4">
   <div class="col-sm-6 col-xl-3">
     <div class="stat-card">
-      <div class="stat-icon" style="background:#eef2ff;color:#6366f1;"><i class="bi bi-people-fill"></i></div>
+      <div class="stat-icon" style="background:var(--primary-light);color:var(--primary);"><i data-lucide="users" class="lucide"></i></div>
       <div>
         <div class="stat-value">{{ total_members }}</div>
         <div class="stat-label">Team Members</div>
@@ -26,7 +26,7 @@
   </div>
   <div class="col-sm-6 col-xl-3">
     <div class="stat-card">
-      <div class="stat-icon" style="background:#ecfdf5;color:#10b981;"><i class="bi bi-plug-fill"></i></div>
+      <div class="stat-icon" style="background:#ecfdf5;color:#10b981;"><i data-lucide="plug" class="lucide"></i></div>
       <div>
         <div class="stat-value">{{ active_integrations }}</div>
         <div class="stat-label">Active Integrations</div>
@@ -35,7 +35,7 @@
   </div>
   <div class="col-sm-6 col-xl-3">
     <div class="stat-card">
-      <div class="stat-icon" style="background:#fef3c7;color:#f59e0b;"><i class="bi bi-lightning-fill"></i></div>
+      <div class="stat-icon" style="background:#fef3c7;color:#f59e0b;"><i data-lucide="zap" class="lucide"></i></div>
       <div>
         <div class="stat-value">{{ actions_7d }}</div>
         <div class="stat-label">Actions (7 days)</div>
@@ -44,7 +44,7 @@
   </div>
   <div class="col-sm-6 col-xl-3">
     <div class="stat-card">
-      <div class="stat-icon" style="background:#ede9fe;color:#8b5cf6;"><i class="bi bi-activity"></i></div>
+      <div class="stat-icon" style="background:#ede9fe;color:#8b5cf6;"><i data-lucide="activity" class="lucide"></i></div>
       <div>
         <div class="stat-value">{{ actions_30d }}</div>
         <div class="stat-label">Actions (30 days)</div>
@@ -58,7 +58,7 @@
   <div class="col-lg-8">
     <div class="card border-0 shadow-sm" style="border-radius:14px;">
       <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i class="bi bi-graph-up me-2"></i>Activity Over Time</h6>
+        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="trending-up" class="lucide me-2"></i>Activity Over Time</h6>
         <canvas id="dailyChart" height="220"></canvas>
       </div>
     </div>
@@ -68,7 +68,7 @@
   <div class="col-lg-4">
     <div class="card border-0 shadow-sm" style="border-radius:14px;">
       <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i class="bi bi-pie-chart me-2"></i>By Platform</h6>
+        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="pie-chart" class="lucide me-2"></i>By Platform</h6>
         <canvas id="platformChart" height="220"></canvas>
       </div>
     </div>
@@ -78,13 +78,13 @@
   <div class="col-lg-6">
     <div class="card border-0 shadow-sm" style="border-radius:14px;">
       <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i class="bi bi-list-ol me-2"></i>Top Actions</h6>
+        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="list-ordered" class="lucide me-2"></i>Top Actions</h6>
         {% for a in top_actions %}
         <div class="d-flex justify-content-between align-items-center mb-2">
           <span style="font-size:.82rem;color:#334155;">{{ a.label }}</span>
           <div class="d-flex align-items-center gap-2">
             <div style="width:120px;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;">
-              <div style="height:100%;background:#6366f1;border-radius:4px;width:{% widthratio a.count actions_30d 100 %}%;"></div>
+              <div style="height:100%;background:var(--primary);border-radius:4px;width:{% widthratio a.count actions_30d 100 %}%;"></div>
             </div>
             <span class="badge bg-light text-dark" style="font-size:.72rem;">{{ a.count }}</span>
           </div>
@@ -100,7 +100,7 @@
   <div class="col-lg-6">
     <div class="card border-0 shadow-sm" style="border-radius:14px;">
       <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i class="bi bi-person-badge me-2"></i>Most Active Users</h6>
+        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="id-card" class="lucide me-2"></i>Most Active Users</h6>
         {% for u in user_activity %}
         <div class="d-flex justify-content-between align-items-center mb-2">
           <span style="font-size:.82rem;color:#334155;">{{ u.display_name }}</span>
@@ -122,7 +122,7 @@
   <div class="col-lg-6">
     <div class="card border-0 shadow-sm" style="border-radius:14px;">
       <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i class="bi bi-shield-check me-2"></i>Integration Health</h6>
+        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="shield-check" class="lucide me-2"></i>Integration Health</h6>
         <div class="table-responsive">
           <table class="table table-sm mb-0" style="font-size:.82rem;">
             <thead><tr><th>Service</th><th>Status</th><th>Connected</th></tr></thead>
@@ -157,7 +157,7 @@
   <div class="col-lg-6">
     <div class="card border-0 shadow-sm" style="border-radius:14px;">
       <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i class="bi bi-clock-history me-2"></i>Recent Activity</h6>
+        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="history" class="lucide me-2"></i>Recent Activity</h6>
         {% for log in recent_logs %}
         <div class="d-flex gap-2 mb-2 pb-2 {% if not forloop.last %}border-bottom{% endif %}" style="font-size:.8rem;">
           <div class="text-muted" style="min-width:110px;">{{ log.created_at|date:"M d, H:i" }}</div>
@@ -181,7 +181,7 @@
   background:#fff; border:1px solid #e2e8f0; border-radius:14px;
   transition:all .15s;
 }
-.stat-card:hover { border-color:#c7d2fe; box-shadow:0 2px 12px rgba(99,102,241,.08); }
+.stat-card:hover { border-color:var(--primary-pale); box-shadow:0 2px 12px rgba(255,89,0,.08); }
 .stat-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
 .stat-value { font-size:1.5rem; font-weight:700; color:#1e293b; line-height:1.1; }
 .stat-label { font-size:.78rem; color:#64748b; }
@@ -202,12 +202,12 @@ document.addEventListener('DOMContentLoaded', function() {
         datasets: [{
           label: 'Actions',
           data: dailyData.map(d => d.count),
-          borderColor: '#6366f1',
-          backgroundColor: 'rgba(99,102,241,.1)',
+          borderColor: '#FF5900',
+          backgroundColor: 'rgba(255,89,0,.10)',
           fill: true,
           tension: .3,
           pointRadius: 3,
-          pointBackgroundColor: '#6366f1',
+          pointBackgroundColor: '#FF5900',
         }]
       },
       options: {
@@ -221,8 +221,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Platform pie chart
-  const COLORS = ['#6366f1','#8b5cf6','#ec4899','#0ea5e9','#10b981','#f59e0b','#f43f5e'];
+  // Platform doughnut chart
+  const COLORS = ['#FF5900','#3B82F6','#10B981','#8B5CF6','#F59E0B','#EC4899','#14B8A6','#F43F5E'];
   if (platformData.length) {
     new Chart(document.getElementById('platformChart'), {
       type: 'doughnut',
@@ -231,11 +231,20 @@ document.addEventListener('DOMContentLoaded', function() {
         datasets: [{
           data: platformData.map(d => d.count),
           backgroundColor: COLORS.slice(0, platformData.length),
+          borderWidth: 2,
+          borderColor: '#ffffff',
+          hoverOffset: 6,
         }]
       },
       options: {
         responsive: true,
-        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }
+        cutout: '62%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { font: { size: 11 }, padding: 16, usePointStyle: true, pointStyleWidth: 10 }
+          }
+        }
       }
     });
   }

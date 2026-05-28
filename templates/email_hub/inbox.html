@@ -7,20 +7,20 @@
 <!-- Top toolbar -->
 <div class="ibx-toolbar mb-4">
   <div class="d-flex align-items-center gap-3">
-    <div class="ibx-toolbar-icon"><i class="bi bi-envelope-fill"></i></div>
+    <div class="ibx-toolbar-icon"><i data-lucide="mail" class="lucide"></i></div>
     <div>
       <h4 class="ibx-toolbar-title">Inbox</h4>
       <p class="ibx-toolbar-sub">Microsoft Outlook · {% if emails %}{{ emails|length }} message{{ emails|length|pluralize }}{% else %}No messages{% endif %}</p>
     </div>
   </div>
   <a href="{% url 'email_hub:compose' %}" class="btn ibx-compose-btn">
-    <i class="bi bi-pencil-square me-2"></i>Compose
+    <i data-lucide="pencil" class="lucide me-2"></i>Compose
   </a>
 </div>
 
 {% if error %}
 <div class="alert alert-warning mb-3" style="font-size:.875rem;border-radius:12px;">
-  <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+  <i data-lucide="triangle-alert" class="lucide me-2"></i>{{ error }}
 </div>
 {% endif %}
 
@@ -87,12 +87,12 @@
   <h5 class="ibx-empty-title">Connect Microsoft to access your inbox</h5>
   <p class="ibx-empty-sub">Read Outlook emails, reply, and compose — all without leaving WorkHub.</p>
   <a href="{% url 'integrations:connect' %}" class="btn ibx-connect-btn">
-    <i class="bi bi-box-arrow-in-right me-2"></i>Connect Microsoft Account
+    <i data-lucide="log-in" class="lucide me-2"></i>Connect Microsoft Account
   </a>
   {% else %}
   <div class="ibx-empty-visual">
     <div class="ibx-empty-ring"></div>
-    <div class="ibx-empty-circle"><i class="bi bi-inbox"></i></div>
+    <div class="ibx-empty-circle"><i data-lucide="inbox" class="lucide"></i></div>
   </div>
   <h5 class="ibx-empty-title">You’re all caught up!</h5>
   <p class="ibx-empty-sub">No messages in your inbox. New emails will appear here.</p>

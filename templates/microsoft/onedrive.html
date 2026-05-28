@@ -5,10 +5,10 @@
 {% block content %}
 <div class="d-flex align-items-center gap-3 mb-4">
   <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#0078d4,#50a5f1);display:flex;align-items:center;justify-content:center;">
-    <i class="bi bi-cloud-fill text-white" style="font-size:1.1rem;"></i>
+    <i data-lucide="cloud" class="lucide text-white" style="font-size:1.1rem;"></i>
   </div>
   <div>
-    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">OneDrive</h4>
+    <h4 class="mb-0 fw-bold" style="color:var(--ink-dark);letter-spacing:-.02em;">OneDrive</h4>
     <p class="mb-0" style="color:#64748b;font-size:.85rem;">Browse, upload, and share your Microsoft OneDrive files</p>
   </div>
 </div>
@@ -20,7 +20,7 @@
     <div class="dash-connect-title">Connect Microsoft 365</div>
     <div class="dash-connect-sub">Enable the OneDrive feature to access your files.</div>
   </div>
-  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Setup</a>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i data-lucide="plug" class="lucide me-2"></i>Setup</a>
 </div>
 {% else %}
 
@@ -30,22 +30,22 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="flex-grow-1" id="breadcrumb">
       <ol class="breadcrumb mb-0" style="font-size:.82rem;">
-        <li class="breadcrumb-item"><a href="#" onclick="navigate('')" style="color:#4f46e5;text-decoration:none;">My Files</a></li>
+        <li class="breadcrumb-item"><a href="#" onclick="navigate('')" style="color:var(--primary);text-decoration:none;">My Files</a></li>
       </ol>
     </nav>
     <!-- Search -->
     <div class="input-group" style="width:220px;">
       <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search files…" style="border-radius:8px 0 0 8px;font-size:.8rem;">
-      <button class="btn btn-sm" id="searchBtn" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:0 8px 8px 0;font-size:.8rem;">
-        <i class="bi bi-search"></i>
+      <button class="btn btn-sm" id="searchBtn" style="background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-pale);border-radius:0 8px 8px 0;font-size:.8rem;">
+        <i data-lucide="search" class="lucide"></i>
       </button>
     </div>
     <!-- Actions -->
-    <button class="btn btn-sm" onclick="document.getElementById('uploadInput').click()" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:8px;font-size:.78rem;">
-      <i class="bi bi-cloud-arrow-up me-1"></i>Upload
+    <button class="btn btn-sm" onclick="document.getElementById('uploadInput').click()" style="background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-pale);border-radius:8px;font-size:.78rem;">
+      <i data-lucide="cloud-upload" class="lucide me-1"></i>Upload
     </button>
     <button class="btn btn-sm" id="newFolderBtn" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:8px;font-size:.78rem;">
-      <i class="bi bi-folder-plus me-1"></i>New Folder
+      <i data-lucide="folder-plus" class="lucide me-1"></i>New Folder
     </button>
     <input type="file" id="uploadInput" style="display:none;" multiple>
   </div>
@@ -80,7 +80,7 @@
       </div>
       <div class="modal-footer border-0 pt-0">
         <button class="btn btn-sm" data-bs-dismiss="modal" style="border-radius:8px;">Cancel</button>
-        <button class="btn btn-sm" id="createFolderBtn" style="background:#4f46e5;color:#fff;border-radius:8px;">Create</button>
+        <button class="btn btn-sm" id="createFolderBtn" style="background:var(--primary);color:#fff;border-radius:8px;">Create</button>
       </div>
     </div>
   </div>
@@ -90,7 +90,7 @@
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080;">
   <div id="shareToast" class="toast" role="alert" style="border-radius:12px;">
     <div class="toast-body d-flex align-items-center gap-2">
-      <i class="bi bi-link-45deg" style="color:#4f46e5;"></i>
+      <i data-lucide="link" class="lucide" style="color:var(--primary);"></i>
       <span id="shareToastMsg">Link copied!</span>
     </div>
   </div>
@@ -103,13 +103,13 @@
 #fileTable tr:hover { background:#f8fafc; }
 .file-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0; }
 .file-icon--folder { background:#fef3c7; color:#d97706; }
-.file-icon--doc { background:#eef2ff; color:#4f46e5; }
+.file-icon--doc { background:var(--primary-light); color:var(--primary); }
 .file-icon--img { background:#fce7f3; color:#db2777; }
 .file-icon--sheet { background:#dcfce7; color:#16a34a; }
 .file-icon--pdf { background:#fee2e2; color:#dc2626; }
 .file-icon--default { background:#f1f5f9; color:#64748b; }
 .file-action { background:none; border:none; padding:4px 6px; border-radius:6px; color:#64748b; font-size:.8rem; }
-.file-action:hover { background:#eef2ff; color:#4f46e5; }
+.file-action:hover { background:var(--primary-light); color:var(--primary); }
 </style>
 
 <script>
@@ -119,14 +119,14 @@ document.addEventListener('DOMContentLoaded', function() {
   let folderStack = [];
 
   function fileIcon(item) {
-    if (item.folder) return '<div class="file-icon file-icon--folder"><i class="bi bi-folder-fill"></i></div>';
+    if (item.folder) return '<div class="file-icon file-icon--folder"><i data-lucide="folder" class="lucide"></i></div>';
     const name = (item.name || '').toLowerCase();
     const mime = item.file?.mimeType || '';
-    if (name.match(/\.(docx?|txt|md)$/)||mime.includes('document')) return '<div class="file-icon file-icon--doc"><i class="bi bi-file-earmark-text"></i></div>';
-    if (name.match(/\.(xlsx?|csv)$/)||mime.includes('spreadsheet')) return '<div class="file-icon file-icon--sheet"><i class="bi bi-file-earmark-spreadsheet"></i></div>';
-    if (name.match(/\.(png|jpg|jpeg|gif|svg|webp)$/)||mime.startsWith('image/')) return '<div class="file-icon file-icon--img"><i class="bi bi-file-earmark-image"></i></div>';
-    if (name.endsWith('.pdf')||mime.includes('pdf')) return '<div class="file-icon file-icon--pdf"><i class="bi bi-file-earmark-pdf"></i></div>';
-    return '<div class="file-icon file-icon--default"><i class="bi bi-file-earmark"></i></div>';
+    if (name.match(/\.(docx?|txt|md)$/)||mime.includes('document')) return '<div class="file-icon file-icon--doc"><i data-lucide="file-text" class="lucide"></i></div>';
+    if (name.match(/\.(xlsx?|csv)$/)||mime.includes('spreadsheet')) return '<div class="file-icon file-icon--sheet"><i data-lucide="file-spreadsheet" class="lucide"></i></div>';
+    if (name.match(/\.(png|jpg|jpeg|gif|svg|webp)$/)||mime.startsWith('image/')) return '<div class="file-icon file-icon--img"><i data-lucide="file-image" class="lucide"></i></div>';
+    if (name.endsWith('.pdf')||mime.includes('pdf')) return '<div class="file-icon file-icon--pdf"><i data-lucide="file-type-2" class="lucide"></i></div>';
+    return '<div class="file-icon file-icon--default"><i data-lucide="file" class="lucide"></i></div>';
   }
 
   function formatSize(bytes) {
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function renderFiles(items) {
     const tbody = document.getElementById('fileTable');
     if (!items.length) {
-      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted"><i class="bi bi-folder2-open" style="font-size:1.5rem;"></i><div class="mt-2">This folder is empty</div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted"><i data-lucide="folder-open" class="lucide" style="font-size:1.5rem;"></i><div class="mt-2">This folder is empty</div></td></tr>';
       return;
     }
     items.sort((a,b) => {
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
     tbody.innerHTML = items.map(item => {
       const isFolder = !!item.folder;
       const nameClick = isFolder
-        ? `onclick="navigate('${item.id}')" style="cursor:pointer;color:#4f46e5;font-weight:600;"`
+        ? `onclick="navigate('${item.id}')" style="cursor:pointer;color:var(--primary);font-weight:600;"`
         : `style="font-weight:500;color:#1e293b;"`;
       return `<tr>
         <td class="align-middle" style="padding:8px 16px;">
@@ -171,9 +171,9 @@ document.addEventListener('DOMContentLoaded', function() {
         <td class="align-middle" style="padding:8px 16px;color:#64748b;">${isFolder ? '—' : formatSize(item.size)}</td>
         <td class="align-middle" style="padding:8px 16px;">
           <div class="d-flex gap-1">
-            ${!isFolder ? `<button class="file-action" onclick="downloadFile('${item.id}')" title="Download"><i class="bi bi-download"></i></button>` : ''}
-            <button class="file-action" onclick="shareItem('${item.id}')" title="Share"><i class="bi bi-link-45deg"></i></button>
-            <button class="file-action" onclick="deleteItem('${item.id}','${item.name.replace(/'/g,"\\&#39;")}')" title="Delete"><i class="bi bi-trash"></i></button>
+            ${!isFolder ? `<button class="file-action" onclick="downloadFile('${item.id}')" title="Download"><i data-lucide="download" class="lucide"></i></button>` : ''}
+            <button class="file-action" onclick="shareItem('${item.id}')" title="Share"><i data-lucide="link" class="lucide"></i></button>
+            <button class="file-action" onclick="deleteItem('${item.id}','${item.name.replace(/'/g,"\\&#39;")}')" title="Delete"><i data-lucide="trash-2" class="lucide"></i></button>
           </div>
         </td>
       </tr>`;
@@ -182,12 +182,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function updateBreadcrumb() {
     const ol = document.querySelector('#breadcrumb ol');
-    let html = '<li class="breadcrumb-item"><a href="#" onclick="navigate(\'\')" style="color:#4f46e5;text-decoration:none;">My Files</a></li>';
+    let html = '<li class="breadcrumb-item"><a href="#" onclick="navigate(\'\')" style="color:var(--primary);text-decoration:none;">My Files</a></li>';
     folderStack.forEach((f, i) => {
       if (i === folderStack.length - 1) {
         html += `<li class="breadcrumb-item active" style="color:#1e293b;">${f.name}</li>`;
       } else {
-        html += `<li class="breadcrumb-item"><a href="#" onclick="navigateTo(${i+1})" style="color:#4f46e5;text-decoration:none;">${f.name}</a></li>`;
+        html += `<li class="breadcrumb-item"><a href="#" onclick="navigateTo(${i+1})" style="color:var(--primary);text-decoration:none;">${f.name}</a></li>`;
       }
     });
     ol.innerHTML = html;

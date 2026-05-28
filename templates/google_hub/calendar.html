@@ -8,26 +8,26 @@
 <div class="ibx-toolbar mb-4">
   <div class="d-flex align-items-center gap-3">
     <div class="ibx-toolbar-icon" style="background:linear-gradient(135deg,#4285F4,#34A853);">
-      <i class="bi bi-calendar3"></i>
+      <i data-lucide="calendar" class="lucide"></i>
     </div>
     <div>
       <h4 class="ibx-toolbar-title">Google Calendar</h4>
       <p class="ibx-toolbar-sub">Upcoming events · Next <span id="daysLabel">7</span> days</p>
     </div>
   </div>
-  <div class="d-flex gap-2 flex-wrap">
-    <select id="daysSelect" class="form-select form-select-sm" style="width:110px;border-radius:8px;font-size:.8rem;" onchange="changeDays(this.value)">
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    <select id="daysSelect" class="ibx-shortcut-btn" style="background:#fff;color:#374151;border-color:#d1d5db;cursor:pointer;" onchange="changeDays(this.value)">
       <option value="7">7 days</option>
       <option value="14">14 days</option>
       <option value="30">30 days</option>
       <option value="90">90 days</option>
     </select>
-    <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:8px;font-weight:600;font-size:.82rem;"><i class="bi bi-envelope me-1"></i>Gmail</a>
-    <a href="{% url 'google_hub:meet' %}" class="btn btn-sm" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:8px;font-weight:600;font-size:.82rem;"><i class="bi bi-camera-video me-1"></i>Meet</a>
+    <a href="{% url 'google_hub:inbox' %}" class="ibx-shortcut-btn" style="background:#fef3c7;color:#92400e;border-color:#fde68a;"><i data-lucide="mail" class="lucide"></i>Gmail</a>
+    <a href="{% url 'google_hub:meet' %}" class="ibx-shortcut-btn" style="background:#f0fdf4;color:#166534;border-color:#bbf7d0;"><i data-lucide="video" class="lucide"></i>Meet</a>
     {% if google_connected %}
-    <button class="btn btn-sm" style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:600;"
+    <button class="ibx-compose-btn" style="background:linear-gradient(135deg,#4285F4,#34A853);box-shadow:0 2px 12px rgba(66,133,244,.35);"
             data-bs-toggle="modal" data-bs-target="#createEventModal">
-      <i class="bi bi-plus-circle me-1"></i>New Event
+      <i data-lucide="circle-plus" class="lucide me-1"></i>New Event
     </button>
     {% endif %}
   </div>
@@ -35,7 +35,7 @@
 
 {% if error %}
 <div class="alert alert-warning mb-3" style="font-size:.875rem;border-radius:12px;">
-  <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+  <i data-lucide="triangle-alert" class="lucide me-2"></i>{{ error }}
   {% if 'expired' in error or 'reconnect' in error|lower %}
   <a href="{% url 'integrations:connect' %}" class="alert-link ms-2">Reconnect Google →</a>
   {% endif %}
@@ -51,12 +51,12 @@
         <div class="d-flex align-items-start gap-3">
           <!-- Date circle -->
           <div style="min-width:54px;text-align:center;flex-shrink:0;">
-            <div style="background:#eef2ff;border-radius:12px;padding:8px 10px;">
-              <div style="font-size:.7rem;color:#6366f1;font-weight:700;text-transform:uppercase;">
+            <div style="background:var(--primary-light);border-radius:12px;padding:8px 10px;">
+              <div style="font-size:.7rem;color:var(--primary);font-weight:700;text-transform:uppercase;">
                 {% if event.start.dateTime %}{{ event.start.dateTime|slice:"5:7" }}/{{ event.start.dateTime|slice:"8:10" }}
                 {% elif event.start.date %}{{ event.start.date|slice:"5:7" }}/{{ event.start.date|slice:"8:10" }}{% endif %}
               </div>
-              <div style="font-size:.75rem;color:#4f46e5;font-weight:600;">
+              <div style="font-size:.75rem;color:var(--primary);font-weight:600;">
                 {% if event.start.dateTime %}{{ event.start.dateTime|slice:"11:16" }}{% else %}All day{% endif %}
               </div>
             </div>
@@ -66,20 +66,20 @@
           <div class="flex-grow-1">
             <div class="fw-semibold" style="font-size:.9rem;color:#1e293b;">{{ event.summary|default:"(No title)" }}</div>
             {% if event.location %}
-            <div class="text-muted" style="font-size:.78rem;"><i class="bi bi-geo-alt me-1"></i>{{ event.location|truncatechars:50 }}</div>
+            <div class="text-muted" style="font-size:.78rem;"><i data-lucide="map-pin" class="lucide"></i>{{ event.location|truncatechars:50 }}</div>
             {% endif %}
             {% if event.description %}
             <div class="text-muted mt-1" style="font-size:.78rem;">{{ event.description|truncatechars:100 }}</div>
             {% endif %}
             {% if event.attendees %}
             <div class="mt-1" style="font-size:.74rem;color:#64748b;">
-              <i class="bi bi-people me-1"></i>{{ event.attendees|length }} attendee{{ event.attendees|length|pluralize }}
+              <i data-lucide="users" class="lucide"></i>{{ event.attendees|length }} attendee{{ event.attendees|length|pluralize }}
             </div>
             {% endif %}
             {% if event.hangoutLink %}
             <a href="{{ event.hangoutLink }}" target="_blank" rel="noopener" class="btn btn-sm mt-2"
                style="background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9;border-radius:8px;font-size:.75rem;font-weight:600;">
-              <i class="bi bi-camera-video me-1"></i>Join Google Meet
+              <i data-lucide="video" class="lucide"></i>Join Google Meet
             </a>
             {% endif %}
           </div>
@@ -90,11 +90,11 @@
             <small class="text-muted" style="font-size:.75rem;">{{ event.start.dateTime|slice:"11:16" }} — {{ event.end.dateTime|slice:"11:16" }}</small>
             {% endif %}
             {% if event.organizer %}
-            <div style="font-size:.7rem;color:#94a3b8;"><i class="bi bi-person me-1"></i>{{ event.organizer.email|truncatechars:18 }}</div>
+            <div style="font-size:.7rem;color:#94a3b8;"><i data-lucide="user" class="lucide"></i>{{ event.organizer.email|truncatechars:18 }}</div>
             {% endif %}
             <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:.72rem;"
                     onclick="deleteEvent('{{ event.id }}', '{{ event.summary|escapejs }}')">
-              <i class="bi bi-trash"></i>
+              <i data-lucide="trash-2" class="lucide"></i>
             </button>
           </div>
         </div>
@@ -115,11 +115,11 @@
   </div>
   <h5 class="ibx-empty-title">Connect Google Workspace to view Calendar</h5>
   <p class="ibx-empty-sub">See your upcoming events, meetings, and schedule directly in WorkHub.</p>
-  <a href="{% url 'integrations:connect' %}" class="btn ibx-connect-btn"><i class="bi bi-box-arrow-in-right me-2"></i>Connect Google Workspace</a>
+  <a href="{% url 'integrations:connect' %}" class="btn ibx-connect-btn"><i data-lucide="log-in" class="lucide me-2"></i>Connect Google Workspace</a>
   {% else %}
   <div class="ibx-empty-visual">
     <div class="ibx-empty-ring"></div>
-    <div class="ibx-empty-circle"><i class="bi bi-calendar-check"></i></div>
+    <div class="ibx-empty-circle"><i data-lucide="calendar-check" class="lucide"></i></div>
   </div>
   <h5 class="ibx-empty-title">No upcoming events</h5>
   <p class="ibx-empty-sub">Your calendar is clear. Click <strong>New Event</strong> to schedule something.</p>
@@ -135,9 +135,9 @@
       <div class="modal-header border-0 px-4 pt-4 pb-2">
         <div class="d-flex align-items-center gap-3">
           <div style="background:linear-gradient(135deg,#4285F4,#34A853);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;">
-            <i class="bi bi-calendar-plus text-white"></i>
+            <i data-lucide="calendar-plus" class="lucide text-white"></i>
           </div>
-          <h5 class="modal-title fw-bold mb-0" style="color:#1e1b4b;">New Calendar Event</h5>
+          <h5 class="modal-title fw-bold mb-0" style="color:var(--ink-dark);">New Calendar Event</h5>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -172,7 +172,7 @@
             <div class="form-check">
               <input class="form-check-input" type="checkbox" id="evtAddMeet">
               <label class="form-check-label" for="evtAddMeet" style="font-size:.84rem;">
-                <i class="bi bi-camera-video me-1" style="color:#34A853;"></i>Add Google Meet link
+                <i data-lucide="video" class="lucide" style="color:#34A853;"></i>Add Google Meet link
               </label>
             </div>
           </div>
@@ -182,7 +182,7 @@
         <button type="button" class="btn" data-bs-dismiss="modal" style="border-radius:10px;font-size:.84rem;">Cancel</button>
         <button type="button" class="btn" id="createEventBtn"
                 style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;border:none;border-radius:10px;font-size:.84rem;font-weight:600;">
-          <i class="bi bi-calendar-plus me-1"></i>Create Event
+          <i data-lucide="calendar-plus" class="lucide"></i>Create Event
         </button>
       </div>
     </div>
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
     .catch(() => showMsg('danger', 'Network error. Please try again.'))
     .finally(() => {
       btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-calendar-plus me-1"></i>Create Event';
+      btn.innerHTML = '<i data-lucide="calendar-plus" class="lucide"></i>Create Event';
     });
   });
 });

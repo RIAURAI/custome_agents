@@ -5,10 +5,10 @@
 {% block content %}
 <div class="d-flex align-items-center gap-3 mb-4">
   <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#4285F4,#34A853);display:flex;align-items:center;justify-content:center;">
-    <i class="bi bi-cloud-fill text-white" style="font-size:1.1rem;"></i>
+    <i data-lucide="cloud" class="lucide text-white" style="font-size:1.1rem;"></i>
   </div>
   <div>
-    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">Google Drive</h4>
+    <h4 class="mb-0 fw-bold" style="color:var(--ink-dark);letter-spacing:-.02em;">Google Drive</h4>
     <p class="mb-0" style="color:#64748b;font-size:.85rem;">Browse, upload, download, and manage your Drive files</p>
   </div>
 </div>
@@ -20,18 +20,18 @@
     <div class="dash-connect-title">Connect Google Workspace</div>
     <div class="dash-connect-sub">Enable Google Drive to browse and manage your files.</div>
   </div>
-  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Connect</a>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i data-lucide="plug" class="lucide me-2"></i>Connect</a>
 </div>
 {% else %}
 
 <!-- Workspace nav pills -->
 <div class="d-flex gap-2 mb-4 flex-wrap">
-  <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:20px;font-size:.78rem;"><i class="bi bi-envelope me-1"></i>Gmail</a>
-  <span class="btn btn-sm" style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;border:none;border-radius:20px;font-size:.78rem;"><i class="bi bi-cloud me-1"></i>Drive</span>
-  <a href="{% url 'google_hub:docs' %}" class="btn btn-sm" style="background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;font-size:.78rem;"><i class="bi bi-file-earmark-text me-1"></i>Docs</a>
-  <a href="{% url 'google_hub:sheets' %}" class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:20px;font-size:.78rem;"><i class="bi bi-table me-1"></i>Sheets</a>
-  <a href="{% url 'google_hub:forms' %}" class="btn btn-sm" style="background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff;border-radius:20px;font-size:.78rem;"><i class="bi bi-ui-checks me-1"></i>Forms</a>
-  <a href="{% url 'google_hub:calendar' %}" class="btn btn-sm" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:20px;font-size:.78rem;"><i class="bi bi-calendar3 me-1"></i>Calendar</a>
+  <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:20px;font-size:.78rem;"><i data-lucide="mail" class="lucide"></i>Gmail</a>
+  <span class="btn btn-sm" style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;border:none;border-radius:20px;font-size:.78rem;"><i data-lucide="cloud" class="lucide"></i>Drive</span>
+  <a href="{% url 'google_hub:docs' %}" class="btn btn-sm" style="background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;font-size:.78rem;"><i data-lucide="file-text" class="lucide"></i>Docs</a>
+  <a href="{% url 'google_hub:sheets' %}" class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:20px;font-size:.78rem;"><i data-lucide="table" class="lucide"></i>Sheets</a>
+  <a href="{% url 'google_hub:forms' %}" class="btn btn-sm" style="background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff;border-radius:20px;font-size:.78rem;"><i data-lucide="clipboard-list" class="lucide"></i>Forms</a>
+  <a href="{% url 'google_hub:calendar' %}" class="btn btn-sm" style="background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-pale);border-radius:20px;font-size:.78rem;"><i data-lucide="calendar" class="lucide"></i>Calendar</a>
 </div>
 
 <!-- Toolbar -->
@@ -40,23 +40,23 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="flex-grow-1" id="breadcrumb">
       <ol class="breadcrumb mb-0" style="font-size:.82rem;">
-        <li class="breadcrumb-item"><a href="#" onclick="navigate('root')" style="color:#4285F4;text-decoration:none;"><i class="bi bi-house-fill me-1"></i>My Drive</a></li>
+        <li class="breadcrumb-item"><a href="#" onclick="navigate('root')" style="color:#4285F4;text-decoration:none;"><i data-lucide="home" class="lucide"></i>My Drive</a></li>
       </ol>
     </nav>
     <!-- Search -->
     <div class="input-group" style="width:240px;">
       <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search Drive…" style="border-radius:8px 0 0 8px;font-size:.8rem;">
-      <button class="btn btn-sm" id="searchBtn" style="background:#eef2ff;color:#4285F4;border:1px solid #bfdbfe;border-radius:0 8px 8px 0;font-size:.8rem;">
-        <i class="bi bi-search"></i>
+      <button class="btn btn-sm" id="searchBtn" style="background:var(--primary-light);color:#4285F4;border:1px solid #bfdbfe;border-radius:0 8px 8px 0;font-size:.8rem;">
+        <i data-lucide="search" class="lucide"></i>
       </button>
       <button class="btn btn-sm ms-1" id="clearSearchBtn" style="display:none;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;font-size:.78rem;">
-        <i class="bi bi-x"></i> Clear
+        <i data-lucide="x" class="lucide"></i> Clear
       </button>
     </div>
     <!-- Upload -->
     <button class="btn btn-sm" onclick="document.getElementById('uploadInput').click()"
-            style="background:#eef2ff;color:#4285F4;border:1px solid #bfdbfe;border-radius:8px;font-size:.78rem;">
-      <i class="bi bi-cloud-arrow-up me-1"></i>Upload
+            style="background:var(--primary-light);color:#4285F4;border:1px solid #bfdbfe;border-radius:8px;font-size:.78rem;">
+      <i data-lucide="cloud-upload" class="lucide"></i>Upload
     </button>
     <input type="file" id="uploadInput" style="display:none;" multiple>
   </div>
@@ -148,9 +148,9 @@ function navigate(folderId, folderName) {
 function updateBreadcrumb(folderId, folderName) {
   const bc = document.getElementById('breadcrumb').querySelector('ol');
   if (!folderId || folderId === 'root') {
-    bc.innerHTML = '<li class="breadcrumb-item active"><i class="bi bi-house-fill me-1"></i>My Drive</li>';
+    bc.innerHTML = '<li class="breadcrumb-item active"><i data-lucide="home" class="lucide"></i>My Drive</li>';
   } else {
-    bc.innerHTML = `<li class="breadcrumb-item"><a href="#" onclick="navigate('root')" style="color:#4285F4;text-decoration:none;"><i class="bi bi-house-fill me-1"></i>My Drive</a></li>
+    bc.innerHTML = `<li class="breadcrumb-item"><a href="#" onclick="navigate('root')" style="color:#4285F4;text-decoration:none;"><i data-lucide="home" class="lucide"></i>My Drive</a></li>
                    <li class="breadcrumb-item active">${folderName || 'Folder'}</li>`;
   }
 }
@@ -166,10 +166,10 @@ function loadFiles(folderId, searchQ) {
   fetch(url)
     .then(r => r.json())
     .then(data => {
-      if (data.error) { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>${data.error}</td></tr>`; return; }
+      if (data.error) { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-danger"><i data-lucide="triangle-alert" class="lucide me-2"></i>${data.error}</td></tr>`; return; }
       const files = data.files || [];
       if (!files.length) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-5 text-muted"><i class="bi bi-folder2-open me-2"></i>Empty folder</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-5 text-muted"><i data-lucide="folder-open" class="lucide me-2"></i>Empty folder</td></tr>';
         return;
       }
       tbody.innerHTML = files.map(f => {
@@ -189,10 +189,10 @@ function loadFiles(folderId, searchQ) {
           <td style="padding:10px 16px;color:#64748b;">${formatSize(f.size)}</td>
           <td style="padding:10px 16px;">
             <div class="d-flex gap-1">
-              ${f.webViewLink ? `<a href="${f.webViewLink}" target="_blank" rel="noopener" class="btn btn-sm" style="background:#eef2ff;color:#4285F4;border:none;border-radius:6px;font-size:.72rem;" title="Open"><i class="bi bi-box-arrow-up-right"></i></a>` : ''}
+              ${f.webViewLink ? `<a href="${f.webViewLink}" target="_blank" rel="noopener" class="btn btn-sm" style="background:var(--primary-light);color:#4285F4;border:none;border-radius:6px;font-size:.72rem;" title="Open"><i data-lucide="external-link" class="lucide"></i></a>` : ''}
               <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:.72rem;" title="Trash"
                       onclick="confirmDelete('${f.id}','${(f.name||'').replace(/'/g,"\\'")}')">
-                <i class="bi bi-trash"></i>
+                <i data-lucide="trash-2" class="lucide"></i>
               </button>
             </div>
           </td>

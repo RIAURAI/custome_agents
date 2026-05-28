@@ -10,12 +10,12 @@
     <div class="mb-4">
       <button onclick="history.back()" class="btn btn-sm d-inline-flex align-items-center gap-2"
               style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px !important;color:#64748b;font-weight:600;padding:7px 16px;box-shadow:0 1px 3px rgba(0,0,0,.05);">
-        <i class="bi bi-arrow-left" style="font-size:.9rem;"></i>Back
+        <i data-lucide="arrow-left" class="lucide" style="font-size:.9rem;"></i>Back
       </button>
     </div>
 
     <!-- Profile hero card -->
-    <div class="mb-4" style="background:linear-gradient(135deg,#1e1b4b 0%,#3730a3 55%,#4f46e5 100%);border-radius:20px;padding:32px;box-shadow:0 8px 28px rgba(79,70,229,.35);position:relative;overflow:hidden;">
+    <div class="mb-4" style="background:linear-gradient(135deg,var(--ink-dark) 0%,var(--ink-medium) 55%,var(--primary) 100%);border-radius:20px;padding:32px;box-shadow:0 8px 28px rgba(255,89,0,.35);position:relative;overflow:hidden;">
       <!-- Decorative orbs -->
       <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none;"></div>
       <div style="position:absolute;bottom:-50px;right:30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none;"></div>
@@ -31,7 +31,7 @@
             {{ user.get_full_name|default:user.username }}
           </h4>
           <p class="mb-2" style="color:rgba(255,255,255,.65);font-size:.875rem;">{{ user.email }}</p>
-          <span style="background:rgba(165,180,252,.25);color:#c7d2fe;font-size:.72rem;font-weight:700;padding:3px 12px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase;">
+          <span style="background:rgba(165,180,252,.25);color:var(--primary-pale);font-size:.72rem;font-weight:700;padding:3px 12px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase;">
             Member
           </span>
         </div>
@@ -41,8 +41,8 @@
     <!-- Account details card -->
     <div class="card mb-4">
       <div class="card-header d-flex align-items-center gap-2">
-        <div style="width:28px;height:28px;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
-          <i class="bi bi-person" style="color:#6366f1;font-size:.85rem;"></i>
+        <div style="width:28px;height:28px;border-radius:8px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;">
+          <i data-lucide="user" class="lucide" style="color:var(--primary);font-size:.85rem;"></i>
         </div>
         <span class="fw-semibold" style="font-size:.9rem;color:#1e293b;">Account Details</span>
       </div>
@@ -74,11 +74,11 @@
     <div class="d-flex gap-2">
       <a href="{% url 'integrations:connect' %}" class="btn btn-primary flex-fill"
          style="padding:11px;font-weight:600;">
-        <i class="bi bi-plug me-2"></i>Manage Connections
+        <i data-lucide="plug" class="lucide me-2"></i>Manage Connections
       </a>
       <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
         <button class="btn btn-outline-danger" style="padding:11px 20px;font-weight:600;">
-          <i class="bi bi-box-arrow-right me-1"></i>Logout
+          <i data-lucide="log-out" class="lucide me-1"></i>Logout
         </button>
       </form>
     </div>

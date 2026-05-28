@@ -5,7 +5,7 @@
 <style>
   /* ─── Hero Section ───────────────────────────────────────────────────────── */
   .sm-hero {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 50%, #9333ea 100%);
     border-radius: var(--radius);
     padding: 2.5rem 2.8rem;
     color: #fff;
@@ -198,7 +198,7 @@
   }
   .connect-modal .modal-header {
     border: none; padding: 1.8rem 2.2rem 1.2rem;
-    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    background: linear-gradient(135deg, #f8fafc 0%, var(--primary-light) 100%);
   }
   .connect-modal .modal-header .platform-badge {
     width: 52px; height: 52px; border-radius: 14px;
@@ -241,7 +241,7 @@
     font-size: .85rem; padding: .6rem .9rem; transition: border-color .2s, box-shadow .2s;
   }
   .form-section .form-control:focus, .form-section .form-select:focus {
-    border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,.1);
+    border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,89,0,.1);
   }
   .form-section .form-text { font-size: .7rem; color: #94a3b8; margin-top: .2rem; }
 
@@ -286,14 +286,14 @@
   <div class="sm-hero mb-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center">
       <div>
-        <h2 class="mb-1"><i class="bi bi-share-fill me-2"></i>Social Media Hub</h2>
+        <h2 class="mb-1"><i data-lucide="share-2" class="lucide me-2"></i>Social Media Hub</h2>
         <p class="mb-0">Manage all your business social channels from one place.</p>
       </div>
       <div class="action-bar d-flex flex-wrap gap-2 mt-3 mt-lg-0">
-        <a href="{% url 'social_media:setup_guide' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-book me-1"></i>Setup Guide</a>
-        <a href="{% url 'social_media:bot_settings' %}" class="btn btn-light text-dark btn-sm"><i class="bi bi-robot me-1"></i>AI Bot</a>
-        <a href="{% url 'social_media:posts_list' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-file-earmark-text me-1"></i>Posts</a>
-        <a href="{% url 'social_media:messages_inbox' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-chat-dots me-1"></i>Messages</a>
+        <a href="{% url 'social_media:setup_guide' %}" class="btn btn-outline-light btn-sm"><i data-lucide="book-open" class="lucide me-1"></i>Setup Guide</a>
+        <a href="{% url 'social_media:bot_settings' %}" class="btn btn-light text-dark btn-sm"><i data-lucide="bot" class="lucide me-1"></i>AI Bot</a>
+        <a href="{% url 'social_media:posts_list' %}" class="btn btn-outline-light btn-sm"><i data-lucide="file-text" class="lucide me-1"></i>Posts</a>
+        <a href="{% url 'social_media:messages_inbox' %}" class="btn btn-outline-light btn-sm"><i data-lucide="message-circle-more" class="lucide me-1"></i>Messages</a>
       </div>
     </div>
   </div>
@@ -303,8 +303,8 @@
     <div class="row g-3">
       <div class="col-6 col-lg-3">
         <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(99,102,241,.1); color: var(--primary);">
-            <i class="bi bi-broadcast"></i>
+          <div class="stat-icon" style="background: rgba(255,89,0,.1); color: var(--primary);">
+            <i data-lucide="radio-tower" class="lucide"></i>
           </div>
           <div>
             <div class="stat-value">{{ accounts|length }}</div>
@@ -315,7 +315,7 @@
       <div class="col-6 col-lg-3">
         <div class="stat-card">
           <div class="stat-icon" style="background: rgba(16,185,129,.1); color: var(--success);">
-            <i class="bi bi-file-earmark-text"></i>
+            <i data-lucide="file-text" class="lucide"></i>
           </div>
           <div>
             <div class="stat-value">{{ recent_posts|length }}</div>
@@ -326,7 +326,7 @@
       <div class="col-6 col-lg-3">
         <div class="stat-card">
           <div class="stat-icon" style="background: rgba(14,165,233,.1); color: var(--info);">
-            <i class="bi bi-people-fill"></i>
+            <i data-lucide="users" class="lucide"></i>
           </div>
           <div>
             <div class="stat-value">{{ platform_info|length }}</div>
@@ -337,7 +337,7 @@
       <div class="col-6 col-lg-3">
         <div class="stat-card">
           <div class="stat-icon" style="background: rgba(245,158,11,.1); color: var(--warning);">
-            <i class="bi bi-robot"></i>
+            <i data-lucide="bot" class="lucide"></i>
           </div>
           <div>
             <div class="stat-value">AI</div>
@@ -350,7 +350,7 @@
 
   <!-- ═══ Platforms Section ═══ -->
   <div class="section-header mt-4">
-    <i class="bi bi-grid-3x3-gap-fill"></i>
+    <i data-lucide="grid-3x3" class="lucide"></i>
     <span>Platforms</span>
   </div>
   <div class="row g-3 mb-4">
@@ -380,7 +380,7 @@
             {% if is_admin %}
             <button class="btn btn-outline-secondary btn-action-sm w-100 mb-2"
               onclick="event.stopPropagation(); testConnection({{ info.account.pk }}, this)">
-              <i class="bi bi-wifi me-1"></i>Test
+              <i data-lucide="wifi" class="lucide me-1"></i>Test
             </button>
             <div class="test-result text-center" id="test-result-{{ info.account.pk }}">
               {% if info.account.last_tested_at %}
@@ -390,12 +390,12 @@
             <div class="d-flex gap-2 mt-2 w-100">
               <button class="btn btn-action-sm btn-outline-primary flex-fill"
                 onclick="event.stopPropagation(); openConnectModal('{{ info.key }}', '{{ info.name }}', '{{ info.color }}')">
-                <i class="bi bi-pencil-square"></i> Edit
+                <i data-lucide="pencil" class="lucide"></i> Edit
               </button>
               <form method="post" action="{% url 'social_media:disconnect_account' info.account.pk %}" class="flex-fill" onclick="event.stopPropagation();">
                 {% csrf_token %}
                 <button class="btn btn-action-sm btn-outline-danger w-100" onclick="return confirm('Disconnect {{ info.name }}?')">
-                  <i class="bi bi-x-lg"></i>
+                  <i data-lucide="x" class="lucide"></i>
                 </button>
               </form>
             </div>
@@ -410,7 +410,7 @@
             {% if is_admin %}
             <button class="btn-connect-card" style="background: {{ info.color }}; color: #fff;"
               onclick="event.stopPropagation(); openConnectModal('{{ info.key }}', '{{ info.name }}', '{{ info.color }}')">
-              <i class="bi bi-plug-fill me-1"></i>Connect
+              <i data-lucide="plug" class="lucide me-1"></i>Connect
             </button>
             {% else %}
             <small class="text-muted mt-auto">Admin required</small>
@@ -424,14 +424,14 @@
 
   <!-- ═══ Recent Posts ═══ -->
   <div class="section-header mt-4">
-    <i class="bi bi-clock-history"></i>
+    <i data-lucide="history" class="lucide"></i>
     <span>Recent Posts</span>
   </div>
   <div class="posts-card">
     <div class="card-head">
-      <h5><i class="bi bi-megaphone-fill me-2 text-primary"></i>Activity</h5>
+      <h5><i data-lucide="megaphone" class="lucide me-2 text-primary"></i>Activity</h5>
       <a href="{% url 'social_media:create_post' %}" class="btn btn-primary btn-sm" style="border-radius:var(--radius-btn); font-weight:600; font-size:.8rem;">
-        <i class="bi bi-plus-lg me-1"></i>New Post
+        <i data-lucide="plus" class="lucide me-1"></i>New Post
       </a>
     </div>
     {% if recent_posts %}
@@ -472,11 +472,11 @@
     {% else %}
     <div class="empty-state">
       <div class="icon-wrap">
-        <i class="bi bi-megaphone"></i>
+        <i data-lucide="megaphone" class="lucide"></i>
       </div>
       <p>No posts yet. Connect an account and start publishing!</p>
       <a href="{% url 'social_media:create_post' %}" class="btn btn-primary btn-sm mt-2" style="border-radius:var(--radius-btn); font-weight:600;">
-        <i class="bi bi-plus-lg me-1"></i>Create First Post
+        <i data-lucide="plus" class="lucide me-1"></i>Create First Post
       </a>
     </div>
     {% endif %}
@@ -490,7 +490,7 @@
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header align-items-center gap-3">
-        <div class="platform-badge" id="modalPlatformBadge"><i class="bi bi-plug"></i></div>
+        <div class="platform-badge" id="modalPlatformBadge"><i data-lucide="plug" class="lucide"></i></div>
         <div>
           <h5 class="modal-title fw-bold mb-0" id="modalTitle">Connect Platform</h5>
           <p class="text-muted small mb-0" id="modalSubtitle">Follow the steps below to connect</p>
@@ -506,7 +506,7 @@
         <form id="connectForm" method="post" action="">
           {% csrf_token %}
           <div class="form-section">
-            <h6><i class="bi bi-key-fill me-2" style="color:var(--primary);"></i>Credentials & Details</h6>
+            <h6><i data-lucide="key" class="lucide me-2" style="color:var(--primary);"></i>Credentials & Details</h6>
             <div class="row g-3">
               <div class="col-md-6">
                 <label for="cf_account_name">Account Name <span class="text-danger">*</span></label>
@@ -522,17 +522,17 @@
                 <div class="input-group">
                   <input type="password" class="form-control" name="access_token" id="cf_access_token" placeholder="Paste your token here">
                   <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this, 'cf_access_token')" style="border-radius:0 var(--radius-btn) var(--radius-btn) 0;">
-                    <i class="bi bi-eye"></i>
+                    <i data-lucide="eye" class="lucide"></i>
                   </button>
                 </div>
-                <div class="form-text"><i class="bi bi-lock-fill me-1"></i>Encrypted before storing</div>
+                <div class="form-text"><i data-lucide="lock" class="lucide me-1"></i>Encrypted before storing</div>
               </div>
               <div class="col-md-6">
                 <label for="cf_api_key">API Key / App Secret</label>
                 <div class="input-group">
                   <input type="password" class="form-control" name="api_key" id="cf_api_key" placeholder="Optional">
                   <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this, 'cf_api_key')" style="border-radius:0 var(--radius-btn) var(--radius-btn) 0;">
-                    <i class="bi bi-eye"></i>
+                    <i data-lucide="eye" class="lucide"></i>
                   </button>
                 </div>
               </div>
@@ -543,26 +543,26 @@
 
               <!-- WhatsApp fields -->
               <div class="col-md-6 platform-fields pf-whatsapp">
-                <label for="cf_phone_number_id"><i class="bi bi-phone-fill me-1"></i>Phone Number ID</label>
+                <label for="cf_phone_number_id"><i data-lucide="phone" class="lucide me-1"></i>Phone Number ID</label>
                 <input type="text" class="form-control" name="phone_number_id" id="cf_phone_number_id" placeholder="e.g. 115632XXXXXXX">
                 <div class="form-text">Meta Dashboard → WhatsApp → Getting Started</div>
               </div>
               <div class="col-md-6 platform-fields pf-whatsapp">
-                <label for="cf_waba_id"><i class="bi bi-building me-1"></i>WABA ID</label>
+                <label for="cf_waba_id"><i data-lucide="building-2" class="lucide me-1"></i>WABA ID</label>
                 <input type="text" class="form-control" name="waba_id" id="cf_waba_id" placeholder="Business Account ID">
                 <div class="form-text">WhatsApp Business Manager</div>
               </div>
 
               <!-- Facebook/Instagram fields -->
               <div class="col-md-6 platform-fields pf-facebook pf-instagram">
-                <label for="cf_page_id"><i class="bi bi-file-earmark-fill me-1"></i>Page ID</label>
+                <label for="cf_page_id"><i data-lucide="file" class="lucide me-1"></i>Page ID</label>
                 <input type="text" class="form-control" name="page_id" id="cf_page_id" placeholder="Numeric Page ID">
                 <div class="form-text">Page Settings → About</div>
               </div>
 
               <!-- Telegram fields -->
               <div class="col-md-6 platform-fields pf-telegram">
-                <label for="cf_telegram_chat_id"><i class="bi bi-chat-square-dots-fill me-1"></i>Chat / Group ID</label>
+                <label for="cf_telegram_chat_id"><i data-lucide="message-square-dot" class="lucide me-1"></i>Chat / Group ID</label>
                 <input type="text" class="form-control" name="telegram_chat_id" id="cf_telegram_chat_id" placeholder="e.g. -1001234567890">
                 <div class="form-text">Optional — for sending proactive messages to a group/channel</div>
               </div>
@@ -576,7 +576,7 @@
 
           <!-- Permissions -->
           <div class="form-section">
-            <h6><i class="bi bi-shield-lock-fill me-2" style="color:var(--success);"></i>Permissions</h6>
+            <h6><i data-lucide="shield" class="lucide me-2" style="color:var(--success);"></i>Permissions</h6>
             <div class="row g-2">
               <div class="col-md-6">
                 <div class="perm-switch">
@@ -609,7 +609,7 @@
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal" style="border-radius:10px; padding:.55rem 1.5rem;">Cancel</button>
         <button type="button" class="btn btn-connect-submit text-white" id="btnSubmitConnect" onclick="submitConnect()">
-          <i class="bi bi-plug-fill me-2"></i>Connect & Save
+          <i data-lucide="plug" class="lucide me-2"></i>Connect & Save
         </button>
       </div>
     </div>
@@ -761,13 +761,13 @@ function submitConnect() {
     } else {
       showToast(data.error || 'Connection failed', 'danger');
       btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-plug-fill me-2"></i>Connect & Save';
+      btn.innerHTML = '<i data-lucide="plug" class="lucide me-2"></i>Connect & Save';
     }
   })
   .catch(() => {
     showToast('Network error. Try again.', 'danger');
     btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-plug-fill me-2"></i>Connect & Save';
+    btn.innerHTML = '<i data-lucide="plug" class="lucide me-2"></i>Connect & Save';
   });
 }
 
@@ -785,17 +785,17 @@ function testConnection(accountId, btn) {
   .then(r => r.json())
   .then(data => {
     if (data.success) {
-      btn.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i> OK';
-      resultEl.innerHTML = `<span class="text-success" style="font-size:.65rem;"><i class="bi bi-check-circle-fill me-1"></i>${data.message}</span>`;
+      btn.innerHTML = '<i data-lucide="check-circle" class="lucide text-success"></i> OK';
+      resultEl.innerHTML = `<span class="text-success" style="font-size:.65rem;"><i data-lucide="check-circle" class="lucide me-1"></i>${data.message}</span>`;
     } else {
-      btn.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i> Fail';
-      resultEl.innerHTML = `<span class="text-danger" style="font-size:.65rem;"><i class="bi bi-exclamation-circle-fill me-1"></i>${data.error || data.message}</span>`;
+      btn.innerHTML = '<i data-lucide="x-circle" class="lucide text-danger"></i> Fail';
+      resultEl.innerHTML = `<span class="text-danger" style="font-size:.65rem;"><i data-lucide="circle-alert" class="lucide me-1"></i>${data.error || data.message}</span>`;
     }
     btn.disabled = false;
-    setTimeout(() => { btn.innerHTML = '<i class="bi bi-wifi me-1"></i>Test'; }, 4000);
+    setTimeout(() => { btn.innerHTML = '<i data-lucide="wifi" class="lucide me-1"></i>Test'; }, 4000);
   })
   .catch(() => {
-    btn.innerHTML = '<i class="bi bi-wifi me-1"></i>Test';
+    btn.innerHTML = '<i data-lucide="wifi" class="lucide me-1"></i>Test';
     btn.disabled = false;
     resultEl.innerHTML = '<span class="text-danger" style="font-size:.65rem;">Network error</span>';
   });

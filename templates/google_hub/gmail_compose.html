@@ -6,12 +6,12 @@
 <div class="page-header mb-4">
   <div class="d-flex align-items-center gap-2">
     <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#4285F4,#34A853);display:flex;align-items:center;justify-content:center;">
-      <i class="bi bi-pencil-square text-white" style="font-size:.85rem;"></i>
+      <i data-lucide="pencil" class="lucide text-white" style="font-size:.85rem;"></i>
     </div>
     <h5 class="mb-0" style="font-size:.95rem;">Compose Email</h5>
   </div>
   <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm btn-outline-secondary">
-    <i class="bi bi-arrow-left me-1"></i>Back to Inbox
+    <i data-lucide="arrow-left" class="lucide"></i>Back to Inbox
   </a>
 </div>
 
@@ -43,7 +43,7 @@
 
       <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">
-          <i class="bi bi-send me-2"></i>Send
+          <i data-lucide="send" class="lucide me-2"></i>Send
         </button>
         <a href="{% url 'google_hub:inbox' %}" class="btn btn-outline-secondary">Cancel</a>
       </div>
