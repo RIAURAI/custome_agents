@@ -1,19 +1,19 @@
 <!-- Calendly Dynamic Credentials Modal — reusable partial -->
 <div class="modal fade" id="calendlyConnectModal" tabindex="-1" aria-labelledby="calendlyConnectModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content" style="border-radius:18px;border:none;box-shadow:0 24px 80px rgba(0,0,0,.18);">
+    <div class="modal-content">
 
       <!-- Header -->
       <div class="modal-header border-0 pb-0 px-4 pt-4">
         <div class="d-flex align-items-center gap-3">
-          <div style="background:linear-gradient(135deg,#006bff,#0052cc);border-radius:12px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i class="bi bi-calendar-event" style="color:#fff;font-size:1.25rem;"></i>
+          <div style="background:linear-gradient(135deg,var(--primary),var(--primary-deeper));border-radius:12px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="calendar" class="lucide" style="color:#fff;font-size:1.25rem;"></i>
           </div>
           <div>
-            <h5 class="modal-title fw-bold mb-0" id="calendlyConnectModalLabel" style="color:#1e1b4b;letter-spacing:-.02em;">
+            <h5 class="modal-title fw-bold mb-0" id="calendlyConnectModalLabel" style="color:var(--ink-dark);letter-spacing:-.02em;">
               Connect Calendly
             </h5>
-            <p class="mb-0" style="font-size:.78rem;color:#64748b;">Enter your Calendly OAuth app credentials — each company connects its own Calendly app</p>
+            <p class="mb-0" style="font-size:.78rem;color:var(--text-muted);">Enter your Calendly OAuth app credentials — each company connects its own Calendly app</p>
           </div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -27,12 +27,12 @@
             <h2 class="accordion-header">
               <button class="accordion-button collapsed py-2 px-3" type="button"
                       data-bs-toggle="collapse" data-bs-target="#calendlyGuideBody"
-                      style="font-size:.82rem;font-weight:600;color:#006bff;background:#eff6ff;border-radius:12px!important;">
-                <i class="bi bi-list-check me-2"></i>How to get your Calendly OAuth credentials — step-by-step guide
+                      style="font-size:.82rem;font-weight:600;color:var(--primary);background:var(--primary-light);border-radius:12px!important;">
+                <i data-lucide="list-checks" class="lucide me-2"></i>How to get your Calendly OAuth credentials — step-by-step guide
               </button>
             </h2>
             <div id="calendlyGuideBody" class="accordion-collapse collapse">
-              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.8rem;color:#334155;">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.8rem;color:var(--text-secondary);">
                 <ol class="mb-0 ps-3" style="line-height:2;">
                   <li>Go to <strong><a href="https://developer.calendly.com/" target="_blank" rel="noopener">developer.calendly.com</a></strong> → Sign in with your Calendly account.</li>
                   <li>Navigate to <strong>My Apps</strong> → Click <em>Create New App</em>.</li>
@@ -55,8 +55,8 @@
 
             <!-- Client ID — required -->
             <div class="col-12">
-              <label for="calendlyClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
-                <i class="bi bi-key-fill me-1" style="color:#006bff;"></i>Client ID <span class="text-danger">*</span>
+              <label for="calendlyClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:var(--text-secondary);">
+                <i data-lucide="key" class="lucide me-1" style="color:var(--primary);"></i>Client ID <span class="text-danger">*</span>
               </label>
               <div class="input-group">
                 <input type="text" class="form-control" id="calendlyClientId" name="client_id"
@@ -65,7 +65,7 @@
                        style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
                 <button class="btn btn-outline-secondary" type="button" id="toggleCalendlyClientId"
                         title="Show / hide" style="border-radius:0 10px 10px 0;">
-                  <i class="bi bi-eye" id="eyeIconCalendlyId"></i>
+                  <i data-lucide="eye" class="lucide" id="eyeIconCalendlyId"></i>
                 </button>
               </div>
               <div class="form-text" style="font-size:.73rem;">
@@ -75,8 +75,8 @@
 
             <!-- Client Secret — required -->
             <div class="col-12">
-              <label for="calendlyClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
-                <i class="bi bi-shield-lock-fill me-1" style="color:#10b981;"></i>Client Secret <span class="text-danger">*</span>
+              <label for="calendlyClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:var(--text-secondary);">
+                <i data-lucide="shield" class="lucide me-1" style="color:#10b981;"></i>Client Secret <span class="text-danger">*</span>
               </label>
               <div class="input-group">
                 <input type="password" class="form-control" id="calendlyClientSecret" name="client_secret"
@@ -85,7 +85,7 @@
                        style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
                 <button class="btn btn-outline-secondary" type="button" id="toggleCalendlySecret"
                         title="Show / hide" style="border-radius:0 10px 10px 0;">
-                  <i class="bi bi-eye" id="eyeIconCalendlySecret"></i>
+                  <i data-lucide="eye" class="lucide" id="eyeIconCalendlySecret"></i>
                 </button>
               </div>
               <div class="form-text" style="font-size:.73rem;">
@@ -96,22 +96,22 @@
           </div><!-- /row -->
 
           <!-- What this enables -->
-          <div class="mt-4 mb-3 p-3" style="background:#eff6ff;border-radius:10px;border:1px solid #bfdbfe;">
-            <div class="fw-semibold mb-1" style="font-size:.78rem;color:#1d4ed8;">
-              <i class="bi bi-check2-all me-1"></i>What gets enabled after connecting:
+          <div class="mt-4 mb-3 p-3" style="background:var(--primary-light);border-radius:10px;border:1px solid var(--primary-pale);">
+            <div class="fw-semibold mb-1" style="font-size:.78rem;color:var(--primary-deeper);">
+              <i data-lucide="check-check" class="lucide me-1"></i>What gets enabled after connecting:
             </div>
             <div class="d-flex flex-wrap gap-2">
-              <span style="font-size:.72rem;background:#dbeafe;color:#1e40af;border-radius:20px;padding:2px 10px;">
-                <i class="bi bi-calendar-plus me-1"></i>Event Types
+              <span style="font-size:.72rem;background:var(--primary-light);color:#1e40af;border-radius:20px;padding:2px 10px;">
+                <i data-lucide="calendar-plus" class="lucide me-1"></i>Event Types
               </span>
-              <span style="font-size:.72rem;background:#dbeafe;color:#1e40af;border-radius:20px;padding:2px 10px;">
-                <i class="bi bi-people me-1"></i>Scheduled Meetings
+              <span style="font-size:.72rem;background:var(--primary-light);color:#1e40af;border-radius:20px;padding:2px 10px;">
+                <i data-lucide="users" class="lucide me-1"></i>Scheduled Meetings
               </span>
-              <span style="font-size:.72rem;background:#dbeafe;color:#1e40af;border-radius:20px;padding:2px 10px;">
-                <i class="bi bi-bell me-1"></i>Notifications
+              <span style="font-size:.72rem;background:var(--primary-light);color:#1e40af;border-radius:20px;padding:2px 10px;">
+                <i data-lucide="bell" class="lucide me-1"></i>Notifications
               </span>
-              <span style="font-size:.72rem;background:#dbeafe;color:#1e40af;border-radius:20px;padding:2px 10px;">
-                <i class="bi bi-link-45deg me-1"></i>Booking Links
+              <span style="font-size:.72rem;background:var(--primary-light);color:#1e40af;border-radius:20px;padding:2px 10px;">
+                <i data-lucide="link" class="lucide me-1"></i>Booking Links
               </span>
             </div>
           </div>
@@ -121,8 +121,8 @@
 
           <div class="d-flex gap-2 pb-4">
             <button type="submit" class="btn flex-grow-1 fw-semibold" id="calendlyConnectBtn"
-                    style="background:linear-gradient(135deg,#006bff,#0052cc);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-size:.88rem;">
-              <span id="calendlyBtnText"><i class="bi bi-plug-fill me-2"></i>Save &amp; Connect</span>
+                    style="background:linear-gradient(135deg,var(--primary),var(--primary-deeper));color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-size:.88rem;">
+              <span id="calendlyBtnText"><i data-lucide="plug" class="lucide me-2"></i>Save &amp; Connect</span>
               <span id="calendlyBtnSpinner" class="d-none">
                 <span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving credentials…
               </span>
@@ -143,7 +143,7 @@
   <div id="calendlySuccessToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive">
     <div class="d-flex">
       <div class="toast-body" id="calendlyToastMsg">
-        <i class="bi bi-check-circle-fill me-2"></i>Calendly credentials saved! Redirecting to authorize…
+        <i data-lucide="check-circle" class="lucide me-2"></i>Calendly credentials saved! Redirecting to authorize…
       </div>
       <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
     </div>
@@ -193,8 +193,8 @@
     const clientId     = document.getElementById("calendlyClientId").value.trim();
     const clientSecret = document.getElementById("calendlyClientSecret").value.trim();
 
-    if (!clientId) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client ID is required."); return; }
-    if (!clientSecret) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client Secret is required."); return; }
+    if (!clientId) { showAlert("warning", "<i data-lucide="triangle-alert" class="lucide me-1"></i>Client ID is required."); return; }
+    if (!clientSecret) { showAlert("warning", "<i data-lucide="triangle-alert" class="lucide me-1"></i>Client Secret is required."); return; }
 
     // Disable button + show spinner
     btn.disabled = true;
@@ -211,7 +211,7 @@
       const data = await resp.json();
 
       if (data.ok) {
-        showAlert("success", "<i class='bi bi-check-circle-fill me-1'></i>" + data.message);
+        showAlert("success", "<i data-lucide="check-circle" class="lucide me-1"></i>" + data.message);
         // Show toast and redirect to OAuth
         const toast = new bootstrap.Toast(document.getElementById("calendlySuccessToast"));
         toast.show();
@@ -219,10 +219,10 @@
           window.location.href = data.redirect_url;
         }, 1200);
       } else {
-        showAlert("danger", "<i class='bi bi-x-circle-fill me-1'></i>" + data.error);
+        showAlert("danger", "<i data-lucide="x-circle" class="lucide me-1"></i>" + data.error);
       }
     } catch (err) {
-      showAlert("danger", "<i class='bi bi-wifi-off me-1'></i>Network error — please try again.");
+      showAlert("danger", "<i data-lucide="wifi-off" class="lucide me-1"></i>Network error — please try again.");
     } finally {
       btn.disabled = false;
       btnText.classList.remove("d-none");

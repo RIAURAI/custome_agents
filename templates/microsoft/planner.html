@@ -5,10 +5,10 @@
 {% block content %}
 <div class="d-flex align-items-center gap-3 mb-4">
   <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#059669,#34d399);display:flex;align-items:center;justify-content:center;">
-    <i class="bi bi-kanban text-white" style="font-size:1.1rem;"></i>
+    <i data-lucide="kanban" class="lucide text-white" style="font-size:1.1rem;"></i>
   </div>
   <div>
-    <h4 class="mb-0 fw-bold" style="color:#1e1b4b;letter-spacing:-.02em;">Planner</h4>
+    <h4 class="mb-0 fw-bold" style="color:var(--ink-dark);letter-spacing:-.02em;">Planner</h4>
     <p class="mb-0" style="color:#64748b;font-size:.85rem;">Your assigned Planner tasks in a kanban view</p>
   </div>
 </div>
@@ -20,13 +20,13 @@
     <div class="dash-connect-title">Connect Microsoft 365</div>
     <div class="dash-connect-sub">Enable the Tasks feature to view your Planner boards.</div>
   </div>
-  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i class="bi bi-plug me-2"></i>Setup</a>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i data-lucide="plug" class="lucide me-2"></i>Setup</a>
 </div>
 {% else %}
 
 {% if error %}
 <div class="alert alert-warning mb-4" style="font-size:.85rem;border-radius:12px;">
-  <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+  <i data-lucide="triangle-alert" class="lucide me-2"></i>{{ error }}
 </div>
 {% endif %}
 
@@ -59,7 +59,7 @@
 </div>
 
 <div id="plannerEmpty" class="text-center py-5 text-muted" style="display:none;">
-  <i class="bi bi-kanban" style="font-size:2.5rem;color:#cbd5e1;"></i>
+  <i data-lucide="kanban" class="lucide" style="font-size:2.5rem;color:#cbd5e1;"></i>
   <div class="mt-2" style="font-size:.85rem;">No Planner tasks assigned to you</div>
 </div>
 
@@ -79,7 +79,7 @@
   background:#fff; border-radius:10px; padding:12px; margin-bottom:8px;
   border:1px solid #e2e8f0; transition:all .15s;
 }
-.kanban-card:hover { border-color:#c7d2fe; box-shadow:0 2px 8px rgba(99,102,241,.08); }
+.kanban-card:hover { border-color:var(--primary-pale); box-shadow:0 2px 8px rgba(255,89,0,.08); }
 .kanban-card-title { font-size:.82rem; font-weight:600; color:#1e293b; margin-bottom:6px; }
 .kanban-meta { font-size:.72rem; color:#64748b; display:flex; gap:10px; flex-wrap:wrap; }
 .kanban-priority { font-size:.65rem; padding:1px 6px; border-radius:10px; font-weight:600; }
@@ -132,9 +132,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return `<div class="kanban-card">
           <div class="kanban-card-title">${t.title || 'Untitled'}</div>
           <div class="kanban-meta">
-            ${due ? '<span><i class="bi bi-calendar3 me-1"></i>'+due+'</span>' : ''}
+            ${due ? '<span><i data-lucide="calendar" class="lucide me-1"></i>'+due+'</span>' : ''}
             <span class="kanban-priority priority-${priorityClass(pri)}">${priorityLabel(pri)}</span>
-            ${t.percentComplete > 0 && t.percentComplete < 100 ? '<span><i class="bi bi-bar-chart me-1"></i>'+t.percentComplete+'%</span>' : ''}
+            ${t.percentComplete > 0 && t.percentComplete < 100 ? '<span><i data-lucide="bar-chart-3" class="lucide me-1"></i>'+t.percentComplete+'%</span>' : ''}
           </div>
         </div>`;
       }).join('');

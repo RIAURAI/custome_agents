@@ -9,11 +9,11 @@
     <!-- Channel header -->
     <div class="d-flex align-items-center mb-4">
       <a href="{% url 'slack_hub:channels' %}" class="btn btn-sm btn-outline-secondary me-3">
-        <i class="bi bi-arrow-left"></i>
+        <i data-lucide="arrow-left" class="lucide"></i>
       </a>
-      <h5 class="mb-0 fw-bold"><i class="bi bi-hash me-1"></i>{{ channel_name }}</h5>
+      <h5 class="mb-0 fw-bold"><i data-lucide="hash" class="lucide me-1"></i>{{ channel_name }}</h5>
       <button class="btn btn-sm btn-outline-primary ms-auto" onclick="summarizeChannel()">
-        <i class="bi bi-stars me-1"></i>AI Summarize Channel
+        <i data-lucide="sparkles" class="lucide me-1"></i>AI Summarize Channel
       </button>
     </div>
 
@@ -21,7 +21,7 @@
     <div id="channel-summary-box" class="card mb-4 d-none border-primary">
       <div class="card-body p-3">
         <div class="d-flex align-items-center mb-2">
-          <i class="bi bi-stars text-primary me-2"></i>
+          <i data-lucide="sparkles" class="lucide text-primary me-2"></i>
           <span class="fw-semibold" style="font-size:.9rem;">Channel Summary</span>
         </div>
         <p id="channel-summary-content" class="mb-0" style="white-space:pre-wrap;font-size:.88rem;"></p>
@@ -29,7 +29,7 @@
     </div>
 
     {% if error %}
-    <div class="alert alert-danger"><i class="bi bi-x-circle me-2"></i>{{ error }}</div>
+    <div class="alert alert-danger"><i data-lucide="x-circle" class="lucide me-2"></i>{{ error }}</div>
     {% endif %}
 
     <!-- Messages -->
@@ -42,7 +42,7 @@
         <div class="list-group-item py-3" data-ts="{{ msg.ts }}" data-text="{{ msg.text }}"
              data-sender="{{ msg.sender_name }}" data-sender-id="{{ msg.user }}">
           <div class="d-flex align-items-start">
-            <div class="avatar-circle me-3" style="width:36px;height:36px;font-size:.75rem;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;border-radius:50%;">
+            <div class="avatar-circle me-3" style="width:36px;height:36px;font-size:.75rem;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;border-radius:50%;">
               {{ msg.sender_name|make_list|first|upper }}
             </div>
             <div class="flex-grow-1">
@@ -53,13 +53,13 @@
               <p class="mb-2" style="font-size:.88rem;">{{ msg.text }}</p>
               <div class="d-flex gap-2">
                 <button class="btn btn-sm btn-outline-secondary" onclick="analyzeMsg(this)">
-                  <i class="bi bi-cpu me-1"></i>AI Analyze
+                  <i data-lucide="cpu" class="lucide me-1"></i>AI Analyze
                 </button>
                 <button class="btn btn-sm btn-outline-primary" onclick="generateReply(this)">
-                  <i class="bi bi-reply me-1"></i>AI Reply
+                  <i data-lucide="reply" class="lucide me-1"></i>AI Reply
                 </button>
                 <button class="btn btn-sm btn-success d-none send-btn" onclick="sendReply(this)">
-                  <i class="bi bi-send me-1"></i>Send to Slack
+                  <i data-lucide="send" class="lucide me-1"></i>Send to Slack
                 </button>
               </div>
               <!-- AI result area -->
@@ -95,7 +95,7 @@ function analyzeMsg(btn) {
   const item = btn.closest("[data-ts]");
   const resultDiv = item.querySelector(".ai-result");
   resultDiv.classList.remove("d-none");
-  resultDiv.innerHTML = '<i class="bi bi-hourglass-split"></i> Analyzing...';
+  resultDiv.innerHTML = '<i data-lucide="hourglass" class="lucide"></i> Analyzing...';
 
   apiPost("{% url 'slack_hub:ai_analyze' %}", {
     text: item.dataset.text,
@@ -118,7 +118,7 @@ function generateReply(btn) {
   const resultDiv = item.querySelector(".ai-result");
   const sendBtn = item.querySelector(".send-btn");
   resultDiv.classList.remove("d-none");
-  resultDiv.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating reply...';
+  resultDiv.innerHTML = '<i data-lucide="hourglass" class="lucide"></i> Generating reply...';
 
   apiPost("{% url 'slack_hub:ai_reply' %}", {
     text: item.dataset.text,
@@ -140,7 +140,7 @@ function sendReply(btn) {
   const item = btn.closest("[data-ts]");
   const resultDiv = item.querySelector(".ai-result");
   btn.disabled = true;
-  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending...';
+  btn.innerHTML = '<i data-lucide="hourglass" class="lucide"></i> Sending...';
 
   apiPost("{% url 'slack_hub:ai_reply' %}", {
     text: item.dataset.text,
@@ -153,7 +153,7 @@ function sendReply(btn) {
       resultDiv.innerHTML += '<br><span class="badge bg-success mt-1">✓ Sent to Slack</span>';
     } else {
       btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-send me-1"></i>Send to Slack';
+      btn.innerHTML = '<i data-lucide="send" class="lucide me-1"></i>Send to Slack';
       resultDiv.innerHTML += `<br><span class="text-danger">${data.error || "Failed"}</span>`;
     }
   });

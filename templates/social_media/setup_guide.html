@@ -50,18 +50,18 @@
   <!-- Hero -->
   <div class="guide-hero d-flex flex-wrap justify-content-between align-items-center">
     <div>
-      <h2 class="mb-1"><i class="bi bi-book me-2"></i>Setup Guide</h2>
+      <h2 class="mb-1"><i data-lucide="book-open" class="lucide me-2"></i>Setup Guide</h2>
       <p>Step-by-step instructions to connect your social media platforms.</p>
     </div>
     <a href="{% url 'social_media:dashboard' %}" class="btn btn-outline-light mt-2 mt-md-0" style="border-radius:10px;">
-      <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+      <i data-lucide="arrow-left" class="lucide me-1"></i>Back to Dashboard
     </a>
   </div>
 
   <!-- Quick Start -->
   <div class="card border-0 shadow-sm mb-4" style="border-radius:16px; overflow:hidden; border-top: 4px solid #667eea;">
     <div class="card-body p-4">
-      <h5 class="fw-bold mb-4"><i class="bi bi-lightning-charge me-2 text-warning"></i>Quick Start — 3 Steps</h5>
+      <h5 class="fw-bold mb-4"><i data-lucide="zap" class="lucide me-2 text-warning"></i>Quick Start — 3 Steps</h5>
       <div class="row g-4">
         <div class="col-md-4 text-center">
           <div class="step-circle mb-3">1</div>
@@ -87,7 +87,7 @@
     <div class="card-header d-flex align-items-center" data-bs-toggle="collapse" data-bs-target="#whatsapp-guide">
       <div class="platform-dot me-3" style="background: #25D36615;"><i class="bi bi-whatsapp" style="color:#25D366;"></i></div>
       <h5 class="mb-0 flex-grow-1 fw-bold">WhatsApp Business API</h5>
-      <i class="bi bi-chevron-down text-muted"></i>
+      <i data-lucide="chevron-down" class="lucide text-muted"></i>
     </div>
     <div id="whatsapp-guide" class="collapse show">
       <div class="card-body">
@@ -106,7 +106,7 @@
           </li>
         </ol>
         <div class="info-box mb-3">
-          <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-1"></i>What to enter in WorkHub</h6>
+          <h6 class="fw-bold mb-2"><i data-lucide="info" class="lucide me-1"></i>What to enter in WorkHub</h6>
           <div class="row small">
             <div class="col-sm-6"><strong>Account Name:</strong> Your business name</div>
             <div class="col-sm-6"><strong>Access Token:</strong> System User permanent token</div>
@@ -124,7 +124,7 @@
     <div class="card-header d-flex align-items-center" data-bs-toggle="collapse" data-bs-target="#linkedin-guide">
       <div class="platform-dot me-3" style="background: #0A66C215;"><i class="bi bi-linkedin" style="color:#0A66C2;"></i></div>
       <h5 class="mb-0 flex-grow-1 fw-bold">LinkedIn</h5>
-      <i class="bi bi-chevron-down text-muted"></i>
+      <i data-lucide="chevron-down" class="lucide text-muted"></i>
     </div>
     <div id="linkedin-guide" class="collapse">
       <div class="card-body">
@@ -136,7 +136,7 @@
           <li>Generate Access Token via OAuth 2.0 (scopes: <code>w_member_social</code>, <code>r_liteprofile</code>)</li>
         </ol>
         <div class="info-box mb-3">
-          <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-1"></i>What to enter in WorkHub</h6>
+          <h6 class="fw-bold mb-2"><i data-lucide="info" class="lucide me-1"></i>What to enter in WorkHub</h6>
           <div class="row small">
             <div class="col-sm-6"><strong>Account Name:</strong> Company/profile name</div>
             <div class="col-sm-6"><strong>Access Token:</strong> OAuth 2.0 token</div>
@@ -154,7 +154,7 @@
     <div class="card-header d-flex align-items-center" data-bs-toggle="collapse" data-bs-target="#facebook-guide">
       <div class="platform-dot me-3" style="background: #1877F215;"><i class="bi bi-facebook" style="color:#1877F2;"></i></div>
       <h5 class="mb-0 flex-grow-1 fw-bold">Facebook Messenger</h5>
-      <i class="bi bi-chevron-down text-muted"></i>
+      <i data-lucide="chevron-down" class="lucide text-muted"></i>
     </div>
     <div id="facebook-guide" class="collapse">
       <div class="card-body">
@@ -171,7 +171,7 @@
           </li>
         </ol>
         <div class="info-box mb-3">
-          <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-1"></i>What to enter in WorkHub</h6>
+          <h6 class="fw-bold mb-2"><i data-lucide="info" class="lucide me-1"></i>What to enter in WorkHub</h6>
           <div class="row small">
             <div class="col-sm-6"><strong>Account Name:</strong> Facebook Page name</div>
             <div class="col-sm-6"><strong>Access Token:</strong> Page Access Token</div>
@@ -188,7 +188,7 @@
     <div class="card-header d-flex align-items-center" data-bs-toggle="collapse" data-bs-target="#instagram-guide">
       <div class="platform-dot me-3" style="background: #E4405F15;"><i class="bi bi-instagram" style="color:#E4405F;"></i></div>
       <h5 class="mb-0 flex-grow-1 fw-bold">Instagram</h5>
-      <i class="bi bi-chevron-down text-muted"></i>
+      <i data-lucide="chevron-down" class="lucide text-muted"></i>
     </div>
     <div id="instagram-guide" class="collapse">
       <div class="card-body">
@@ -200,7 +200,7 @@
           <li>Use the <strong>same Page Access Token</strong> as Facebook</li>
         </ol>
         <div class="info-box">
-          <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-1"></i>What to enter in WorkHub</h6>
+          <h6 class="fw-bold mb-2"><i data-lucide="info" class="lucide me-1"></i>What to enter in WorkHub</h6>
           <div class="row small">
             <div class="col-sm-6"><strong>Account Name:</strong> Instagram handle</div>
             <div class="col-sm-6"><strong>Access Token:</strong> Facebook Page token</div>
@@ -217,7 +217,7 @@
     <div class="card-header d-flex align-items-center" data-bs-toggle="collapse" data-bs-target="#twitter-guide">
       <div class="platform-dot me-3" style="background: #00000010;"><i class="bi bi-twitter-x"></i></div>
       <h5 class="mb-0 flex-grow-1 fw-bold">Twitter / X</h5>
-      <i class="bi bi-chevron-down text-muted"></i>
+      <i data-lucide="chevron-down" class="lucide text-muted"></i>
     </div>
     <div id="twitter-guide" class="collapse">
       <div class="card-body">
@@ -229,7 +229,7 @@
           <li>Set up Account Activity API → Register webhook: <code>https://your-domain.com/social/webhooks/twitter/</code></li>
         </ol>
         <div class="info-box mb-3">
-          <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-1"></i>What to enter in WorkHub</h6>
+          <h6 class="fw-bold mb-2"><i data-lucide="info" class="lucide me-1"></i>What to enter in WorkHub</h6>
           <div class="row small">
             <div class="col-sm-6"><strong>Account Name:</strong> Twitter handle</div>
             <div class="col-sm-6"><strong>Access Token:</strong> Bearer Token</div>
@@ -244,7 +244,7 @@
   <!-- ENV Settings -->
   <div class="card border-0 shadow-sm" style="border-radius:16px; overflow:hidden;">
     <div class="card-header bg-white py-3 px-4" style="border-bottom: 2px solid #f1f5f9;">
-      <h5 class="mb-0 fw-bold"><i class="bi bi-gear me-2 text-muted"></i>Required .env Settings</h5>
+      <h5 class="mb-0 fw-bold"><i data-lucide="settings-2" class="lucide me-2 text-muted"></i>Required .env Settings</h5>
     </div>
     <div class="card-body p-4">
       <div class="env-block mb-4">
@@ -260,7 +260,7 @@ OPENAI_API_KEY=sk-your-openai-api-key
 FERNET_KEY=your-fernet-encryption-key
       </div>
       <div class="info-box">
-        <strong><i class="bi bi-terminal me-1"></i>Local Testing with ngrok:</strong>
+        <strong><i data-lucide="terminal" class="lucide me-1"></i>Local Testing with ngrok:</strong>
         <div class="env-block mt-2" style="font-size:.8rem;">
 ngrok http 8000
 <code># Use the https URL → e.g. https://abc123.ngrok.io/social/webhooks/whatsapp/</code>

@@ -32,7 +32,7 @@
 
   .empty-state {
     text-align: center; padding: 3rem 1rem;
-    background: linear-gradient(135deg, #f8fafc, #eef2ff); border-radius: 16px;
+    background: linear-gradient(135deg, #f8fafc, var(--primary-light)); border-radius: 16px;
   }
   .empty-state i { font-size: 3rem; color: #94a3b8; }
 </style>
@@ -44,11 +44,11 @@
   <!-- Hero -->
   <div class="posts-hero d-flex flex-wrap justify-content-between align-items-center">
     <div>
-      <h2 class="mb-1"><i class="bi bi-file-earmark-richtext me-2"></i>Posts</h2>
+      <h2 class="mb-1"><i data-lucide="file-text" class="lucide me-2"></i>Posts</h2>
       <p>Manage and publish content across your social platforms.</p>
     </div>
     <a href="{% url 'social_media:create_post' %}" class="btn btn-light text-dark fw-semibold" style="border-radius:10px;">
-      <i class="bi bi-plus-lg me-1"></i>New Post
+      <i data-lucide="plus" class="lucide me-1"></i>New Post
     </a>
   </div>
 
@@ -87,7 +87,7 @@
               <form method="post" action="{% url 'social_media:delete_post' post.pk %}" class="d-inline">
                 {% csrf_token %}
                 <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" title="Delete">
-                  <i class="bi bi-trash"></i>
+                  <i data-lucide="trash-2" class="lucide"></i>
                 </button>
               </form>
               {% endif %}
@@ -100,11 +100,11 @@
   </div>
   {% else %}
   <div class="empty-state">
-    <i class="bi bi-file-earmark-richtext"></i>
+    <i data-lucide="file-text" class="lucide"></i>
     <h5 class="mt-3 fw-bold">No posts yet</h5>
     <p class="text-muted mb-3">Create your first post to start publishing content.</p>
     <a href="{% url 'social_media:create_post' %}" class="btn btn-primary" style="border-radius:10px;">
-      <i class="bi bi-plus-lg me-1"></i>Create Post
+      <i data-lucide="plus" class="lucide me-1"></i>Create Post
     </a>
   </div>
   {% endif %}

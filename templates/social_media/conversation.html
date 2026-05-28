@@ -83,7 +83,7 @@
       </div>
       {% empty %}
       <div class="text-center text-muted py-4">
-        <i class="bi bi-chat fs-2"></i>
+        <i data-lucide="message-circle" class="lucide fs-2"></i>
         <p class="mt-2 small">No messages in this conversation yet.</p>
       </div>
       {% endfor %}
@@ -95,7 +95,7 @@
         {% csrf_token %}
         <input type="text" name="content" class="form-control chat-input" placeholder="Type a message..." required autofocus>
         <button type="submit" class="btn btn-send">
-          <i class="bi bi-send-fill"></i>
+          <i data-lucide="send" class="lucide"></i>
         </button>
       </form>
     </div>

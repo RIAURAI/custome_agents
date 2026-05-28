@@ -6,21 +6,21 @@
 <div class="d-flex align-items-center justify-content-between mb-4">
   <div class="d-flex align-items-center gap-2">
     <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;font-size:.8rem;">
-      <i class="bi bi-arrow-left me-1"></i>Back
+      <i data-lucide="arrow-left" class="lucide"></i>Back
     </a>
     <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#EA4335,#FBBC05);display:flex;align-items:center;justify-content:center;">
-      <i class="bi bi-envelope-open-fill" style="color:#fff;font-size:.85rem;"></i>
+      <i data-lucide="mail-open" class="lucide" style="color:#fff;font-size:.85rem;"></i>
     </div>
     <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">Gmail</span>
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'google_hub:compose' %}?to={{ email.parsed_headers.from|urlencode }}&subject=Re: {{ email.parsed_headers.subject|urlencode }}"
        class="btn btn-sm" style="background:linear-gradient(135deg,#4285F4,#1d4ed8);color:#fff;border:none;border-radius:8px;font-size:.8rem;font-weight:600;">
-      <i class="bi bi-reply me-1"></i>Reply
+      <i data-lucide="reply" class="lucide"></i>Reply
     </a>
     <a href="{% url 'google_hub:compose' %}?subject=Fwd: {{ email.parsed_headers.subject|urlencode }}"
-       class="btn btn-sm" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:8px;font-size:.8rem;font-weight:600;">
-      <i class="bi bi-forward me-1"></i>Forward
+       class="btn btn-sm" style="background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-pale);border-radius:8px;font-size:.8rem;font-weight:600;">
+      <i data-lucide="forward" class="lucide"></i>Forward
     </a>
   </div>
 </div>
@@ -32,7 +32,7 @@
 <div class="card" style="border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 2px 12px rgba(15,23,42,.06);">
   <!-- Subject header -->
   <div class="card-header bg-transparent px-4 pt-4 pb-0" style="border-bottom:none;">
-    <h5 class="fw-bold mb-0" style="font-size:1.1rem;color:#1e1b4b;line-height:1.4;">
+    <h5 class="fw-bold mb-0" style="font-size:1.1rem;color:var(--ink-dark);line-height:1.4;">
       {{ email.parsed_headers.subject|default:"(no subject)" }}
     </h5>
   </div>
@@ -40,7 +40,7 @@
   <div class="card-body px-4 pt-3 pb-4">
     <!-- Sender info row -->
     <div class="d-flex align-items-start gap-3 mb-3 pb-3" style="border-bottom:1px solid #f1f5f9;">
-      <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:700;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:42px;height:42px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         {{ email.parsed_headers.from|first|upper|default:"?" }}
       </div>
       <div class="flex-grow-1 min-w-0">
@@ -62,7 +62,7 @@
               <span style="font-size:.62rem;background:#fef3c7;color:#92400e;border-radius:10px;padding:1px 7px;font-weight:600;">Important</span>
               {% endif %}
               {% if 'STARRED' in email.labelIds %}
-              <span style="font-size:.62rem;background:#fef9c3;color:#a16207;border-radius:10px;padding:1px 7px;font-weight:600;"><i class="bi bi-star-fill" style="font-size:.55rem;"></i> Starred</span>
+              <span style="font-size:.62rem;background:#fef9c3;color:#a16207;border-radius:10px;padding:1px 7px;font-weight:600;"><i data-lucide="star" class="lucide" style="font-size:.55rem;"></i> Starred</span>
               {% endif %}
             </div>
             {% endif %}

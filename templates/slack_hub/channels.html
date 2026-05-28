@@ -24,10 +24,10 @@
   {% if slack_connected %}
   <div class="d-flex gap-2">
     <a href="{% url 'slack_hub:track' %}" class="ibx-compose-btn btn">
-      <i class="bi bi-eye me-2"></i>Tracked Messages
+      <i data-lucide="eye" class="lucide me-2"></i>Tracked Messages
     </a>
-    <a href="{% url 'slack_hub:settings' %}" class="ibx-compose-btn btn" style="background:#eef2ff !important;color:#4f46e5 !important;">
-      <i class="bi bi-gear me-2"></i>Auto-Reply Settings
+    <a href="{% url 'slack_hub:settings' %}" class="ibx-compose-btn btn" style="background:var(--primary-light) !important;color:var(--primary) !important;">
+      <i data-lucide="settings-2" class="lucide me-2"></i>Auto-Reply Settings
     </a>
   </div>
   {% endif %}
@@ -35,7 +35,7 @@
 
 {% if error %}
 <div class="alert alert-warning mb-3" style="font-size:.875rem;border-radius:12px;">
-  <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+  <i data-lucide="triangle-alert" class="lucide me-2"></i>{{ error }}
 </div>
 {% endif %}
 
@@ -51,7 +51,7 @@
   <h5 class="ibx-empty-title">Connect Slack to see your channels</h5>
   <p class="ibx-empty-sub">Track messages, AI auto-detect intent, and generate smart replies — all from WorkHub.</p>
   <button type="button" class="btn ibx-connect-btn" data-bs-toggle="modal" data-bs-target="#slackConnectModal">
-    <i class="bi bi-box-arrow-in-right me-2"></i>Connect Slack Workspace
+    <i data-lucide="log-in" class="lucide me-2"></i>Connect Slack Workspace
   </button>
 </div>
 
@@ -73,8 +73,8 @@
      class="ibx-row" style="grid-template-columns:40px 1fr auto;">
 
     <!-- Icon -->
-    <div class="ibx-avatar" style="background:linear-gradient(135deg,#f0e6ff,#ddd6fe);color:#7c3aed;border-radius:10px;">
-      <i class="bi bi-hash" style="font-size:.9rem;"></i>
+    <div class="ibx-avatar" style="background:linear-gradient(135deg,#f0e6ff,var(--primary-pale));color:#7c3aed;border-radius:10px;">
+      <i data-lucide="hash" class="lucide" style="font-size:.9rem;"></i>
     </div>
 
     <!-- Name + purpose -->
@@ -87,7 +87,7 @@
 
     <!-- Members badge -->
     <div class="ibx-meta">
-      <span style="font-size:.73rem;font-weight:600;color:#6366f1;background:#eef2ff;border:1px solid #c7d2fe;border-radius:20px;padding:2px 10px;">
+      <span style="font-size:.73rem;font-weight:600;color:var(--primary);background:var(--primary-light);border:1px solid var(--primary-pale);border-radius:20px;padding:2px 10px;">
         {{ ch.num_members }} members
       </span>
     </div>
@@ -102,7 +102,7 @@
 <div class="ibx-empty">
   <div class="ibx-empty-visual">
     <div class="ibx-empty-ring"></div>
-    <div class="ibx-empty-circle"><i class="bi bi-hash"></i></div>
+    <div class="ibx-empty-circle"><i data-lucide="hash" class="lucide"></i></div>
   </div>
   <h5 class="ibx-empty-title">No channels found</h5>
   <p class="ibx-empty-sub">Your Slack workspace has no public channels visible to this app.</p>

@@ -1,8 +1,8 @@
 <!-- Discord Connect Modal -->
 <div class="modal fade" id="discordConnectModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content" style="border:none;border-radius:20px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.25);">
-      <div class="modal-header" style="border:none;padding:1.8rem 2.2rem 1.2rem;background:linear-gradient(135deg,#f8fafc 0%,#eef2ff 100%);">
+    <div class="modal-content">
+      <div class="modal-header" style="border:none;padding:1.8rem 2.2rem 1.2rem;background:linear-gradient(135deg,#f8fafc 0%,var(--primary-light) 100%);">
         <div class="d-flex align-items-center gap-3">
           <div style="width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#5865F212;">
             <i class="bi bi-discord" style="font-size:1.5rem;color:#5865F2;"></i>
@@ -96,17 +96,17 @@
         <form method="post" action="{% url 'integrations:discord_save_credentials' %}" id="discordForm">
           {% csrf_token %}
           <div style="background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-top:1.2rem;">
-            <h6 style="font-size:.85rem;font-weight:700;margin-bottom:1rem;"><i class="bi bi-key-fill me-2" style="color:#5865F2;"></i>Discord Credentials</h6>
+            <h6 style="font-size:.85rem;font-weight:700;margin-bottom:1rem;"><i data-lucide="key" class="lucide me-2" style="color:#5865F2;"></i>Discord Credentials</h6>
             <div class="row g-3">
               <div class="col-12">
                 <label class="form-label fw-semibold" style="font-size:.78rem;">Bot Token <span class="text-danger">*</span></label>
                 <div class="input-group">
                   <input type="password" class="form-control" name="discord_bot_token" required placeholder="Paste your bot token here" style="border-radius:var(--radius-btn) 0 0 var(--radius-btn);font-size:.85rem;">
                   <button class="btn btn-outline-secondary" type="button" onclick="let i=this.previousElementSibling;i.type=i.type==='password'?'text':'password'" style="border-radius:0 var(--radius-btn) var(--radius-btn) 0;">
-                    <i class="bi bi-eye"></i>
+                    <i data-lucide="eye" class="lucide"></i>
                   </button>
                 </div>
-                <div class="form-text" style="font-size:.7rem;"><i class="bi bi-lock-fill me-1"></i>Encrypted before storing</div>
+                <div class="form-text" style="font-size:.7rem;"><i data-lucide="lock" class="lucide me-1"></i>Encrypted before storing</div>
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-semibold" style="font-size:.78rem;">Server (Guild) ID</label>
@@ -125,7 +125,7 @@
       <div class="modal-footer" style="border:none;padding:0 2.2rem 1.8rem;justify-content:space-between;">
         <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal" style="border-radius:10px;padding:.55rem 1.5rem;">Cancel</button>
         <button type="submit" form="discordForm" class="btn text-white fw-bold" style="background:#5865F2;border-radius:10px;padding:.7rem 2.2rem;font-size:.88rem;">
-          <i class="bi bi-plug-fill me-2"></i>Connect & Save
+          <i data-lucide="plug" class="lucide me-2"></i>Connect & Save
         </button>
       </div>
     </div>

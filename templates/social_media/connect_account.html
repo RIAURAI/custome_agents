@@ -127,7 +127,7 @@
       <div class="connect-body">
         <!-- Platform-specific setup guide -->
         <div class="platform-guide">
-          <h6><i class="bi bi-info-circle me-1"></i> How to get your credentials</h6>
+          <h6><i data-lucide="info" class="lucide me-1"></i> How to get your credentials</h6>
           {% if platform == "whatsapp" %}
           <ol>
             <li>Go to <a href="https://developers.facebook.com" target="_blank">Meta Developer Portal</a></li>
@@ -172,7 +172,7 @@
           {% csrf_token %}
 
           <!-- Basic Info -->
-          <div class="section-label"><i class="bi bi-person-badge"></i> Account Information</div>
+          <div class="section-label"><i data-lucide="id-card" class="lucide"></i> Account Information</div>
 
           <div class="field-group">
             <label>Account Name <span class="text-danger">*</span></label>
@@ -193,16 +193,16 @@
 
           <!-- Authentication -->
           <div class="section-divider"></div>
-          <div class="section-label"><i class="bi bi-shield-lock"></i> Authentication &amp; Tokens</div>
+          <div class="section-label"><i data-lucide="shield" class="lucide"></i> Authentication &amp; Tokens</div>
 
           <div class="field-group">
-            <label><i class="bi bi-key me-1"></i> Access Token <span class="text-danger">*</span></label>
+            <label><i data-lucide="key" class="lucide me-1"></i> Access Token <span class="text-danger">*</span></label>
             <input type="password" name="access_token" class="form-control" placeholder="Paste your API access token" required>
-            <div class="form-text"><i class="bi bi-lock-fill me-1"></i> Stored with AES-256 encryption &mdash; never shown again</div>
+            <div class="form-text"><i data-lucide="lock" class="lucide me-1"></i> Stored with AES-256 encryption &mdash; never shown again</div>
           </div>
 
           <div class="field-group">
-            <label><i class="bi bi-key-fill me-1"></i> API Key / App Secret</label>
+            <label><i data-lucide="key" class="lucide me-1"></i> API Key / App Secret</label>
             <input type="password" name="api_key" class="form-control" placeholder="App Secret or API Key (if required)">
             <div class="form-text">Required for {% if platform == "twitter" %}Twitter API v2 authentication{% elif platform == "linkedin" %}LinkedIn OAuth Client Secret{% else %}webhook signature verification{% endif %}</div>
           </div>
@@ -237,7 +237,7 @@
 
           <!-- Webhook -->
           <div class="section-divider"></div>
-          <div class="section-label"><i class="bi bi-broadcast"></i> Webhook Configuration</div>
+          <div class="section-label"><i data-lucide="radio-tower" class="lucide"></i> Webhook Configuration</div>
 
           <div class="field-group">
             <label>Webhook Verify Token</label>
@@ -249,42 +249,42 @@
             <label>Your Webhook URL <small class="text-muted">(copy this to platform settings)</small></label>
             <div class="input-group">
               <input type="text" class="form-control" readonly value="{% if platform == 'whatsapp' %}{{ request.scheme }}://{{ request.get_host }}/social/webhooks/whatsapp/{% elif platform == 'facebook' %}{{ request.scheme }}://{{ request.get_host }}/social/webhooks/facebook/{% elif platform == 'instagram' %}{{ request.scheme }}://{{ request.get_host }}/social/webhooks/instagram/{% elif platform == 'linkedin' %}{{ request.scheme }}://{{ request.get_host }}/social/webhooks/linkedin/{% else %}{{ request.scheme }}://{{ request.get_host }}/social/webhooks/twitter/{% endif %}" id="webhookUrl">
-              <button class="btn btn-outline-secondary" type="button" onclick="copyWebhook()" title="Copy"><i class="bi bi-copy"></i></button>
+              <button class="btn btn-outline-secondary" type="button" onclick="copyWebhook()" title="Copy"><i data-lucide="copy" class="lucide"></i></button>
             </div>
             <div class="form-text">Paste this URL in your {{ platform_name }} developer settings as the webhook callback URL</div>
           </div>
 
           <!-- Permissions -->
           <div class="section-divider"></div>
-          <div class="section-label"><i class="bi bi-shield-check"></i> Access Permissions</div>
+          <div class="section-label"><i data-lucide="shield-check" class="lucide"></i> Access Permissions</div>
           <p class="text-muted" style="font-size:.78rem; margin-bottom:.85rem;">Control what this connection is allowed to do. You can change these later.</p>
 
           <div class="perm-grid">
             <label class="perm-card checked">
               <input type="checkbox" name="can_read_messages" checked>
               <div>
-                <div class="perm-label"><i class="bi bi-envelope-open me-1"></i> Read Messages</div>
+                <div class="perm-label"><i data-lucide="mail-open" class="lucide me-1"></i> Read Messages</div>
                 <div class="perm-desc">Receive &amp; view incoming messages/DMs</div>
               </div>
             </label>
             <label class="perm-card">
               <input type="checkbox" name="can_send_messages">
               <div>
-                <div class="perm-label"><i class="bi bi-send me-1"></i> Send Messages</div>
+                <div class="perm-label"><i data-lucide="send" class="lucide me-1"></i> Send Messages</div>
                 <div class="perm-desc">Send replies &amp; outbound messages</div>
               </div>
             </label>
             <label class="perm-card">
               <input type="checkbox" name="can_auto_reply">
               <div>
-                <div class="perm-label"><i class="bi bi-robot me-1"></i> AI Auto-Reply</div>
+                <div class="perm-label"><i data-lucide="bot" class="lucide me-1"></i> AI Auto-Reply</div>
                 <div class="perm-desc">Let AI bot automatically respond</div>
               </div>
             </label>
             <label class="perm-card">
               <input type="checkbox" name="can_post_content">
               <div>
-                <div class="perm-label"><i class="bi bi-megaphone me-1"></i> Post Content</div>
+                <div class="perm-label"><i data-lucide="megaphone" class="lucide me-1"></i> Post Content</div>
                 <div class="perm-desc">Publish posts/stories on this platform</div>
               </div>
             </label>
@@ -293,7 +293,7 @@
           <!-- Actions -->
           <div class="d-grid gap-2 mt-4">
             <button type="button" class="btn btn-connect" id="connectBtn">
-              <i class="bi bi-plug-fill me-1"></i> Connect {{ platform_name }}
+              <i data-lucide="plug" class="lucide me-1"></i> Connect {{ platform_name }}
             </button>
             <a href="{% url 'social_media:dashboard' %}" class="btn btn-outline-secondary btn-cancel">Cancel</a>
           </div>
@@ -319,12 +319,12 @@
         <div class="perm-summary" id="modalPerms"></div>
 
         <div class="d-flex align-items-center justify-content-center gap-1 mb-3">
-          <i class="bi bi-shield-check text-success me-1"></i>
+          <i data-lucide="shield-check" class="lucide text-success me-1"></i>
           <span class="small text-muted">All credentials encrypted with AES-256</span>
         </div>
         <div class="d-grid gap-2">
           <button type="button" class="btn btn-connect" id="confirmSubmit">
-            <i class="bi bi-check-lg me-1"></i> Yes, Connect
+            <i data-lucide="check" class="lucide me-1"></i> Yes, Connect
           </button>
           <button type="button" class="btn btn-outline-secondary btn-cancel" data-bs-dismiss="modal">Go Back</button>
         </div>
@@ -382,8 +382,8 @@ function copyWebhook() {
   const urlInput = document.getElementById('webhookUrl');
   navigator.clipboard.writeText(urlInput.value).then(() => {
     const btn = urlInput.nextElementSibling;
-    btn.innerHTML = '<i class="bi bi-check-lg text-success"></i>';
-    setTimeout(() => { btn.innerHTML = '<i class="bi bi-copy"></i>'; }, 2000);
+    btn.innerHTML = '<i data-lucide="check" class="lucide text-success"></i>';
+    setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="lucide"></i>'; }, 2000);
   });
 }
 </script>

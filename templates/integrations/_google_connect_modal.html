@@ -1,7 +1,7 @@
 <!-- Google Workspace Dynamic Credentials Modal — reusable partial -->
 <div class="modal fade" id="googleConnectModal" tabindex="-1" aria-labelledby="googleConnectModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width:860px;">
-    <div class="modal-content" style="border-radius:18px;border:none;box-shadow:0 24px 80px rgba(0,0,0,.18);">
+    <div class="modal-content">
 
       <!-- Header -->
       <div class="modal-header border-0 pb-0 px-4 pt-4">
@@ -10,10 +10,10 @@
             <i class="bi bi-google" style="color:#fff;font-size:1.25rem;"></i>
           </div>
           <div>
-            <h5 class="modal-title fw-bold mb-0" id="googleConnectModalLabel" style="color:#1e1b4b;letter-spacing:-.02em;">
+            <h5 class="modal-title fw-bold mb-0" id="googleConnectModalLabel" style="color:var(--ink-dark);letter-spacing:-.02em;">
               Connect Google Workspace
             </h5>
-            <p class="mb-0" style="font-size:.78rem;color:#64748b;">Follow the steps below to enable Gmail, Drive, Docs, Sheets, Forms, Calendar &amp; Meet</p>
+            <p class="mb-0" style="font-size:.78rem;color:var(--text-muted);">Follow the steps below to enable Gmail, Drive, Docs, Sheets, Forms, Calendar &amp; Meet</p>
           </div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -35,14 +35,14 @@
               </button>
             </h2>
             <div id="step1" class="accordion-collapse collapse">
-              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:#334155;">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:var(--text-secondary);">
                 <ol class="mb-2 ps-3" style="line-height:2.1;">
                   <li>Open <a href="https://console.cloud.google.com/" target="_blank" rel="noopener" class="text-primary fw-semibold">console.cloud.google.com</a></li>
                   <li>Click the <strong>project selector</strong> at the top → <strong>New Project</strong></li>
                   <li>Enter a Project Name (e.g. <em>WorkHub Integration</em>) → Click <strong>Create</strong></li>
                   <li>Make sure the new project is selected in the top bar before continuing</li>
                 </ol>
-                <div class="alert alert-info py-2" style="font-size:.77rem;border-radius:8px;"><i class="bi bi-info-circle me-1"></i>One Google Cloud project per company is recommended.</div>
+                <div class="alert alert-info py-2" style="font-size:.77rem;border-radius:8px;"><i data-lucide="info" class="lucide me-1"></i>One Google Cloud project per company is recommended.</div>
               </div>
             </div>
           </div>
@@ -58,7 +58,7 @@
               </button>
             </h2>
             <div id="step2" class="accordion-collapse collapse">
-              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:#334155;">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:var(--text-secondary);">
                 <p class="mb-2">Go to <strong>APIs &amp; Services → Library</strong> and enable each API below:</p>
                 <div class="row g-2 mb-3">
                   {% for api in google_apis %}
@@ -70,12 +70,12 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;transition:box-shadow .15s;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i class="bi bi-envelope-fill" style="color:#EA4335;font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="mail" class="lucide" style="color:#EA4335;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Gmail API</div>
                         <div class="text-muted" style="font-size:.7rem;">Read · Send · Modify labels · Drafts</div>
                       </div>
-                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                      <i data-lucide="external-link" class="lucide ms-auto text-muted" style="font-size:.7rem;"></i>
                     </a>
                   </div>
                   <div class="col-md-6">
@@ -83,12 +83,12 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i class="bi bi-calendar3-fill" style="color:#4285F4;font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="calendar" class="lucide" style="color:#4285F4;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Calendar API</div>
                         <div class="text-muted" style="font-size:.7rem;">Read · Create · Update · Delete events</div>
                       </div>
-                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                      <i data-lucide="external-link" class="lucide ms-auto text-muted" style="font-size:.7rem;"></i>
                     </a>
                   </div>
                   <div class="col-md-6">
@@ -96,12 +96,12 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i class="bi bi-camera-video-fill" style="color:#34A853;font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="video" class="lucide" style="color:#34A853;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Meet REST API</div>
                         <div class="text-muted" style="font-size:.7rem;">Create meeting spaces · Get links</div>
                       </div>
-                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                      <i data-lucide="external-link" class="lucide ms-auto text-muted" style="font-size:.7rem;"></i>
                     </a>
                   </div>
                   <div class="col-md-6">
@@ -109,12 +109,12 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i class="bi bi-cloud-fill" style="color:#1d4ed8;font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="cloud" class="lucide" style="color:var(--primary-deeper);font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Drive API</div>
                         <div class="text-muted" style="font-size:.7rem;">Browse · Upload · Download · Delete files</div>
                       </div>
-                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                      <i data-lucide="external-link" class="lucide ms-auto text-muted" style="font-size:.7rem;"></i>
                     </a>
                   </div>
                   <div class="col-md-6">
@@ -122,12 +122,12 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i class="bi bi-file-earmark-text-fill" style="color:#4285F4;font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="file-text" class="lucide" style="color:#4285F4;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Docs API</div>
                         <div class="text-muted" style="font-size:.7rem;">Create · Read · Update documents</div>
                       </div>
-                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                      <i data-lucide="external-link" class="lucide ms-auto text-muted" style="font-size:.7rem;"></i>
                     </a>
                   </div>
                   <div class="col-md-6">
@@ -135,12 +135,12 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i class="bi bi-table" style="color:#34A853;font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="table" class="lucide" style="color:#34A853;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Sheets API</div>
                         <div class="text-muted" style="font-size:.7rem;">Read · Write cells · Create spreadsheets</div>
                       </div>
-                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                      <i data-lucide="external-link" class="lucide ms-auto text-muted" style="font-size:.7rem;"></i>
                     </a>
                   </div>
                   <div class="col-md-6">
@@ -148,17 +148,17 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i class="bi bi-ui-checks" style="color:#7c3aed;font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="clipboard-list" class="lucide" style="color:#7c3aed;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Forms API</div>
                         <div class="text-muted" style="font-size:.7rem;">Create · Read · Manage forms</div>
                       </div>
-                      <i class="bi bi-box-arrow-up-right ms-auto text-muted" style="font-size:.7rem;"></i>
+                      <i data-lucide="external-link" class="lucide ms-auto text-muted" style="font-size:.7rem;"></i>
                     </a>
                   </div>
                 </div>
                 <div class="alert alert-warning py-2" style="font-size:.77rem;border-radius:8px;">
-                  <i class="bi bi-exclamation-triangle me-1"></i>Click each card to open the API in Google Cloud Console, then click <strong>Enable</strong>.
+                  <i data-lucide="triangle-alert" class="lucide me-1"></i>Click each card to open the API in Google Cloud Console, then click <strong>Enable</strong>.
                 </div>
               </div>
             </div>
@@ -175,7 +175,7 @@
               </button>
             </h2>
             <div id="step3" class="accordion-collapse collapse">
-              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:#334155;">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:var(--text-secondary);">
                 <ol class="mb-2 ps-3" style="line-height:2.1;">
                   <li>Go to <strong>APIs &amp; Services → OAuth consent screen</strong></li>
                   <li>Choose User Type:
@@ -189,7 +189,7 @@
                   <li>Click <strong>Save and Continue</strong> through all sections</li>
                 </ol>
                 <div class="alert alert-info py-2" style="font-size:.77rem;border-radius:8px;">
-                  <i class="bi bi-info-circle me-1"></i>For <strong>External</strong> apps in testing mode, add your email addresses as <strong>Test users</strong>.
+                  <i data-lucide="info" class="lucide me-1"></i>For <strong>External</strong> apps in testing mode, add your email addresses as <strong>Test users</strong>.
                 </div>
               </div>
             </div>
@@ -206,7 +206,7 @@
               </button>
             </h2>
             <div id="step4" class="accordion-collapse collapse">
-              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:#334155;">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.81rem;color:var(--text-secondary);">
                 <ol class="mb-2 ps-3" style="line-height:2.1;">
                   <li>Go to <strong>APIs &amp; Services → Credentials</strong></li>
                   <li>Click <strong>+ Create Credentials → OAuth client ID</strong></li>
@@ -216,8 +216,8 @@
                     <div class="d-flex align-items-center gap-2 mt-1">
                       <code id="redirectUriCode" style="font-size:.75rem;background:#e2e8f0;padding:4px 10px;border-radius:6px;word-break:break-all;">{{ google_redirect_uri }}</code>
                       <button type="button" onclick="copyUri()" title="Copy URI"
-                              style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:6px;padding:3px 8px;font-size:.72rem;cursor:pointer;flex-shrink:0;">
-                        <i class="bi bi-clipboard" id="copyIcon"></i>
+                              style="background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-pale);border-radius:6px;padding:3px 8px;font-size:.72rem;cursor:pointer;flex-shrink:0;">
+                        <i data-lucide="clipboard" class="lucide" id="copyIcon"></i>
                       </button>
                     </div>
                   </li>
@@ -225,7 +225,7 @@
                   <li>A dialog shows your <strong>Client ID</strong> and <strong>Client Secret</strong> — copy both</li>
                 </ol>
                 <div class="alert alert-warning py-2" style="font-size:.77rem;border-radius:8px;">
-                  <i class="bi bi-exclamation-triangle me-1"></i>The Client Secret is shown only once. Copy it immediately or download the JSON file.
+                  <i data-lucide="triangle-alert" class="lucide me-1"></i>The Client Secret is shown only once. Copy it immediately or download the JSON file.
                 </div>
               </div>
             </div>
@@ -237,19 +237,19 @@
               <button class="accordion-button collapsed py-2 px-3" type="button"
                       data-bs-toggle="collapse" data-bs-target="#step5"
                       style="font-size:.82rem;font-weight:600;color:#1e293b;background:#f8fafc;border-radius:12px!important;">
-                <span style="background:#6366f1;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">5</span>
+                <span style="background:var(--primary);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">5</span>
                 OAuth Scopes &amp; Permissions Reference
               </button>
             </h2>
             <div id="step5" class="accordion-collapse collapse">
-              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.79rem;color:#334155;">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.79rem;color:var(--text-secondary);">
                 <p class="mb-2 text-muted" style="font-size:.77rem;">These scopes are automatically requested when the user authorizes via Google. No manual configuration needed — for reference only.</p>
                 <table class="table table-sm table-bordered mb-0" style="font-size:.76rem;">
-                  <thead style="background:#eef2ff;">
+                  <thead style="background:var(--primary-light);">
                     <tr>
-                      <th style="padding:6px 10px;font-weight:600;color:#4f46e5;">Scope</th>
-                      <th style="padding:6px 10px;font-weight:600;color:#4f46e5;">Service</th>
-                      <th style="padding:6px 10px;font-weight:600;color:#4f46e5;">What it allows</th>
+                      <th style="padding:6px 10px;font-weight:600;color:var(--primary);">Scope</th>
+                      <th style="padding:6px 10px;font-weight:600;color:var(--primary);">Service</th>
+                      <th style="padding:6px 10px;font-weight:600;color:var(--primary);">What it allows</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -276,7 +276,7 @@
             <h2 class="accordion-header">
               <button class="accordion-button py-2 px-3" type="button"
                       data-bs-toggle="collapse" data-bs-target="#step6"
-                      style="font-size:.82rem;font-weight:700;color:#1e293b;background:#eff6ff;border-radius:12px!important;">
+                      style="font-size:.82rem;font-weight:700;color:#1e293b;background:var(--primary-light);border-radius:12px!important;">
                 <span style="background:#4285F4;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">6</span>
                 Enter Your Client ID &amp; Secret — Then Connect
               </button>
@@ -289,8 +289,8 @@
 
                     <!-- Client ID -->
                     <div class="col-12">
-                      <label for="googleClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
-                        <i class="bi bi-key-fill me-1" style="color:#4285F4;"></i>Client ID <span class="text-danger">*</span>
+                      <label for="googleClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:var(--text-secondary);">
+                        <i data-lucide="key" class="lucide me-1" style="color:#4285F4;"></i>Client ID <span class="text-danger">*</span>
                       </label>
                       <div class="input-group">
                         <input type="text" class="form-control" id="googleClientId" name="client_id"
@@ -298,7 +298,7 @@
                                autocomplete="off" required
                                style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
                         <button class="btn btn-outline-secondary" type="button" id="toggleGoogleClientId" title="Show / hide" style="border-radius:0 10px 10px 0;">
-                          <i class="bi bi-eye" id="eyeIconGoogleId"></i>
+                          <i data-lucide="eye" class="lucide" id="eyeIconGoogleId"></i>
                         </button>
                       </div>
                       <div class="form-text" style="font-size:.73rem;">
@@ -308,8 +308,8 @@
 
                     <!-- Client Secret -->
                     <div class="col-12">
-                      <label for="googleClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
-                        <i class="bi bi-shield-lock-fill me-1" style="color:#34A853;"></i>Client Secret <span class="text-danger">*</span>
+                      <label for="googleClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:var(--text-secondary);">
+                        <i data-lucide="shield" class="lucide me-1" style="color:#34A853;"></i>Client Secret <span class="text-danger">*</span>
                       </label>
                       <div class="input-group">
                         <input type="password" class="form-control" id="googleClientSecret" name="client_secret"
@@ -317,7 +317,7 @@
                                autocomplete="off" required
                                style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
                         <button class="btn btn-outline-secondary" type="button" id="toggleGoogleSecret" title="Show / hide" style="border-radius:0 10px 10px 0;">
-                          <i class="bi bi-eye" id="eyeIconGoogleSecret"></i>
+                          <i data-lucide="eye" class="lucide" id="eyeIconGoogleSecret"></i>
                         </button>
                       </div>
                       <div class="form-text" style="font-size:.73rem;">
@@ -329,16 +329,16 @@
                   <!-- What gets enabled -->
                   <div class="mt-4 p-3" style="background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
                     <div class="fw-semibold mb-2" style="font-size:.78rem;color:#166534;">
-                      <i class="bi bi-check2-all me-1"></i>After connecting, you will have access to:
+                      <i data-lucide="check-check" class="lucide me-1"></i>After connecting, you will have access to:
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-envelope me-1"></i>Gmail (Read · Send · Drafts · Labels)</span>
-                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-cloud me-1"></i>Google Drive (Browse · Upload · Download)</span>
-                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-file-earmark-text me-1"></i>Google Docs (Create · Read · Edit)</span>
-                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-table me-1"></i>Google Sheets (Create · Read · Write)</span>
-                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-ui-checks me-1"></i>Google Forms (Create · Manage)</span>
-                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-calendar3 me-1"></i>Calendar (Read · Create · Delete events)</span>
-                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i class="bi bi-camera-video me-1"></i>Google Meet (Create meeting links)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="mail" class="lucide me-1"></i>Gmail (Read · Send · Drafts · Labels)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="cloud" class="lucide me-1"></i>Google Drive (Browse · Upload · Download)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="file-text" class="lucide me-1"></i>Google Docs (Create · Read · Edit)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="table" class="lucide me-1"></i>Google Sheets (Create · Read · Write)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="clipboard-list" class="lucide me-1"></i>Google Forms (Create · Manage)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="calendar" class="lucide me-1"></i>Calendar (Read · Create · Delete events)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="video" class="lucide me-1"></i>Google Meet (Create meeting links)</span>
                     </div>
                   </div>
 
@@ -348,7 +348,7 @@
                   <div class="d-flex gap-2 mt-3 pb-2">
                     <button type="submit" class="btn flex-grow-1 fw-semibold" id="googleConnectBtn"
                             style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-size:.88rem;">
-                      <span id="googleBtnText"><i class="bi bi-plug-fill me-2"></i>Save &amp; Connect Google Workspace</span>
+                      <span id="googleBtnText"><i data-lucide="plug" class="lucide me-2"></i>Save &amp; Connect Google Workspace</span>
                       <span id="googleBtnSpinner" class="d-none">
                         <span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving credentials…
                       </span>
@@ -373,7 +373,7 @@
   <div id="googleSuccessToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive">
     <div class="d-flex">
       <div class="toast-body" id="googleToastMsg">
-        <i class="bi bi-check-circle-fill me-2"></i>Google credentials saved! Redirecting to authorize…
+        <i data-lucide="check-circle" class="lucide me-2"></i>Google credentials saved! Redirecting to authorize…
       </div>
       <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
     </div>
@@ -429,8 +429,8 @@
     const clientId     = document.getElementById("googleClientId").value.trim();
     const clientSecret = document.getElementById("googleClientSecret").value.trim();
 
-    if (!clientId) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client ID is required."); return; }
-    if (!clientSecret) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client Secret is required."); return; }
+    if (!clientId) { showAlert("warning", "<i data-lucide="triangle-alert" class="lucide me-1"></i>Client ID is required."); return; }
+    if (!clientSecret) { showAlert("warning", "<i data-lucide="triangle-alert" class="lucide me-1"></i>Client Secret is required."); return; }
 
     btn.disabled = true;
     btnText.classList.add("d-none");
@@ -446,18 +446,18 @@
       const data = await resp.json();
 
       if (data.ok) {
-        showAlert("success", "<i class='bi bi-check-circle-fill me-1'></i>" + data.message);
+        showAlert("success", "<i data-lucide="check-circle" class="lucide me-1"></i>" + data.message);
         const toast = new bootstrap.Toast(document.getElementById("googleSuccessToast"));
         toast.show();
         setTimeout(() => { window.location.href = data.redirect_url; }, 1200);
       } else {
-        showAlert("danger", "<i class='bi bi-x-circle-fill me-1'></i>" + (data.error || "Unknown error"));
+        showAlert("danger", "<i data-lucide="x-circle" class="lucide me-1"></i>" + (data.error || "Unknown error"));
         btn.disabled = false;
         btnText.classList.remove("d-none");
         spinner.classList.add("d-none");
       }
     } catch (err) {
-      showAlert("danger", "<i class='bi bi-x-circle-fill me-1'></i>Network error — please try again.");
+      showAlert("danger", "<i data-lucide="x-circle" class="lucide me-1"></i>Network error — please try again.");
       btn.disabled = false;
       btnText.classList.remove("d-none");
       spinner.classList.add("d-none");
@@ -468,7 +468,7 @@
 </script>
 <div class="modal fade" id="googleConnectModal" tabindex="-1" aria-labelledby="googleConnectModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content" style="border-radius:18px;border:none;box-shadow:0 24px 80px rgba(0,0,0,.18);">
+    <div class="modal-content">
 
       <!-- Header -->
       <div class="modal-header border-0 pb-0 px-4 pt-4">
@@ -477,10 +477,10 @@
             <i class="bi bi-google" style="color:#fff;font-size:1.25rem;"></i>
           </div>
           <div>
-            <h5 class="modal-title fw-bold mb-0" id="googleConnectModalLabel" style="color:#1e1b4b;letter-spacing:-.02em;">
+            <h5 class="modal-title fw-bold mb-0" id="googleConnectModalLabel" style="color:var(--ink-dark);letter-spacing:-.02em;">
               Connect Google Workspace
             </h5>
-            <p class="mb-0" style="font-size:.78rem;color:#64748b;">Enter your Google Cloud OAuth credentials — each company connects its own Google Cloud project</p>
+            <p class="mb-0" style="font-size:.78rem;color:var(--text-muted);">Enter your Google Cloud OAuth credentials — each company connects its own Google Cloud project</p>
           </div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -494,12 +494,12 @@
             <h2 class="accordion-header">
               <button class="accordion-button collapsed py-2 px-3" type="button"
                       data-bs-toggle="collapse" data-bs-target="#googleGuideBody"
-                      style="font-size:.82rem;font-weight:600;color:#4285F4;background:#eff6ff;border-radius:12px!important;">
-                <i class="bi bi-list-check me-2"></i>How to get your Google OAuth credentials — step-by-step guide
+                      style="font-size:.82rem;font-weight:600;color:#4285F4;background:var(--primary-light);border-radius:12px!important;">
+                <i data-lucide="list-checks" class="lucide me-2"></i>How to get your Google OAuth credentials — step-by-step guide
               </button>
             </h2>
             <div id="googleGuideBody" class="accordion-collapse collapse">
-              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.8rem;color:#334155;">
+              <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.8rem;color:var(--text-secondary);">
                 <ol class="mb-0 ps-3" style="line-height:2;">
                   <li>Go to <strong><a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a></strong> → Select or create a project.</li>
                   <li>Navigate to <strong>APIs &amp; Services → OAuth consent screen</strong> → Configure (External or Internal for Workspace orgs).</li>
@@ -529,8 +529,8 @@
 
             <!-- Client ID — required -->
             <div class="col-12">
-              <label for="googleClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
-                <i class="bi bi-key-fill me-1" style="color:#4285F4;"></i>Client ID <span class="text-danger">*</span>
+              <label for="googleClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:var(--text-secondary);">
+                <i data-lucide="key" class="lucide me-1" style="color:#4285F4;"></i>Client ID <span class="text-danger">*</span>
               </label>
               <div class="input-group">
                 <input type="text" class="form-control" id="googleClientId" name="client_id"
@@ -539,7 +539,7 @@
                        style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
                 <button class="btn btn-outline-secondary" type="button" id="toggleGoogleClientId"
                         title="Show / hide" style="border-radius:0 10px 10px 0;">
-                  <i class="bi bi-eye" id="eyeIconGoogleId"></i>
+                  <i data-lucide="eye" class="lucide" id="eyeIconGoogleId"></i>
                 </button>
               </div>
               <div class="form-text" style="font-size:.73rem;">
@@ -549,8 +549,8 @@
 
             <!-- Client Secret — required -->
             <div class="col-12">
-              <label for="googleClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:#334155;">
-                <i class="bi bi-shield-lock-fill me-1" style="color:#34A853;"></i>Client Secret <span class="text-danger">*</span>
+              <label for="googleClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:var(--text-secondary);">
+                <i data-lucide="shield" class="lucide me-1" style="color:#34A853;"></i>Client Secret <span class="text-danger">*</span>
               </label>
               <div class="input-group">
                 <input type="password" class="form-control" id="googleClientSecret" name="client_secret"
@@ -559,7 +559,7 @@
                        style="font-family:monospace;font-size:.81rem;border-radius:10px 0 0 10px;">
                 <button class="btn btn-outline-secondary" type="button" id="toggleGoogleSecret"
                         title="Show / hide" style="border-radius:0 10px 10px 0;">
-                  <i class="bi bi-eye" id="eyeIconGoogleSecret"></i>
+                  <i data-lucide="eye" class="lucide" id="eyeIconGoogleSecret"></i>
                 </button>
               </div>
               <div class="form-text" style="font-size:.73rem;">
@@ -572,23 +572,23 @@
           <!-- What this enables -->
           <div class="mt-4 mb-3 p-3" style="background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
             <div class="fw-semibold mb-1" style="font-size:.78rem;color:#166534;">
-              <i class="bi bi-check2-all me-1"></i>What gets enabled after connecting:
+              <i data-lucide="check-check" class="lucide me-1"></i>What gets enabled after connecting:
             </div>
             <div class="d-flex flex-wrap gap-2">
               <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;">
-                <i class="bi bi-envelope me-1"></i>Read Gmail
+                <i data-lucide="mail" class="lucide me-1"></i>Read Gmail
               </span>
               <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;">
-                <i class="bi bi-send me-1"></i>Send Gmail
+                <i data-lucide="send" class="lucide me-1"></i>Send Gmail
               </span>
               <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;">
-                <i class="bi bi-calendar3 me-1"></i>Google Calendar
+                <i data-lucide="calendar" class="lucide me-1"></i>Google Calendar
               </span>
               <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;">
-                <i class="bi bi-calendar-event me-1"></i>Create Events
+                <i data-lucide="calendar" class="lucide me-1"></i>Create Events
               </span>
               <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;">
-                <i class="bi bi-camera-video me-1"></i>Google Meet
+                <i data-lucide="video" class="lucide me-1"></i>Google Meet
               </span>
             </div>
           </div>
@@ -599,7 +599,7 @@
           <div class="d-flex gap-2 pb-4">
             <button type="submit" class="btn flex-grow-1 fw-semibold" id="googleConnectBtn"
                     style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-size:.88rem;">
-              <span id="googleBtnText"><i class="bi bi-plug-fill me-2"></i>Save &amp; Connect</span>
+              <span id="googleBtnText"><i data-lucide="plug" class="lucide me-2"></i>Save &amp; Connect</span>
               <span id="googleBtnSpinner" class="d-none">
                 <span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving credentials…
               </span>
@@ -620,7 +620,7 @@
   <div id="googleSuccessToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive">
     <div class="d-flex">
       <div class="toast-body" id="googleToastMsg">
-        <i class="bi bi-check-circle-fill me-2"></i>Google credentials saved! Redirecting to authorize…
+        <i data-lucide="check-circle" class="lucide me-2"></i>Google credentials saved! Redirecting to authorize…
       </div>
       <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
     </div>
@@ -670,8 +670,8 @@
     const clientId     = document.getElementById("googleClientId").value.trim();
     const clientSecret = document.getElementById("googleClientSecret").value.trim();
 
-    if (!clientId) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client ID is required."); return; }
-    if (!clientSecret) { showAlert("warning", "<i class='bi bi-exclamation-triangle me-1'></i>Client Secret is required."); return; }
+    if (!clientId) { showAlert("warning", "<i data-lucide="triangle-alert" class="lucide me-1"></i>Client ID is required."); return; }
+    if (!clientSecret) { showAlert("warning", "<i data-lucide="triangle-alert" class="lucide me-1"></i>Client Secret is required."); return; }
 
     // Disable button + show spinner
     btn.disabled = true;
@@ -688,7 +688,7 @@
       const data = await resp.json();
 
       if (data.ok) {
-        showAlert("success", "<i class='bi bi-check-circle-fill me-1'></i>" + data.message);
+        showAlert("success", "<i data-lucide="check-circle" class="lucide me-1"></i>" + data.message);
         // Show toast and redirect to OAuth
         const toast = new bootstrap.Toast(document.getElementById("googleSuccessToast"));
         toast.show();
@@ -696,13 +696,13 @@
           window.location.href = data.redirect_url;
         }, 1200);
       } else {
-        showAlert("danger", "<i class='bi bi-x-circle-fill me-1'></i>" + (data.error || "Unknown error"));
+        showAlert("danger", "<i data-lucide="x-circle" class="lucide me-1"></i>" + (data.error || "Unknown error"));
         btn.disabled = false;
         btnText.classList.remove("d-none");
         spinner.classList.add("d-none");
       }
     } catch (err) {
-      showAlert("danger", "<i class='bi bi-x-circle-fill me-1'></i>Network error — please try again.");
+      showAlert("danger", "<i data-lucide="x-circle" class="lucide me-1"></i>Network error — please try again.");
       btn.disabled = false;
       btnText.classList.remove("d-none");
       spinner.classList.add("d-none");

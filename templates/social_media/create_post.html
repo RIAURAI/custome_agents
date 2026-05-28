@@ -33,7 +33,7 @@
     <div class="col-md-8 col-lg-7">
       <div class="form-card card">
         <div class="card-header">
-          <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Create New Post</h5>
+          <h5 class="mb-0"><i data-lucide="pencil" class="lucide me-2"></i>Create New Post</h5>
         </div>
         <div class="card-body">
           {% if accounts %}
@@ -63,16 +63,16 @@
 
             <div class="d-flex gap-2">
               <button type="submit" name="action" value="draft" class="btn btn-outline-secondary" style="border-radius:10px;">
-                <i class="bi bi-file-earmark me-1"></i>Save Draft
+                <i data-lucide="file" class="lucide me-1"></i>Save Draft
               </button>
               <button type="submit" name="action" value="publish" class="btn btn-primary" style="border-radius:10px;">
-                <i class="bi bi-send me-1"></i>Publish Now
+                <i data-lucide="send" class="lucide me-1"></i>Publish Now
               </button>
             </div>
           </form>
           {% else %}
           <div class="text-center py-4">
-            <i class="bi bi-plug fs-1 text-muted"></i>
+            <i data-lucide="plug" class="lucide fs-1 text-muted"></i>
             <p class="mt-2 text-muted">No active accounts. Connect one first.</p>
             <a href="{% url 'social_media:dashboard' %}" class="btn btn-primary" style="border-radius:10px;">Go to Dashboard</a>
           </div>
