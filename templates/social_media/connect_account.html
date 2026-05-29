@@ -158,12 +158,12 @@
             <li>Generate token with <code>instagram_basic</code>, <code>instagram_manage_messages</code> permissions</li>
             <li>Copy your <strong>Instagram Business Account ID</strong></li>
           </ol>
-          {% else %}
+          {% elif platform == "telegram" %}
           <ol>
-            <li>Go to <a href="https://developer.twitter.com" target="_blank">Twitter Developer Portal</a></li>
-            <li>Create a Project and App &rarr; get <strong>API Key</strong> and <strong>API Secret</strong></li>
-            <li>Generate <strong>Bearer Token</strong> for read access</li>
-            <li>Generate <strong>Access Token &amp; Secret</strong> for write access (posting, DMs)</li>
+            <li>Open Telegram and search for <a href="https://t.me/BotFather" target="_blank">@BotFather</a></li>
+            <li>Send <code>/newbot</code> and follow the prompts to create your bot</li>
+            <li>Copy the <strong>Bot Token</strong> provided by BotFather</li>
+            <li>Set webhook URL to your server's Telegram webhook endpoint</li>
           </ol>
           {% endif %}
         </div>
@@ -204,7 +204,7 @@
           <div class="field-group">
             <label><i data-lucide="key" class="lucide me-1"></i> API Key / App Secret</label>
             <input type="password" name="api_key" class="form-control" placeholder="App Secret or API Key (if required)">
-            <div class="form-text">Required for {% if platform == "twitter" %}Twitter API v2 authentication{% elif platform == "linkedin" %}LinkedIn OAuth Client Secret{% else %}webhook signature verification{% endif %}</div>
+            <div class="form-text">Required for {% if platform == "linkedin" %}LinkedIn OAuth Client Secret{% else %}webhook signature verification{% endif %}</div>
           </div>
 
           <!-- Platform-specific fields -->

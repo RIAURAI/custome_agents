@@ -254,68 +254,6 @@ def linkedin_webhook(request):
 # ── Twitter/X Webhook ─────────────────────────────────────────────────────────
 
 
-@csrf_exempt
-@require_http_methods(["GET", "POST"])
-def twitter_webhook(request):
-    """Twitter/X Account Activity API webhook."""
-    if request.method == "GET":
-        # CRC challenge
-        crc_token = request.GET.get("crc_token", "")
-        consumer_secret = getattr(settings, "TWITTER_CONSUMER_SECRET", "")
-        if crc_token and consumer_secret:
-            import base64
-            sha256_hash = hmac.HMAC(
-                consumer_secret.encode(), crc_token.encode(), hashlib.sha256
-            ).digest()
-            response_token = "sha256=" + base64.b64encode(sha256_hash).decode()
-            return JsonResponse({"response_token": response_token})
-        return HttpResponse("Forbidden", status=403)
-
-    try:
-        body = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
-
-    # Handle Direct Message events
-    dm_events = body.get("direct_message_events", [])
-    for event in dm_events:
-        if event.get("type") != "message_create":
-            continue
-
-        msg_create = event.get("message_create", {})
-        sender_id = msg_create.get("sender_id", "")
-        target = msg_create.get("target", {})
-        recipient_id = target.get("recipient_id", "")
-        msg_data = msg_create.get("message_data", {})
-        text = msg_data.get("text", "")
-
-        if not text:
-            continue
-
-        account = SocialMediaAccount.objects.filter(
-            platform="twitter", status="active", account_id=recipient_id
-        ).first()
-
-        if not account:
-            continue
-
-        # Don't process our own messages
-        if sender_id == account.account_id:
-            continue
-
-        handler = SocialMediaBotHandler(account.company)
-        handler.process_incoming_message(account, {
-            "sender_id": sender_id,
-            "sender_name": "",
-            "content": text,
-            "message_type": "text",
-            "platform_message_id": event.get("id", ""),
-            "is_group": False,
-        })
-
-    return JsonResponse({"status": "ok"})
-
-
 # ── Telegram Webhook ──────────────────────────────────────────────────────────
 
 
