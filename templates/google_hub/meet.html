@@ -22,18 +22,68 @@
     <a href="{% url 'google_hub:calendar' %}" class="ibx-shortcut-btn" style="background:var(--primary-light);color:var(--primary);border-color:var(--primary-pale);">
       <i data-lucide="calendar" class="lucide"></i>Calendar
     </a>
-    <button id="createMeetBtn" class="ibx-compose-btn" style="background:linear-gradient(135deg,#00897B,#4CAF50);box-shadow:0 2px 12px rgba(0,137,123,.35);">
+    <button id="createMeetBtn" class="ibx-compose-btn" data-bs-toggle="modal" data-bs-target="#createMeetModal" style="background:linear-gradient(135deg,#00897B,#4CAF50);box-shadow:0 2px 12px rgba(0,137,123,.35);">
       <i data-lucide="plus" class="lucide me-1"></i>New Meeting
     </button>
   </div>
 </div>
 
-<!-- New meeting result -->
-<div id="newMeetResult" class="d-none alert alert-success mb-3" style="border-radius:12px;">
-  <div class="d-flex align-items-center gap-2">
-    <i data-lucide="check-circle" class="lucide"></i>
-    <span>Meeting created!</span>
-    <a id="newMeetLink" href="#" target="_blank" class="fw-bold ms-2">Join Meeting</a>
+<!-- New Meeting Modal -->
+<div class="modal fade" id="createMeetModal" tabindex="-1" aria-labelledby="createMeetModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;box-shadow:0 20px 60px rgba(0,0,0,.15);">
+      <div class="modal-header border-0 pb-0 px-4 pt-4">
+        <div class="d-flex align-items-center gap-3">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#00897B,#4CAF50);display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="video" class="lucide" style="color:#fff;width:20px;height:20px;"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="createMeetModalLabel" style="color:#1e293b;">New Meeting</h5>
+            <p class="text-muted mb-0" style="font-size:.78rem;">Create an instant Google Meet link</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body px-4 pt-3 pb-4">
+        <!-- Success state (hidden initially) -->
+        <div id="meetCreatedResult" class="d-none">
+          <div class="text-center mb-3">
+            <div style="width:56px;height:56px;border-radius:50%;background:#e8f5e9;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+              <i data-lucide="check-circle" class="lucide" style="color:#2e7d32;width:28px;height:28px;"></i>
+            </div>
+            <h6 class="fw-bold mb-1" style="color:#1e293b;">Meeting Ready!</h6>
+            <p class="text-muted mb-3" style="font-size:.82rem;">Your Google Meet link has been created.</p>
+          </div>
+          <div class="p-3 rounded-3" style="background:#f0fdf4;border:1px solid #bbf7d0;">
+            <div class="d-flex align-items-center gap-2">
+              <i data-lucide="link" class="lucide" style="color:#16a34a;flex-shrink:0;width:16px;height:16px;"></i>
+              <a id="newMeetLink" href="#" target="_blank" class="fw-semibold text-truncate" style="color:#16a34a;font-size:.85rem;text-decoration:none;word-break:break-all;" id="meetLinkText"></a>
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-3">
+            <a id="joinMeetBtn" href="#" target="_blank" class="btn flex-grow-1 fw-semibold" style="background:linear-gradient(135deg,#00897B,#4CAF50);color:#fff;border:none;border-radius:10px;">
+              <i data-lucide="external-link" class="lucide me-2" style="width:15px;height:15px;"></i>Join Now
+            </a>
+            <button type="button" class="btn btn-outline-secondary" style="border-radius:10px;" onclick="copyMeetLink()">
+              <i data-lucide="copy" class="lucide" style="width:15px;height:15px;"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Create form (shown initially) -->
+        <div id="meetCreateForm">
+          <p class="text-muted mb-4" style="font-size:.85rem;line-height:1.5;">
+            Click <strong>Create Meeting</strong> to generate an instant Google Meet link you can share with others.
+          </p>
+          <div class="d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-light fw-semibold px-4" data-bs-dismiss="modal" style="border-radius:10px;">Cancel</button>
+            <button id="confirmCreateBtn" type="button" class="btn fw-semibold px-4" style="background:linear-gradient(135deg,#00897B,#4CAF50);color:#fff;border:none;border-radius:10px;">
+              <i data-lucide="video" class="lucide me-2" style="width:15px;height:15px;"></i>Create Meeting
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -117,15 +167,31 @@
 
 <script>
 (function() {
-  const btn = document.getElementById('createMeetBtn');
-  const resultBox = document.getElementById('newMeetResult');
-  const meetLink = document.getElementById('newMeetLink');
+  const confirmBtn = document.getElementById('confirmCreateBtn');
+  const meetCreateForm = document.getElementById('meetCreateForm');
+  const meetCreatedResult = document.getElementById('meetCreatedResult');
+  const newMeetLink = document.getElementById('newMeetLink');
+  const joinMeetBtn = document.getElementById('joinMeetBtn');
+  const modal = document.getElementById('createMeetModal');
 
-  if (!btn) return;
+  // Reset modal state when closed
+  if (modal) {
+    modal.addEventListener('hidden.bs.modal', function () {
+      meetCreateForm.classList.remove('d-none');
+      meetCreatedResult.classList.add('d-none');
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i data-lucide="video" class="lucide me-2" style="width:15px;height:15px;"></i>Create Meeting';
+        lucide.createIcons();
+      }
+    });
+  }
 
-  btn.addEventListener('click', async function() {
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
+  if (!confirmBtn) return;
+
+  confirmBtn.addEventListener('click', async function() {
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
 
     try {
       const resp = await fetch("{% url 'google_hub:meet_create' %}", {
@@ -138,19 +204,40 @@
       const data = await resp.json();
 
       if (data.ok && data.meeting_uri) {
-        meetLink.href = data.meeting_uri;
-        meetLink.textContent = data.meeting_uri;
-        resultBox.classList.remove('d-none');
+        newMeetLink.href = data.meeting_uri;
+        newMeetLink.textContent = data.meeting_uri;
+        joinMeetBtn.href = data.meeting_uri;
+        meetCreateForm.classList.add('d-none');
+        meetCreatedResult.classList.remove('d-none');
+        lucide.createIcons();
       } else {
         alert(data.error || 'Failed to create meeting');
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i data-lucide="video" class="lucide me-2" style="width:15px;height:15px;"></i>Create Meeting';
+        lucide.createIcons();
       }
     } catch (err) {
       alert('Network error: ' + err.message);
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = '<i data-lucide="plus" class="lucide"></i>New Meeting';
+      confirmBtn.disabled = false;
+      confirmBtn.innerHTML = '<i data-lucide="video" class="lucide me-2" style="width:15px;height:15px;"></i>Create Meeting';
+      lucide.createIcons();
     }
   });
+
+  window.copyMeetLink = function() {
+    const url = newMeetLink ? newMeetLink.href : '';
+    if (url && url !== '#') {
+      navigator.clipboard.writeText(url).then(function() {
+        const copyBtn = event.currentTarget;
+        copyBtn.innerHTML = '<i data-lucide="check" class="lucide" style="width:15px;height:15px;"></i>';
+        lucide.createIcons();
+        setTimeout(function() {
+          copyBtn.innerHTML = '<i data-lucide="copy" class="lucide" style="width:15px;height:15px;"></i>';
+          lucide.createIcons();
+        }, 2000);
+      });
+    }
+  };
 })();
 </script>
 

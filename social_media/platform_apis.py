@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 WHATSAPP_API_BASE = "https://graph.facebook.com/v18.0"
 FACEBOOK_API_BASE = "https://graph.facebook.com/v18.0"
 LINKEDIN_API_BASE = "https://api.linkedin.com/v2"
-TWITTER_API_BASE = "https://api.twitter.com/2"
 
 
 def _get_token(account) -> str:
@@ -45,8 +44,6 @@ def send_message_to_platform(account, recipient_id: str, text: str) -> dict:
         return _send_instagram_message(account, recipient_id, text)
     elif platform == "linkedin":
         return _send_linkedin_message(account, recipient_id, text)
-    elif platform == "twitter":
-        return _send_twitter_dm(account, recipient_id, text)
     elif platform == "telegram":
         return _send_telegram_message(account, recipient_id, text)
     else:
@@ -138,22 +135,6 @@ def _send_linkedin_message(account, recipient_urn: str, text: str) -> dict:
     resp = requests.post(url, json=payload, headers=headers, timeout=30)
     resp.raise_for_status()
     logger.info(f"[LinkedIn] Message sent to {recipient_urn}")
-    return resp.json()
-
-
-def _send_twitter_dm(account, recipient_id: str, text: str) -> dict:
-    """Send a Twitter/X Direct Message."""
-    token = _get_token(account)
-
-    url = f"{TWITTER_API_BASE}/dm_conversations/with/{recipient_id}/messages"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-    }
-    payload = {"text": text}
-    resp = requests.post(url, json=payload, headers=headers, timeout=30)
-    resp.raise_for_status()
-    logger.info(f"[Twitter] DM sent to {recipient_id}")
     return resp.json()
 
 

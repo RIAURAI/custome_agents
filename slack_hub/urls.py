@@ -7,6 +7,7 @@ urlpatterns = [
     path("", views.channels_view, name="channels"),
     path("channel/<str:channel_id>/", views.channel_messages_view, name="channel_messages"),
     path("track/", views.track_view, name="track"),
+    path("track/sync/", views.sync_messages_view, name="sync_messages"),
     path("settings/", views.auto_reply_settings_view, name="settings"),
     path("history/", views.auto_reply_history_view, name="auto_reply_history"),
     # Slack Events webhook (no auth — Slack calls this directly)

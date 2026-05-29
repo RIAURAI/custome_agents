@@ -661,14 +661,6 @@ const platformSteps = {
     { title: "Webhooks", body: `Instagram subscriptions. Callback:<br><code class="d-inline-block bg-dark text-white px-2 py-1 rounded mt-1">YOUR_DOMAIN/social/webhooks/instagram/</code><br>Subscribe: <code>messages</code>, <code>comments</code>.` },
     { title: "Enter Credentials", body: `Fill in Account Name, IG Business ID (Page ID), Access Token, App Secret. Click <strong>Connect & Save</strong>.` }
   ],
-  twitter: [
-    { title: "Developer Access", body: `<a href="https://developer.twitter.com" target="_blank" class="fw-semibold text-primary">Twitter Developer Portal</a> → Apply for Basic/Pro access.` },
-    { title: "Create Project & App", body: `Create Project → App. Under Keys and Tokens section, find all credentials.` },
-    { title: "Generate Tokens", body: `Keys and Tokens:<br>• <strong>API Key + Secret</strong><br>• <strong>Bearer Token</strong><br>• <strong>Access Token + Secret</strong> (for posting/DMs)` },
-    { title: "Auth Settings", body: `User Auth → Web App type. Callback:<br><code class="d-inline-block bg-dark text-white px-2 py-1 rounded mt-1">YOUR_DOMAIN/social/webhooks/twitter/</code><br>Enable Read + Write.` },
-    { title: "Account Info", body: `Account ID = your handle (without @). Profile: <code>https://twitter.com/HANDLE</code>` },
-    { title: "Enter Credentials", body: `Fill in @handle, Access Token, API Key + Secret, Webhook Token. Click <strong>Connect & Save</strong>.` }
-  ],
   telegram: [
     { title: "Open BotFather on Telegram", body: `Open Telegram and search for <a href="https://t.me/BotFather" target="_blank" class="fw-semibold text-primary">@BotFather</a>. Start a chat and send <code>/newbot</code>.` },
     { title: "Create Your Bot", body: `BotFather will ask for:<br>• <strong>Bot name</strong> (display name, e.g. "My Business Bot")<br>• <strong>Bot username</strong> (must end in "bot", e.g. <code>mybusiness_bot</code>)<br>After creation, you'll receive a <strong>Bot Token</strong> like: <code>7123456789:AAF...</code>` },
@@ -682,7 +674,7 @@ const platformSteps = {
 
 const platformIcons = {
   whatsapp: 'bi-whatsapp', linkedin: 'bi-linkedin', facebook: 'bi-facebook',
-  instagram: 'bi-instagram', twitter: 'bi-twitter-x', telegram: 'bi-telegram'
+  instagram: 'bi-instagram', telegram: 'bi-telegram'
 };
 
 let currentPlatform = '';

@@ -682,3 +682,44 @@ select.ibx-shortcut-btn { display: inline-block !important; }
   transform: translateY(-1px);
   box-shadow: 0 4px 18px rgba(255,89,0,.42) !important;
 }
+
+/* ── Empty States (ibx-empty) ──────────────────────────────────────────────── */
+.ibx-empty {
+  background: #fff; border-radius: 18px; border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  padding: 72px 24px; text-align: center;
+}
+.ibx-empty-visual {
+  position: relative; width: 96px; height: 96px;
+  margin: 0 auto 24px; display: flex; align-items: center; justify-content: center;
+}
+.ibx-empty-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid #c7d2fe; animation: ibxPulse 2.4s ease-in-out infinite;
+}
+.ibx-empty-ring--2 {
+  inset: -14px; border-color: #e0e7ff;
+  animation-delay: .4s;
+}
+@keyframes ibxPulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.04)} }
+.ibx-empty-circle {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg, #1e1b4b, #4f46e5);
+  color: #fff; font-size: 1.8rem;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 24px rgba(79,70,229,.35); z-index: 1;
+}
+.ibx-empty-title { font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+.ibx-empty-sub { font-size: .875rem; color: #64748b; max-width: 400px; margin: 0 auto 28px; line-height: 1.65; }
+.ibx-connect-btn {
+  background: linear-gradient(135deg, #1e1b4b 0%, #4f46e5 100%) !important;
+  color: #fff !important; border: none !important;
+  border-radius: 11px !important; font-weight: 700 !important;
+  font-size: .9rem !important; padding: 12px 30px !important;
+  box-shadow: 0 4px 16px rgba(79,70,229,.35);
+  transition: all .18s ease !important;
+}
+.ibx-connect-btn:hover {
+  background: linear-gradient(135deg, #312e81 0%, #6366f1 100%) !important;
+  box-shadow: 0 6px 22px rgba(79,70,229,.45) !important; transform: translateY(-1px);
+}

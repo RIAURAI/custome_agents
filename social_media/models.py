@@ -10,7 +10,6 @@ class SocialMediaAccount(models.Model):
         ("linkedin", "LinkedIn"),
         ("facebook", "Facebook"),
         ("instagram", "Instagram"),
-        ("twitter", "Twitter / X"),
         ("telegram", "Telegram"),
     ]
 

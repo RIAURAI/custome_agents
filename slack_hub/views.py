@@ -395,6 +395,92 @@ def track_view(request):
 
 
 @login_required
+@require_POST
+def sync_messages_view(request):
+    """
+    Pull recent messages from all Slack channels via API and store in DB.
+    This allows tracking even if the Socket Mode bot missed events.
+    """
+    token = _get_slack_token(request)
+    if not token:
+        return JsonResponse({"ok": False, "error": "Slack not connected."}, status=400)
+
+    company = getattr(request, "company", None)
+    if not company:
+        return JsonResponse({"ok": False, "error": "No company context."}, status=400)
+
+    try:
+        channels = fetch_channels(token)
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": f"Failed to fetch channels: {e}"}, status=500)
+
+    synced = 0
+    skipped = 0
+    errors = []
+
+    for ch in channels[:20]:  # Limit to 20 channels to avoid rate limits
+        ch_id = ch.get("id", "")
+        ch_name = ch.get("name", ch_id)
+
+        try:
+            msgs = fetch_messages(token, ch_id, limit=20)
+        except Exception as e:
+            errors.append(f"#{ch_name}: {e}")
+            continue
+
+        for msg in msgs:
+            # Skip bot messages and system messages
+            if msg.get("bot_id") or msg.get("subtype"):
+                continue
+
+            msg_text = msg.get("text", "").strip()
+            msg_ts = msg.get("ts", "")
+            msg_user = msg.get("user", "")
+            thread_ts = msg.get("thread_ts", "")
+
+            if not msg_text or not msg_ts or not msg_user:
+                continue
+
+            # Check if already tracked
+            exists = SlackMessage.objects.filter(
+                company=company, channel_id=ch_id, timestamp=msg_ts
+            ).exists()
+            if exists:
+                skipped += 1
+                continue
+
+            # Resolve sender name
+            try:
+                sender_name = get_user_name(token, msg_user)
+            except Exception:
+                sender_name = msg_user
+
+            # Save to DB
+            SlackMessage.objects.create(
+                company=company,
+                channel_id=ch_id,
+                channel_name=ch_name,
+                sender_id=msg_user,
+                sender_name=sender_name,
+                text=msg_text,
+                timestamp=msg_ts,
+                thread_ts=thread_ts,
+                ai_classification="",
+                ai_summary="",
+                ai_reply="",
+            )
+            synced += 1
+
+    return JsonResponse({
+        "ok": True,
+        "synced": synced,
+        "skipped": skipped,
+        "channels_scanned": min(len(channels), 20),
+        "errors": errors[:5],
+    })
+
+
+@login_required
 def auto_reply_settings_view(request):
     """Configure auto-reply rules per channel."""
     token = _get_slack_token(request)
@@ -405,7 +491,7 @@ def auto_reply_settings_view(request):
         except Exception:
             pass
 
-    rules = {r.channel_id: r for r in AutoReplyRule.objects.filter(user=request.user)}
+    rules = {r.channel_id: r for r in AutoReplyRule.objects.filter(company=request.company)}
 
     if request.method == "POST":
         channel_id = request.POST.get("channel_id", "").strip()
@@ -417,7 +503,7 @@ def auto_reply_settings_view(request):
 
         if channel_id:
             rule, _ = AutoReplyRule.objects.get_or_create(
-                user=request.user, channel_id=channel_id
+                company=request.company, channel_id=channel_id
             )
             rule.channel_name = channel_name
             rule.is_enabled = is_enabled
@@ -437,7 +523,7 @@ def auto_reply_settings_view(request):
 @login_required
 def auto_reply_history_view(request):
     """Show all auto-replied and pending messages."""
-    tracked = SlackMessage.objects.filter(user=request.user).order_by("-tracked_at")[:100]
+    tracked = SlackMessage.objects.filter(company=request.company).order_by("-tracked_at")[:100]
     stats = {
         "total": tracked.count(),
         "replied": sum(1 for m in tracked if m.is_auto_replied),

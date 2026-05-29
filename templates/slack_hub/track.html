@@ -69,6 +69,9 @@
         <p class="mb-0" style="color:rgba(255,255,255,.55);font-size:.82rem;">Every Slack message received + what AI replied</p>
       </div>
       <div class="ms-auto d-flex gap-2">
+        <button id="syncMsgsBtn" class="btn btn-sm" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;">
+          <i data-lucide="refresh-cw" class="lucide me-1"></i>Sync Messages
+        </button>
         <a href="{% url 'slack_hub:settings' %}" class="btn btn-sm" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);">
           <i data-lucide="settings-2" class="lucide me-1"></i>Settings
         </a>
@@ -237,4 +240,43 @@
 
   </div>
 </div>
+
+<script>
+(function() {
+  const btn = document.getElementById('syncMsgsBtn');
+  if (!btn) return;
+
+  btn.addEventListener('click', async function() {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Syncing...';
+
+    try {
+      const resp = await fetch("{% url 'slack_hub:sync_messages' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await resp.json();
+
+      if (data.ok) {
+        const msg = `Synced ${data.synced} new messages from ${data.channels_scanned} channels (${data.skipped} already tracked)`;
+        alert(msg);
+        if (data.synced > 0) {
+          window.location.reload();
+        }
+      } else {
+        alert(data.error || 'Sync failed');
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="lucide me-1"></i>Sync Messages';
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+  });
+})();
+</script>
 {% endblock %}

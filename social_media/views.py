@@ -46,7 +46,6 @@ def dashboard_view(request):
         {"key": "linkedin", "name": "LinkedIn", "icon": "bi-linkedin", "color": "#0A66C2"},
         {"key": "facebook", "name": "Facebook", "icon": "bi-facebook", "color": "#1877F2"},
         {"key": "instagram", "name": "Instagram", "icon": "bi-instagram", "color": "#E4405F"},
-        {"key": "twitter", "name": "Twitter / X", "icon": "bi-twitter-x", "color": "#000000"},
         {"key": "telegram", "name": "Telegram", "icon": "bi-telegram", "color": "#0088CC"},
     ]
 
@@ -485,13 +484,6 @@ def test_connection(request, pk):
             resp = http_requests.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=10)
             success = resp.status_code == 200
             error_msg = "Invalid token or insufficient permissions" if not success else ""
-
-        elif account.platform == "twitter":
-            # Test Twitter API v2
-            url = "https://api.twitter.com/2/users/me"
-            resp = http_requests.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=10)
-            success = resp.status_code == 200
-            error_msg = resp.json().get("detail", "") if not success else ""
 
         elif account.platform == "telegram":
             # Test Telegram Bot API
