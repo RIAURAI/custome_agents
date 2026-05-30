@@ -2,63 +2,61 @@
 {% block title %}Slack Settings — WorkHub{% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="hub-header">
-  <div class="d-flex align-items-center gap-3">
-    <div class="hub-icon hub-icon--slack"><i data-lucide="settings" class="lucide"></i></div>
-    <div>
-      <h1 class="hub-title">Auto-Reply Settings</h1>
-      <p class="hub-subtitle">Configure AI auto-reply rules per channel</p>
+<!-- ── Header ─────────────────────────────────────────────────────── -->
+<div style="margin-bottom:24px">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#e01e5a,#36c5f0);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <i data-lucide="settings" class="lucide" style="width:22px;height:22px;color:#fff"></i>
     </div>
-  </div>
-  <div class="d-flex align-items-center gap-2">
-    <a href="{% url 'slack_hub:channels' %}" class="hub-btn-secondary"><i data-lucide="arrow-left" class="lucide"></i> Channels</a>
-    <a href="{% url 'slack_hub:auto_reply_history' %}" class="hub-btn-secondary"><i data-lucide="history" class="lucide"></i> History</a>
+    <div>
+      <h1 style="font-size:20px;font-weight:700;color:var(--gray-900);margin:0;letter-spacing:-0.02em">Auto-Reply Settings</h1>
+      <p style="font-size:13px;color:var(--gray-500);margin:2px 0 0">Configure AI auto-reply rules per channel</p>
+    </div>
   </div>
 </div>
 
-<!-- Existing rules -->
+<!-- ── Existing Rules ─────────────────────────────────────────────── -->
 {% if rules %}
-<div class="dash-panel mb-4">
-  <div class="dash-panel-header">
+<div style="background:var(--surface);border:1px solid var(--gray-200);border-radius:14px;overflow:hidden;margin-bottom:20px">
+  <div style="padding:14px 20px;border-bottom:1px solid var(--gray-100)">
     <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Active Rules</span>
   </div>
-  <div class="dash-panel-body" style="padding:0">
-    <table class="hub-table">
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
-        <tr>
-          <th>Channel</th>
-          <th>Status</th>
-          <th>Auto-Send</th>
-          <th>Keywords</th>
-          <th>Instructions</th>
+        <tr style="border-bottom:1px solid var(--gray-100)">
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em">Channel</th>
+          <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em">Status</th>
+          <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em">Mode</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em">Keywords</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em">Instructions</th>
         </tr>
       </thead>
       <tbody>
         {% for ch_id, rule in rules.items %}
-        <tr>
-          <td>
-            <span class="d-flex align-items-center gap-2">
+        <tr style="border-bottom:1px solid var(--gray-100);transition:background .1s" onmouseenter="this.style.background='var(--gray-50)'" onmouseleave="this.style.background=''">
+          <td style="padding:12px 16px">
+            <span style="display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--gray-800)">
               <i data-lucide="hash" class="lucide" style="width:13px;height:13px;color:var(--gray-400)"></i>
-              <span style="font-weight:600;font-size:13px">{{ rule.channel_name|default:ch_id }}</span>
+              {{ rule.channel_name|default:ch_id }}
             </span>
           </td>
-          <td>
+          <td style="padding:12px 12px">
             {% if rule.is_enabled %}
-            <span class="hub-pill hub-pill--success">Enabled</span>
+            <span class="slk-pill slk-pill--success">Enabled</span>
             {% else %}
-            <span class="hub-pill hub-pill--muted">Disabled</span>
+            <span class="slk-pill slk-pill--muted">Disabled</span>
             {% endif %}
           </td>
-          <td>
+          <td style="padding:12px 12px">
             {% if rule.auto_send %}
-            <span class="hub-pill hub-pill--info">Auto</span>
+            <span class="slk-pill slk-pill--info">Auto-send</span>
             {% else %}
-            <span class="hub-pill hub-pill--muted">Draft</span>
+            <span class="slk-pill slk-pill--muted">Draft</span>
             {% endif %}
           </td>
-          <td style="font-size:12px;color:var(--gray-600);max-width:200px">{{ rule.keywords|default:"All messages"|truncatewords:8 }}</td>
-          <td style="font-size:12px;color:var(--gray-600);max-width:200px">{{ rule.custom_instructions|default:"—"|truncatewords:8 }}</td>
+          <td style="padding:12px 16px;font-size:12px;color:var(--gray-600);max-width:200px">{{ rule.keywords|default:"All messages"|truncatewords:8 }}</td>
+          <td style="padding:12px 16px;font-size:12px;color:var(--gray-600);max-width:200px">{{ rule.custom_instructions|default:"—"|truncatewords:8 }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -67,18 +65,20 @@
 </div>
 {% endif %}
 
-<!-- Add / update rule -->
-<div class="dash-panel">
-  <div class="dash-panel-header">
+<!-- ── Add / Update Rule ──────────────────────────────────────────── -->
+<div style="background:var(--surface);border:1px solid var(--gray-200);border-radius:14px;overflow:hidden">
+  <div style="padding:14px 20px;border-bottom:1px solid var(--gray-100)">
     <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Add / Update Rule</span>
   </div>
-  <div class="dash-panel-body">
+  <div style="padding:20px">
     <form method="post" action="{% url 'slack_hub:settings' %}">
       {% csrf_token %}
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="hub-label">Channel</label>
-          <select name="channel_id" class="hub-input" required onchange="this.form.channel_name.value=this.options[this.selectedIndex].text">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Channel</label>
+          <select name="channel_id" required onchange="this.form.channel_name.value=this.options[this.selectedIndex].text"
+                  style="width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:8px;font-size:13px;background:var(--surface);color:var(--gray-800);outline:none;cursor:pointer;transition:border-color .15s"
+                  onfocus="this.style.borderColor='var(--signature)'" onblur="this.style.borderColor='var(--gray-200)'">
             <option value="">Select channel…</option>
             {% for ch in channels %}
             <option value="{{ ch.id }}">{{ ch.name }}</option>
@@ -86,33 +86,31 @@
           </select>
           <input type="hidden" name="channel_name" value="">
         </div>
-        <div class="col-md-3">
-          <label class="hub-label">Enabled</label>
-          <div class="d-flex align-items-center gap-3 mt-1">
-            <label class="d-flex align-items-center gap-1 cursor-pointer" style="font-size:13px">
-              <input type="checkbox" name="is_enabled" checked> Active
-            </label>
-          </div>
+        <div style="display:flex;gap:24px;align-items:flex-end;padding-bottom:4px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-700);cursor:pointer">
+            <input type="checkbox" name="is_enabled" checked style="accent-color:var(--signature);width:16px;height:16px;cursor:pointer"> Active
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-700);cursor:pointer">
+            <input type="checkbox" name="auto_send" style="accent-color:var(--success);width:16px;height:16px;cursor:pointer"> Auto-send
+          </label>
         </div>
-        <div class="col-md-3">
-          <label class="hub-label">Auto-send replies</label>
-          <div class="d-flex align-items-center gap-3 mt-1">
-            <label class="d-flex align-items-center gap-1 cursor-pointer" style="font-size:13px">
-              <input type="checkbox" name="auto_send"> Auto-send
-            </label>
-          </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Keywords <span style="font-weight:400;text-transform:none;letter-spacing:0">(comma-separated, empty = all)</span></label>
+          <input type="text" name="keywords" placeholder="help, support, question"
+                 style="width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:8px;font-size:13px;background:var(--surface);color:var(--gray-800);outline:none;transition:border-color .15s"
+                 onfocus="this.style.borderColor='var(--signature)'" onblur="this.style.borderColor='var(--gray-200)'">
         </div>
-        <div class="col-md-6">
-          <label class="hub-label">Keywords (comma-separated, empty = all)</label>
-          <input type="text" name="keywords" class="hub-input" placeholder="help, support, question">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Custom AI Instructions</label>
+          <textarea name="custom_instructions" rows="2" placeholder="Be friendly and concise…"
+                    style="width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:8px;font-size:13px;background:var(--surface);color:var(--gray-800);outline:none;resize:vertical;transition:border-color .15s;font-family:inherit"
+                    onfocus="this.style.borderColor='var(--signature)'" onblur="this.style.borderColor='var(--gray-200)'"></textarea>
         </div>
-        <div class="col-md-6">
-          <label class="hub-label">Custom AI Instructions</label>
-          <textarea name="custom_instructions" class="hub-input" rows="2" placeholder="Be friendly and concise…"></textarea>
-        </div>
-        <div class="col-12">
-          <button type="submit" class="hub-btn-create"><i data-lucide="save" class="lucide"></i> Save Rule</button>
-        </div>
+      </div>
+      <div style="margin-top:20px">
+        <button type="submit" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:var(--signature);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s" onmouseenter="this.style.opacity='0.9'" onmouseleave="this.style.opacity='1'">
+          <i data-lucide="save" class="lucide" style="width:14px;height:14px"></i> Save Rule
+        </button>
       </div>
     </form>
   </div>
@@ -121,4 +119,13 @@
 
 {% block extra_js %}
 <script>lucide.createIcons();</script>
+<style>
+.slk-pill {
+  font-size: 11px; font-weight: 600; padding: 2px 10px;
+  border-radius: 20px; display: inline-flex; align-items: center;
+}
+.slk-pill--info { background: var(--signature-50); color: var(--signature); }
+.slk-pill--success { background: var(--success-soft); color: #166534; }
+.slk-pill--muted { background: var(--gray-100); color: var(--gray-500); }
+</style>
 {% endblock %}

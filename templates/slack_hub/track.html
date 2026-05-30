@@ -2,142 +2,121 @@
 {% block title %}Tracked Messages — Slack — WorkHub{% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="slack-track-header mb-4">
-  <div class="d-flex align-items-center justify-content-between">
-    <div class="d-flex align-items-center gap-3">
-      <div class="hub-icon hub-icon--slack"><i data-lucide="activity" class="lucide"></i></div>
+<!-- ── Header ─────────────────────────────────────────────────────── -->
+<div style="margin-bottom:24px">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#e01e5a,#36c5f0);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i data-lucide="radar" class="lucide" style="width:22px;height:22px;color:#fff"></i>
+      </div>
       <div>
-        <h1 style="font-size:18px;font-weight:700;margin:0;color:#fff">Tracked Messages</h1>
-        <p>AI-analyzed messages from your Slack channels</p>
+        <h1 style="font-size:20px;font-weight:700;color:var(--gray-900);margin:0;letter-spacing:-0.02em">Tracked Messages</h1>
+        <p style="font-size:13px;color:var(--gray-500);margin:2px 0 0">AI-analyzed messages from your Slack channels</p>
       </div>
     </div>
-    <div class="d-flex gap-2">
-      <a href="{% url 'slack_hub:channels' %}" class="hub-btn-secondary" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.15);color:#fff">
-        <i data-lucide="hash" class="lucide"></i> Channels
-      </a>
-      <button onclick="syncMessages(this)" class="hub-btn-create">
-        <i data-lucide="refresh-cw" class="lucide"></i> Sync Now
-      </button>
-    </div>
+    <button onclick="syncMessages(this)" class="slk-header-btn" style="background:var(--signature);color:#fff;border-color:var(--signature)">
+      <i data-lucide="refresh-cw" class="lucide" style="width:14px;height:14px"></i>
+      <span>Sync Now</span>
+    </button>
   </div>
 </div>
 
-<!-- Stats -->
-<div class="row g-3 mb-4">
-  <div class="col-6 col-md-2">
-    <div class="slack-stat-card text-center">
-      <div class="slack-stat-num" style="color:var(--signature)">{{ stats.total }}</div>
-      <div class="slack-stat-label">Total</div>
-    </div>
+<!-- ── Stats ──────────────────────────────────────────────────────── -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:24px">
+  <div class="slk-stat">
+    <div class="slk-stat-val" style="color:var(--signature)">{{ stats.total }}</div>
+    <div class="slk-stat-lbl">Total</div>
   </div>
-  <div class="col-6 col-md-2">
-    <div class="slack-stat-card text-center">
-      <div class="slack-stat-num" style="color:var(--info)">{{ stats.analyzed }}</div>
-      <div class="slack-stat-label">Analyzed</div>
-    </div>
+  <div class="slk-stat">
+    <div class="slk-stat-val" style="color:var(--info)">{{ stats.analyzed }}</div>
+    <div class="slk-stat-lbl">Analyzed</div>
   </div>
-  <div class="col-6 col-md-2">
-    <div class="slack-stat-card text-center">
-      <div class="slack-stat-num" style="color:var(--emerald)">{{ stats.replied }}</div>
-      <div class="slack-stat-label">Replied</div>
-    </div>
+  <div class="slk-stat">
+    <div class="slk-stat-val" style="color:var(--success)">{{ stats.replied }}</div>
+    <div class="slk-stat-lbl">Replied</div>
   </div>
-  <div class="col-6 col-md-2">
-    <div class="slack-stat-card text-center">
-      <div class="slack-stat-num" style="color:var(--amber)">{{ stats.pending }}</div>
-      <div class="slack-stat-label">Pending</div>
-    </div>
+  <div class="slk-stat">
+    <div class="slk-stat-val" style="color:var(--warning)">{{ stats.pending }}</div>
+    <div class="slk-stat-lbl">Pending</div>
   </div>
-  <div class="col-6 col-md-2">
-    <div class="slack-stat-card text-center">
-      <div class="slack-stat-num" style="color:#7c3aed">{{ stats.dm_count }}</div>
-      <div class="slack-stat-label">DMs</div>
-    </div>
+  <div class="slk-stat">
+    <div class="slk-stat-val" style="color:#7c3aed">{{ stats.dm_count }}</div>
+    <div class="slk-stat-lbl">DMs</div>
   </div>
-  <div class="col-6 col-md-2">
-    <div class="slack-stat-card text-center">
-      <div class="slack-stat-num" style="color:var(--gray-700)">{{ stats.channel_count }}</div>
-      <div class="slack-stat-label">Channels</div>
-    </div>
+  <div class="slk-stat">
+    <div class="slk-stat-val" style="color:var(--gray-700)">{{ stats.channel_count }}</div>
+    <div class="slk-stat-lbl">Channels</div>
   </div>
 </div>
 
-<!-- Messages table -->
-<div class="dash-panel">
-  <div class="dash-panel-header d-flex align-items-center justify-content-between">
+<!-- ── Message List ───────────────────────────────────────────────── -->
+{% if tracked_messages %}
+<div style="background:var(--surface);border:1px solid var(--gray-200);border-radius:14px;overflow:hidden">
+  <div style="padding:14px 20px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between">
     <span style="font-size:13px;font-weight:600;color:var(--gray-700)">All Tracked Messages</span>
-    <a href="{% url 'slack_hub:auto_reply_history' %}" class="hub-btn-action" title="Reply history">
-      <i data-lucide="history" class="lucide"></i>
-    </a>
   </div>
-  <div class="dash-panel-body" style="padding:0">
-    {% if tracked_messages %}
-    <table class="hub-table">
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
-        <tr>
-          <th>From</th>
-          <th>Channel</th>
-          <th>Message</th>
-          <th>Classification</th>
-          <th>Status</th>
-          <th>Time</th>
+        <tr style="border-bottom:1px solid var(--gray-100)">
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em">From</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em">Channel</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em">Message</th>
+          <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em">Type</th>
+          <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em">Status</th>
+          <th style="text-align:right;padding:10px 16px;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em">Time</th>
         </tr>
       </thead>
       <tbody>
         {% for msg in tracked_messages %}
-        <tr class="slack-msg-row">
-          <td>
-            <div class="d-flex align-items-center gap-2">
-              <div class="slack-avatar" style="width:28px;height:28px;font-size:11px">{{ msg.sender_name|first|upper }}</div>
-              <span style="font-size:13px;font-weight:500">{{ msg.sender_name }}</span>
+        <tr class="slk-table-row">
+          <td style="padding:12px 16px;white-space:nowrap">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:28px;height:28px;border-radius:8px;background:var(--gradient-brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">{{ msg.sender_name|first|upper }}</div>
+              <span style="font-weight:500;color:var(--gray-800)">{{ msg.sender_name }}</span>
             </div>
           </td>
-          <td>
-            <span class="slack-channel-badge slack-channel-badge--ch" style="font-size:11px;padding:3px 8px">
+          <td style="padding:12px 16px">
+            <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--gray-100);color:var(--gray-600);display:inline-flex;align-items:center;gap:3px">
               <i data-lucide="hash" class="lucide" style="width:10px;height:10px"></i>{{ msg.channel_name }}
             </span>
           </td>
-          <td style="max-width:280px">
-            <div class="incoming-bubble">{{ msg.text|truncatewords:20 }}</div>
+          <td style="padding:12px 16px;max-width:300px">
+            <div style="background:var(--gray-50);border-left:3px solid var(--signature-300);border-radius:0 8px 8px 0;padding:6px 10px;font-size:12.5px;color:var(--gray-700);line-height:1.5">{{ msg.text|truncatewords:20 }}</div>
             {% if msg.ai_reply %}
-            <div class="{% if msg.is_auto_replied %}reply-bubble{% else %}draft-bubble{% endif %} mt-1">
-              {{ msg.ai_reply|truncatewords:15 }}
-            </div>
+            <div style="background:{% if msg.is_auto_replied %}rgba(16,185,129,.05){% else %}rgba(245,158,11,.05){% endif %};border-left:3px solid {% if msg.is_auto_replied %}var(--success){% else %}var(--warning){% endif %};border-radius:0 8px 8px 0;padding:6px 10px;font-size:12px;color:{% if msg.is_auto_replied %}#166534{% else %}#92400e{% endif %};line-height:1.5;margin-top:6px">{{ msg.ai_reply|truncatewords:15 }}</div>
             {% endif %}
           </td>
-          <td>
+          <td style="padding:12px 12px">
             {% if msg.ai_classification %}
-            <span class="hub-pill hub-pill--{% if msg.ai_classification == 'urgent' %}danger{% elif msg.ai_classification == 'question' %}info{% elif msg.ai_classification == 'request' %}warning{% else %}muted{% endif %}">
-              {{ msg.ai_classification }}
-            </span>
+            <span class="slk-pill slk-pill--{% if msg.ai_classification == 'urgent' %}danger{% elif msg.ai_classification == 'question' %}info{% elif msg.ai_classification == 'request' %}warning{% else %}muted{% endif %}">{{ msg.ai_classification }}</span>
             {% else %}
-            <span style="font-size:12px;color:var(--gray-400)">—</span>
+            <span style="color:var(--gray-300)">—</span>
             {% endif %}
           </td>
-          <td>
+          <td style="padding:12px 12px">
             {% if msg.is_auto_replied %}
-            <span class="hub-pill hub-pill--success">Replied</span>
+            <span class="slk-pill slk-pill--success">Replied</span>
             {% elif msg.ai_reply %}
-            <span class="hub-pill hub-pill--warning">Draft</span>
+            <span class="slk-pill slk-pill--warning">Draft</span>
             {% else %}
-            <span class="hub-pill hub-pill--muted">Tracked</span>
+            <span class="slk-pill slk-pill--muted">Tracked</span>
             {% endif %}
           </td>
-          <td style="font-size:12px;color:var(--gray-500);white-space:nowrap">{{ msg.tracked_at|timesince }} ago</td>
+          <td style="padding:12px 16px;text-align:right;font-size:12px;color:var(--gray-400);white-space:nowrap">{{ msg.tracked_at|timesince }} ago</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-    {% else %}
-    <div class="ibx-empty">
-      <i data-lucide="inbox" class="lucide" style="width:40px;height:40px;color:var(--gray-300)"></i>
-      <h3 style="font-size:15px;font-weight:700;color:var(--gray-800);margin:10px 0 4px">No tracked messages yet</h3>
-      <p style="font-size:13px;color:var(--gray-500)">Click "Sync Now" to pull messages from your Slack channels</p>
-    </div>
-    {% endif %}
   </div>
 </div>
+{% else %}
+<div style="background:var(--surface);border:1px solid var(--gray-200);border-radius:14px;text-align:center;padding:60px 20px">
+  <i data-lucide="inbox" class="lucide" style="width:44px;height:44px;color:var(--gray-300)"></i>
+  <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:14px 0 6px">No tracked messages yet</h3>
+  <p style="font-size:13px;color:var(--gray-500);margin:0">Click "Sync Now" to pull messages from your Slack channels</p>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
@@ -146,8 +125,8 @@ lucide.createIcons();
 
 function syncMessages(btn) {
   btn.disabled = true;
-  btn.innerHTML = '<i data-lucide="loader" class="lucide" style="animation:spin 1s linear infinite"></i> Syncing…';
-  lucide.createIcons();
+  btn.querySelector('span').textContent = 'Syncing\u2026';
+  btn.querySelector('i').style.animation = 'spin 1s linear infinite';
 
   fetch("{% url 'slack_hub:sync_messages' %}", {
     method: 'POST',
@@ -160,17 +139,56 @@ function syncMessages(btn) {
     } else {
       alert(data.error || 'Sync failed');
       btn.disabled = false;
-      btn.innerHTML = '<i data-lucide="refresh-cw" class="lucide"></i> Sync Now';
-      lucide.createIcons();
+      btn.querySelector('span').textContent = 'Sync Now';
+      btn.querySelector('i').style.animation = '';
     }
   })
   .catch(() => {
     alert('Sync failed');
     btn.disabled = false;
-    btn.innerHTML = '<i data-lucide="refresh-cw" class="lucide"></i> Sync Now';
-    lucide.createIcons();
+    btn.querySelector('span').textContent = 'Sync Now';
+    btn.querySelector('i').style.animation = '';
   });
 }
 </script>
-<style>@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}</style>
+
+<style>
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+.slk-header-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; border: 1px solid var(--gray-200);
+  background: var(--surface); color: var(--gray-700);
+  cursor: pointer; transition: all .15s;
+}
+.slk-header-btn:hover { opacity: .9; }
+
+.slk-stat {
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 16px 18px;
+  text-align: center;
+}
+.slk-stat-val { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+.slk-stat-lbl { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+
+.slk-table-row {
+  border-bottom: 1px solid var(--gray-100);
+  transition: background .1s;
+}
+.slk-table-row:last-child { border-bottom: none; }
+.slk-table-row:hover { background: var(--gray-50); }
+
+.slk-pill {
+  font-size: 11px; font-weight: 600; padding: 2px 10px;
+  border-radius: 20px; display: inline-flex; align-items: center;
+}
+.slk-pill--info { background: var(--signature-50); color: var(--signature); }
+.slk-pill--success { background: var(--success-soft); color: #166534; }
+.slk-pill--danger { background: var(--danger-soft); color: #991b1b; }
+.slk-pill--warning { background: rgba(245,158,11,.1); color: #92400e; }
+.slk-pill--muted { background: var(--gray-100); color: var(--gray-500); }
+</style>
 {% endblock %}
