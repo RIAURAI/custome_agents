@@ -7,17 +7,17 @@
   <h2>Social Media Hub</h2>
   <p class="mb-3">Manage all your social channels, posts, and messages in one place</p>
   <div class="action-bar d-flex gap-2">
-    <a href="{% url 'social_media:posts_list' %}" class="hub-btn-secondary" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff">
+    <a href="{% url 'social_media:posts_list' %}" class="hub-btn-secondary">
       <i data-lucide="file-text" class="lucide"></i> Posts
     </a>
-    <a href="{% url 'social_media:messages_inbox' %}" class="hub-btn-secondary" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff">
+    <a href="{% url 'social_media:messages_inbox' %}" class="hub-btn-secondary">
       <i data-lucide="inbox" class="lucide"></i> Inbox
     </a>
-    <a href="{% url 'social_media:bot_settings' %}" class="hub-btn-secondary" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff">
+    <a href="{% url 'social_media:bot_settings' %}" class="hub-btn-secondary">
       <i data-lucide="bot" class="lucide"></i> Bot
     </a>
     {% if is_admin %}
-    <a href="{% url 'social_media:setup_guide' %}" class="hub-btn-create" style="background:#fff;color:var(--signature);border:none">
+    <a href="{% url 'social_media:setup_guide' %}" class="hub-btn-create">
       <i data-lucide="book-open" class="lucide"></i> Setup Guide
     </a>
     {% endif %}
