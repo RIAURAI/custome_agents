@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "google_hub",
     "social_media",
     "microsoft",
+    "jira_hub",
 ]
 
 MIDDLEWARE = [

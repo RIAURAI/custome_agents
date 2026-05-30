@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Jira Projects — WorkHub{% endblock %}
+{% block page_title %}Jira Projects{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h4 class="fw-bold mb-0" style="font-size:1.15rem;">
+    <i data-lucide="folder" class="lucide me-2" style="color:#2684FF;"></i>Projects
+  </h4>
+  <form method="post" action="{% url 'jira_hub:sync_now' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-primary btn-sm" style="border-radius:8px;font-size:.82rem;">
+      <i data-lucide="refresh-cw" class="lucide me-1" style="width:14px;height:14px;"></i>Sync
+    </button>
+  </form>
+</div>
+
+{% if projects %}
+<div class="row g-3">
+  {% for p in projects %}
+  <div class="col-md-6 col-xl-4">
+    <a href="{% url 'jira_hub:project_detail' key=p.key %}" style="text-decoration:none;color:inherit;">
+      <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;transition:box-shadow .15s,border-color .15s;cursor:pointer;" onmouseover="this.style.borderColor='#2684FF';this.style.boxShadow='0 4px 16px #2684FF14'" onmouseout="this.style.borderColor='';this.style.boxShadow=''">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          {% if p.avatar_url %}
+          <img src="{{ p.avatar_url }}" alt="" style="width:40px;height:40px;border-radius:10px;">
+          {% else %}
+          <div style="width:40px;height:40px;border-radius:10px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="folder" style="width:20px;height:20px;color:#64748b;"></i>
+          </div>
+          {% endif %}
+          <div>
+            <div class="fw-bold" style="font-size:.95rem;">{{ p.name }}</div>
+            <div class="text-muted" style="font-size:.78rem;">{{ p.key }} · {{ p.project_type|default:"software" }}</div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-3" style="font-size:.78rem;color:#64748b;">
+          <span><i data-lucide="bug" class="lucide me-1" style="width:13px;height:13px;"></i>{{ p.issue_count }} issues</span>
+          {% if p.lead_display_name %}
+          <span><i data-lucide="user" class="lucide me-1" style="width:13px;height:13px;"></i>{{ p.lead_display_name }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+  <i data-lucide="folder-open" style="width:48px;height:48px;color:#cbd5e1;"></i>
+  <p class="text-muted mt-3 mb-0">No projects synced yet. Click <strong>Sync</strong> to pull from Jira.</p>
+</div>
+{% endif %}
+{% endblock %}

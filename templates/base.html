@@ -202,6 +202,34 @@
       </div>
       {% endif %}
 
+      {% if has_jira_access %}
+      <!-- Jira -->
+      <div class="sb-group {% if request.resolver_match.app_name == 'jira_hub' %}expanded{% endif %}">
+        <button type="button" class="sb-item sb-group-toggle" data-tooltip="Jira">
+          <i data-lucide="kanban" style="color:#2684FF;"></i>
+          <span class="sb-item-text">Jira</span>
+          <i data-lucide="chevron-down" class="sb-chevron"></i>
+        </button>
+        <div class="sb-group-items">
+          <a href="{% url 'jira_hub:dashboard' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'jira_hub' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <i data-lucide="layout-dashboard"></i>
+            <span class="sb-item-text">Dashboard</span>
+          </a>
+          <a href="{% url 'jira_hub:projects' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'jira_hub' and request.resolver_match.url_name in 'projects,project_detail' %}active{% endif %}">
+            <i data-lucide="folder"></i>
+            <span class="sb-item-text">Projects</span>
+          </a>
+          <a href="{% url 'jira_hub:issues' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'jira_hub' and request.resolver_match.url_name in 'issues,issue_detail,create_issue' %}active{% endif %}">
+            <i data-lucide="list-checks"></i>
+            <span class="sb-item-text">Issues</span>
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
       <!-- Social Media -->
       <div class="sb-group {% if request.resolver_match.app_name == 'social_media' %}expanded{% endif %}">
         <button type="button" class="sb-item sb-group-toggle" data-tooltip="Social Media">

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Count, Q
-from django.db.models.functions import TruncDate
+from django.db.models.functions import TruncDate, TruncHour, ExtractHour
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -376,6 +376,31 @@ def admin_dashboard_view(request):
         .order_by("-count")
     )
 
+    # ── Activity by hour of day (last 30 days) — for heatmap ──
+    hourly_activity = list(
+        ActivityLog.objects.filter(company=company, created_at__gte=last_30)
+        .annotate(hour=ExtractHour("created_at"))
+        .values("hour")
+        .annotate(count=Count("id"))
+        .order_by("hour")
+    )
+
+    # ── Daily activity per platform (stacked) ──
+    daily_by_platform = list(
+        ActivityLog.objects.filter(company=company, created_at__gte=last_30)
+        .exclude(platform="")
+        .annotate(day=TruncDate("created_at"))
+        .values("day", "platform")
+        .annotate(count=Count("id"))
+        .order_by("day")
+    )
+    for d in daily_by_platform:
+        d["day"] = d["day"].isoformat()
+
+    # ── 7-day vs previous 7-day comparison ──
+    prev_7 = last_7 - timezone.timedelta(days=7)
+    actions_prev_7d = ActivityLog.objects.filter(company=company, created_at__gte=prev_7, created_at__lt=last_7).count()
+
     # ── Top actions (last 30 days) ──
     top_actions = list(
         ActivityLog.objects.filter(company=company, created_at__gte=last_30)
@@ -417,8 +442,11 @@ def admin_dashboard_view(request):
         "active_integrations": active_integrations,
         "actions_7d": actions_7d,
         "actions_30d": actions_30d,
+        "actions_prev_7d": actions_prev_7d,
         "daily_activity_json": json.dumps(daily_activity),
         "platform_activity_json": json.dumps(platform_activity),
+        "hourly_activity_json": json.dumps(hourly_activity),
+        "daily_by_platform_json": json.dumps(daily_by_platform),
         "top_actions": top_actions,
         "user_activity": user_activity,
         "integrations_status": integrations_status,

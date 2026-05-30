@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }} — Jira — WorkHub{% endblock %}
+{% block page_title %}{{ project.key }}: {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <a href="{% url 'jira_hub:projects' %}" class="btn btn-light btn-sm" style="border-radius:8px;">
+    <i data-lucide="arrow-left" class="lucide" style="width:14px;height:14px;"></i>
+  </a>
+  {% if project.avatar_url %}
+  <img src="{{ project.avatar_url }}" alt="" style="width:36px;height:36px;border-radius:8px;">
+  {% endif %}
+  <div>
+    <h5 class="fw-bold mb-0">{{ project.name }}</h5>
+    <span class="text-muted" style="font-size:.8rem;">{{ project.key }} · {{ project.project_type|default:"software" }}{% if project.lead_display_name %} · Lead: {{ project.lead_display_name }}{% endif %}</span>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="d-flex gap-2 mb-3 flex-wrap">
+  <a href="{% url 'jira_hub:project_detail' key=project.key %}" class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius:8px;font-size:.78rem;">All</a>
+  <a href="?status=new" class="btn btn-sm {% if status_filter == 'new' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius:8px;font-size:.78rem;">To Do</a>
+  <a href="?status=indeterminate" class="btn btn-sm {% if status_filter == 'indeterminate' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius:8px;font-size:.78rem;">In Progress</a>
+  <a href="?status=done" class="btn btn-sm {% if status_filter == 'done' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius:8px;font-size:.78rem;">Done</a>
+</div>
+
+{% if issues %}
+<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+  <div class="table-responsive">
+    <table class="table table-sm table-hover mb-0" style="font-size:.82rem;">
+      <thead>
+        <tr style="color:#64748b;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;">
+          <th style="border:0;padding:.6rem;">Key</th>
+          <th style="border:0;padding:.6rem;">Type</th>
+          <th style="border:0;padding:.6rem;">Summary</th>
+          <th style="border:0;padding:.6rem;">Status</th>
+          <th style="border:0;padding:.6rem;">Priority</th>
+          <th style="border:0;padding:.6rem;">Assignee</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for issue in issues %}
+        <tr style="cursor:pointer;" onclick="window.location='{% url 'jira_hub:issue_detail' key=issue.issue_key %}'">
+          <td style="padding:.6rem;font-weight:600;color:#2684FF;white-space:nowrap;">{{ issue.issue_key }}</td>
+          <td style="padding:.6rem;color:#64748b;">{{ issue.issue_type }}</td>
+          <td style="padding:.6rem;">{{ issue.summary|truncatechars:80 }}</td>
+          <td style="padding:.6rem;">
+            <span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:600;background:{{ issue.status_color }}14;color:{{ issue.status_color }};">{{ issue.status }}</span>
+          </td>
+          <td style="padding:.6rem;color:#64748b;">{{ issue.priority|default:"—" }}</td>
+          <td style="padding:.6rem;color:#64748b;">{{ issue.assignee_display_name|default:"Unassigned" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="text-center py-5">
+  <i data-lucide="inbox" style="width:40px;height:40px;color:#cbd5e1;"></i>
+  <p class="text-muted mt-2">No issues found{% if status_filter %} with this filter{% endif %}.</p>
+</div>
+{% endif %}
+{% endblock %}

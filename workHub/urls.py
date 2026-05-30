@@ -23,6 +23,7 @@ urlpatterns = [
     path("google/", include("google_hub.urls", namespace="google_hub")),
     path("social/", include("social_media.urls", namespace="social_media")),
     path("microsoft/", include("microsoft.urls", namespace="microsoft")),
+    path("jira/", include("jira_hub.urls", namespace="jira_hub")),
 ]
 
 if settings.DEBUG:

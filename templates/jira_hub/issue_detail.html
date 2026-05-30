@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}{{ issue.issue_key }} — Jira — WorkHub{% endblock %}
+{% block page_title %}{{ issue.issue_key }}{% endblock %}
+
+{% block content %}
+<!-- Back + Header -->
+<div class="d-flex align-items-center gap-3 mb-4">
+  <a href="{% url 'jira_hub:issues' %}" class="btn btn-light btn-sm" style="border-radius:8px;">
+    <i data-lucide="arrow-left" class="lucide" style="width:14px;height:14px;"></i>
+  </a>
+  <div class="flex-grow-1 min-w-0">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <span class="fw-bold" style="font-size:1.1rem;color:#2684FF;">{{ issue.issue_key }}</span>
+      <span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:600;background:{{ issue.status_color }}14;color:{{ issue.status_color }};">{{ issue.status }}</span>
+      {% if issue.priority %}
+      <span class="text-muted" style="font-size:.78rem;">{{ issue.priority }}</span>
+      {% endif %}
+    </div>
+    <h5 class="fw-bold mb-0 mt-1">{{ issue.summary }}</h5>
+  </div>
+  <a href="{{ integration.jira_site_url }}/browse/{{ issue.issue_key }}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm" style="border-radius:8px;font-size:.8rem;white-space:nowrap;">
+    <i data-lucide="external-link" class="lucide me-1" style="width:13px;height:13px;"></i>Open in Jira
+  </a>
+</div>
+
+<div class="row g-4">
+  <!-- Main content -->
+  <div class="col-lg-8">
+    <!-- Description -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:1rem;">
+      <h6 class="fw-bold mb-3" style="font-size:.88rem;"><i data-lucide="file-text" class="lucide me-2" style="width:15px;height:15px;color:#2684FF;"></i>Description</h6>
+      {% if issue.description %}
+      <div style="font-size:.85rem;line-height:1.7;color:#334155;white-space:pre-wrap;">{{ issue.description }}</div>
+      {% else %}
+      <p class="text-muted mb-0" style="font-size:.82rem;">No description provided.</p>
+      {% endif %}
+    </div>
+
+    <!-- Comments -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;">
+      <h6 class="fw-bold mb-3" style="font-size:.88rem;"><i data-lucide="message-square" class="lucide me-2" style="width:15px;height:15px;color:#2684FF;"></i>Comments ({{ comments|length }})</h6>
+
+      {% if comments %}
+      <div class="d-flex flex-column gap-3 mb-4">
+        {% for c in comments %}
+        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:1rem;">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="fw-semibold" style="font-size:.82rem;">{{ c.author_display_name }}</span>
+            <span class="text-muted" style="font-size:.72rem;">{{ c.created_at_jira|date:"M j, Y H:i" }}</span>
+          </div>
+          <div style="font-size:.82rem;line-height:1.6;color:#334155;white-space:pre-wrap;">{{ c.body }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted mb-3" style="font-size:.82rem;">No comments yet.</p>
+      {% endif %}
+
+      <!-- Add comment form -->
+      <form method="post" action="{% url 'jira_hub:add_comment' key=issue.issue_key %}">
+        {% csrf_token %}
+        <div class="mb-2">
+          <textarea name="body" class="form-control" rows="3" required placeholder="Write a comment..." style="font-size:.85rem;border-radius:8px;"></textarea>
+        </div>
+        <div class="text-end">
+          <button type="submit" class="btn btn-primary btn-sm" style="border-radius:8px;font-size:.82rem;">
+            <i data-lucide="send" class="lucide me-1" style="width:13px;height:13px;"></i>Add Comment
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sidebar Details -->
+  <div class="col-lg-4">
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:1rem;">
+      <h6 class="fw-bold mb-3" style="font-size:.88rem;">Details</h6>
+      <div class="d-flex flex-column gap-2" style="font-size:.82rem;">
+        <div class="d-flex justify-content-between">
+          <span class="text-muted">Type</span>
+          <span class="fw-semibold">{{ issue.issue_type }}</span>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span class="text-muted">Priority</span>
+          <span class="fw-semibold">{{ issue.priority|default:"None" }}</span>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span class="text-muted">Assignee</span>
+          <span class="fw-semibold">{{ issue.assignee_display_name|default:"Unassigned" }}</span>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span class="text-muted">Reporter</span>
+          <span class="fw-semibold">{{ issue.reporter_display_name|default:"—" }}</span>
+        </div>
+        {% if issue.due_date %}
+        <div class="d-flex justify-content-between">
+          <span class="text-muted">Due Date</span>
+          <span class="fw-semibold">{{ issue.due_date|date:"M j, Y" }}</span>
+        </div>
+        {% endif %}
+        <div class="d-flex justify-content-between">
+          <span class="text-muted">Created</span>
+          <span>{{ issue.created_at_jira|date:"M j, Y"|default:"—" }}</span>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span class="text-muted">Updated</span>
+          <span>{{ issue.updated_at_jira|date:"M j, Y H:i"|default:"—" }}</span>
+        </div>
+        {% if issue.labels %}
+        <div class="mt-2">
+          <span class="text-muted d-block mb-1">Labels</span>
+          <div class="d-flex flex-wrap gap-1">
+            {% for label in issue.labels %}
+            <span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:600;background:#e2e8f0;color:#334155;">{{ label }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Transitions -->
+    {% if transitions %}
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;">
+      <h6 class="fw-bold mb-3" style="font-size:.88rem;"><i data-lucide="git-branch" class="lucide me-2" style="width:15px;height:15px;color:#2684FF;"></i>Transitions</h6>
+      <div class="d-flex flex-column gap-2">
+        {% for t in transitions %}
+        <form method="post" action="{% url 'jira_hub:transition' key=issue.issue_key %}" class="d-inline">
+          {% csrf_token %}
+          <input type="hidden" name="transition_id" value="{{ t.id }}">
+          <button type="submit" class="btn btn-outline-primary btn-sm w-100 text-start" style="border-radius:8px;font-size:.8rem;cursor:pointer;" onclick="return confirm('Move to {{ t.name }}?')">
+            <i data-lucide="arrow-right-circle" class="lucide me-1" style="width:13px;height:13px;"></i>{{ t.name }}
+          </button>
+        </form>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

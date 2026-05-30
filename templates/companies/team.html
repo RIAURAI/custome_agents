@@ -2,45 +2,57 @@
 {% block title %}Team — WorkHub{% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="hub-header">
-  <div class="d-flex align-items-center gap-3">
-    <div class="hub-icon" style="background:var(--gradient-brand)"><i data-lucide="users" class="lucide"></i></div>
-    <div>
-      <h1 class="hub-title">Team Management</h1>
-      <p class="hub-subtitle">{{ company.name }} — {{ members|length }} member{{ members|length|pluralize }}</p>
+<!-- ── Header ─────────────────────────────────────────────────────── -->
+<div style="margin-bottom:24px">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:44px;height:44px;border-radius:12px;background:var(--gradient-brand);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i data-lucide="users" class="lucide" style="width:22px;height:22px;color:#fff"></i>
+      </div>
+      <div>
+        <h1 style="font-size:20px;font-weight:700;color:var(--gray-900);margin:0;letter-spacing:-0.02em">Team Management</h1>
+        <p style="font-size:13px;color:var(--gray-500);margin:2px 0 0">{{ company.name }} — {{ members|length }} member{{ members|length|pluralize }}</p>
+      </div>
     </div>
-  </div>
-  <div class="d-flex align-items-center gap-2">
-    <a href="{% url 'companies:activity_log' %}" class="hub-btn-secondary"><i data-lucide="scroll-text" class="lucide"></i> Activity Log</a>
-    <button class="hub-btn-create" data-bs-toggle="modal" data-bs-target="#inviteModal"><i data-lucide="user-plus" class="lucide"></i> Invite Member</button>
+    <div style="display:flex;gap:8px">
+      <a href="{% url 'companies:activity_log' %}" class="adm-header-btn"><i data-lucide="scroll-text" class="lucide" style="width:14px;height:14px"></i> Activity Log</a>
+      <button class="adm-header-btn" style="background:var(--signature);color:#fff;border-color:var(--signature)" data-bs-toggle="modal" data-bs-target="#inviteModal">
+        <i data-lucide="user-plus" class="lucide" style="width:14px;height:14px"></i> Invite Member
+      </button>
+    </div>
   </div>
 </div>
 
-<!-- Pending invites -->
+<!-- ── Pending Invites ────────────────────────────────────────────── -->
 {% if pending_invites %}
-<div class="invite-pending-card mb-4">
-  <div class="invite-pending-header d-flex align-items-center gap-2">
-    <i data-lucide="mail" class="lucide" style="width:14px;height:14px;color:var(--amber)"></i>
-    {{ pending_invites|length }} Pending Invite{{ pending_invites|length|pluralize }}
+<div style="background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.2);border-radius:14px;overflow:hidden;margin-bottom:20px">
+  <div style="padding:14px 20px;border-bottom:1px solid rgba(245,158,11,.1);display:flex;align-items:center;gap:8px">
+    <i data-lucide="mail" class="lucide" style="width:14px;height:14px;color:#d97706"></i>
+    <span style="font-size:13px;font-weight:600;color:#92400e">{{ pending_invites|length }} Pending Invite{{ pending_invites|length|pluralize }}</span>
   </div>
-  <div style="padding:0">
-    <table class="hub-table">
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
-        <tr><th>Email</th><th>Role</th><th>Invited</th><th>Expires</th><th></th></tr>
+        <tr style="border-bottom:1px solid rgba(245,158,11,.1)">
+          <th class="adm-th">Email</th>
+          <th class="adm-th">Role</th>
+          <th class="adm-th">Invited</th>
+          <th class="adm-th">Expires</th>
+          <th class="adm-th" style="width:50px"></th>
+        </tr>
       </thead>
       <tbody>
         {% for inv in pending_invites %}
-        <tr>
-          <td style="font-size:13px;font-weight:500">{{ inv.email }}</td>
-          <td><span class="hub-pill hub-pill--muted">{{ inv.get_role_display }}</span></td>
-          <td style="font-size:12px;color:var(--gray-500)">{{ inv.created_at|timesince }} ago</td>
-          <td style="font-size:12px;color:var(--gray-500)">{{ inv.expires_at|date:"M d, Y" }}</td>
-          <td>
+        <tr style="border-bottom:1px solid rgba(245,158,11,.06)">
+          <td style="padding:12px 16px;font-weight:500;color:var(--gray-800)">{{ inv.email }}</td>
+          <td style="padding:12px 16px"><span class="adm-pill">{{ inv.get_role_display }}</span></td>
+          <td style="padding:12px 16px;font-size:12px;color:var(--gray-500)">{{ inv.created_at|timesince }} ago</td>
+          <td style="padding:12px 16px;font-size:12px;color:var(--gray-500)">{{ inv.expires_at|date:"M d, Y" }}</td>
+          <td style="padding:12px 16px">
             <form method="post" action="{% url 'companies:revoke_invite' inv.token %}" style="display:inline">
               {% csrf_token %}
-              <button type="submit" class="hub-btn-action" title="Revoke" onclick="return confirm('Revoke this invitation?')">
-                <i data-lucide="x" class="lucide" style="color:var(--danger)"></i>
+              <button type="submit" class="adm-icon-btn" title="Revoke" onclick="return confirm('Revoke this invitation?')">
+                <i data-lucide="x" class="lucide" style="width:14px;height:14px;color:var(--danger)"></i>
               </button>
             </form>
           </td>
@@ -52,50 +64,50 @@
 </div>
 {% endif %}
 
-<!-- Members & access grid -->
-<div class="dash-panel">
-  <div class="dash-panel-header d-flex align-items-center justify-content-between">
+<!-- ── Members ────────────────────────────────────────────────────── -->
+<div style="background:var(--surface);border:1px solid var(--gray-200);border-radius:14px;overflow:hidden">
+  <div style="padding:14px 20px;border-bottom:1px solid var(--gray-100)">
     <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Members</span>
   </div>
-  <div class="dash-panel-body" style="padding:0">
-    <table class="hub-table">
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
-        <tr>
-          <th>Member</th>
-          <th>Role</th>
-          <th>Joined</th>
+        <tr style="border-bottom:1px solid var(--gray-100)">
+          <th class="adm-th">Member</th>
+          <th class="adm-th">Role</th>
+          <th class="adm-th">Joined</th>
           {% for intg in integrations %}
-          <th style="text-align:center;font-size:11px">{{ intg.get_service_display|default:intg.service }}</th>
+          <th class="adm-th" style="text-align:center">{{ intg.get_service_display|default:intg.service }}</th>
           {% endfor %}
-          <th></th>
+          <th class="adm-th" style="width:80px"></th>
         </tr>
       </thead>
       <tbody>
         {% for m in members %}
-        <tr>
-          <td>
-            <div class="d-flex align-items-center gap-2">
-              <div class="team-member-avatar">{{ m.user.first_name|first|upper }}{{ m.user.last_name|first|upper }}</div>
+        <tr class="adm-row">
+          <td style="padding:12px 16px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:34px;height:34px;border-radius:10px;background:var(--gradient-brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">{{ m.user.first_name|first|upper }}{{ m.user.last_name|first|upper }}</div>
               <div>
                 <div style="font-size:13px;font-weight:600;color:var(--gray-900)">{{ m.user.get_full_name|default:m.user.username }}</div>
                 <div style="font-size:11px;color:var(--gray-500)">{{ m.user.email }}</div>
               </div>
             </div>
           </td>
-          <td>
-            <span class="hub-pill {% if m.is_admin %}hub-pill--info{% elif m.is_owner %}hub-pill--success{% else %}hub-pill--muted{% endif %}">
+          <td style="padding:12px 16px">
+            <span class="adm-pill {% if m.is_owner %}adm-pill--success{% elif m.is_admin %}adm-pill--info{% endif %}">
               {{ m.get_role_display }}
             </span>
           </td>
-          <td style="font-size:12px;color:var(--gray-500)">{{ m.created_at|date:"M d, Y" }}</td>
+          <td style="padding:12px 16px;font-size:12px;color:var(--gray-500)">{{ m.created_at|date:"M d, Y" }}</td>
           {% for intg in integrations %}
-          <td style="text-align:center">
+          <td style="padding:12px 16px;text-align:center">
             {% if access_grid %}
               {% for mid, perms in access_grid.items %}
                 {% if mid == m.id %}
                   {% for iid, pa in perms.items %}
                     {% if iid == intg.id %}
-                    <span class="hub-pill hub-pill--{% if pa.permission == 'admin' %}info{% elif pa.permission == 'write' %}success{% elif pa.permission == 'read' %}muted{% else %}muted{% endif %}" style="font-size:10px">
+                    <span class="adm-pill {% if pa.permission == 'admin' %}adm-pill--info{% elif pa.permission == 'write' %}adm-pill--success{% else %}{% endif %}" style="font-size:10px">
                       {{ pa.get_permission_display }}
                     </span>
                     {% endif %}
@@ -105,16 +117,16 @@
             {% endif %}
           </td>
           {% endfor %}
-          <td>
-            <div class="d-flex gap-1">
-              <button class="hub-btn-action" title="Manage Access" data-bs-toggle="modal" data-bs-target="#accessModal{{ m.id }}">
-                <i data-lucide="shield" class="lucide"></i>
+          <td style="padding:12px 16px">
+            <div style="display:flex;gap:4px">
+              <button class="adm-icon-btn" title="Manage Access" data-bs-toggle="modal" data-bs-target="#accessModal{{ m.id }}">
+                <i data-lucide="shield" class="lucide" style="width:14px;height:14px"></i>
               </button>
               {% if not m.is_owner and m.user != request.user %}
               <form method="post" action="{% url 'companies:remove_member' m.id %}" style="display:inline">
                 {% csrf_token %}
-                <button type="submit" class="hub-btn-action" title="Remove" onclick="return confirm('Remove {{ m.user.username }}?')">
-                  <i data-lucide="user-minus" class="lucide" style="color:var(--danger)"></i>
+                <button type="submit" class="adm-icon-btn" title="Remove" onclick="return confirm('Remove {{ m.user.username }}?')">
+                  <i data-lucide="user-minus" class="lucide" style="width:14px;height:14px;color:var(--danger)"></i>
                 </button>
               </form>
               {% endif %}
@@ -127,55 +139,61 @@
   </div>
 </div>
 
-<!-- Invite Modal -->
+<!-- ── Invite Modal ───────────────────────────────────────────────── -->
 <div class="modal fade" id="inviteModal" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content" style="border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-lg)">
-      <div class="modal-header" style="border-bottom:1px solid var(--gray-100);padding:16px 20px">
-        <h5 style="font-size:15px;font-weight:700;margin:0">Invite Team Member</h5>
+    <div class="modal-content" style="border:1px solid var(--gray-200);border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,.12)">
+      <div class="modal-header" style="border-bottom:1px solid var(--gray-100);padding:18px 24px">
+        <h5 style="font-size:16px;font-weight:700;margin:0;color:var(--gray-900)">Invite Team Member</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="post" action="{% url 'companies:invite' %}">
         {% csrf_token %}
-        <div class="modal-body" style="padding:20px">
-          <div class="mb-3">
-            <label class="hub-label">Email Address</label>
-            <input type="email" name="email" class="hub-input" required placeholder="colleague@example.com">
+        <div class="modal-body" style="padding:24px">
+          <div style="margin-bottom:16px">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Email Address</label>
+            <input type="email" name="email" required placeholder="colleague@example.com"
+                   style="width:100%;padding:10px 14px;border:1px solid var(--gray-200);border-radius:8px;font-size:13px;background:var(--surface);color:var(--gray-800);outline:none;transition:border-color .15s"
+                   onfocus="this.style.borderColor='var(--signature)'" onblur="this.style.borderColor='var(--gray-200)'">
           </div>
           <div>
-            <label class="hub-label">Role</label>
-            <select name="role" class="hub-input">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Role</label>
+            <select name="role" style="width:100%;padding:10px 14px;border:1px solid var(--gray-200);border-radius:8px;font-size:13px;background:var(--surface);color:var(--gray-800);outline:none;cursor:pointer;transition:border-color .15s"
+                    onfocus="this.style.borderColor='var(--signature)'" onblur="this.style.borderColor='var(--gray-200)'">
               {% for val, label in role_choices %}
               <option value="{{ val }}">{{ label }}</option>
               {% endfor %}
             </select>
           </div>
         </div>
-        <div class="modal-footer" style="border-top:1px solid var(--gray-100);padding:12px 20px">
-          <button type="button" class="hub-btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="hub-btn-create"><i data-lucide="send" class="lucide"></i> Send Invite</button>
+        <div class="modal-footer" style="border-top:1px solid var(--gray-100);padding:14px 24px;gap:8px">
+          <button type="button" class="adm-header-btn" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="adm-header-btn" style="background:var(--signature);color:#fff;border-color:var(--signature)">
+            <i data-lucide="send" class="lucide" style="width:14px;height:14px"></i> Send Invite
+          </button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Per-member access modals -->
+<!-- ── Access Modals ──────────────────────────────────────────────── -->
 {% for m in members %}
 <div class="modal fade" id="accessModal{{ m.id }}" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content" style="border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-lg)">
-      <div class="modal-header" style="border-bottom:1px solid var(--gray-100);padding:16px 20px">
-        <h5 style="font-size:15px;font-weight:700;margin:0">Access — {{ m.user.get_full_name|default:m.user.username }}</h5>
+    <div class="modal-content" style="border:1px solid var(--gray-200);border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,.12)">
+      <div class="modal-header" style="border-bottom:1px solid var(--gray-100);padding:18px 24px">
+        <h5 style="font-size:16px;font-weight:700;margin:0;color:var(--gray-900)">Access — {{ m.user.get_full_name|default:m.user.username }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="post" action="{% url 'companies:manage_access' m.id %}">
         {% csrf_token %}
-        <div class="modal-body" style="padding:20px">
+        <div class="modal-body" style="padding:24px">
           {% for intg in integrations %}
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <span style="font-size:13px;font-weight:600">{{ intg.get_service_display|default:intg.service }}</span>
-            <select name="perm_{{ intg.id }}" class="hub-input" style="width:auto;min-width:140px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;{% if not forloop.last %}border-bottom:1px solid var(--gray-100){% endif %}">
+            <span style="font-size:13px;font-weight:600;color:var(--gray-800)">{{ intg.get_service_display|default:intg.service }}</span>
+            <select name="perm_{{ intg.id }}" style="min-width:140px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:8px;font-size:13px;background:var(--surface);color:var(--gray-800);outline:none;cursor:pointer;transition:border-color .15s"
+                    onfocus="this.style.borderColor='var(--signature)'" onblur="this.style.borderColor='var(--gray-200)'">
               <option value="">No Access</option>
               {% for val, label in permission_choices %}
               <option value="{{ val }}">{{ label }}</option>
@@ -187,9 +205,11 @@
           <p style="font-size:13px;color:var(--gray-500)">No active integrations to configure.</p>
           {% endif %}
         </div>
-        <div class="modal-footer" style="border-top:1px solid var(--gray-100);padding:12px 20px">
-          <button type="button" class="hub-btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="hub-btn-create"><i data-lucide="check" class="lucide"></i> Save Access</button>
+        <div class="modal-footer" style="border-top:1px solid var(--gray-100);padding:14px 24px;gap:8px">
+          <button type="button" class="adm-header-btn" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="adm-header-btn" style="background:var(--signature);color:#fff;border-color:var(--signature)">
+            <i data-lucide="check" class="lucide" style="width:14px;height:14px"></i> Save Access
+          </button>
         </div>
       </form>
     </div>
@@ -200,4 +220,40 @@
 
 {% block extra_js %}
 <script>lucide.createIcons();</script>
+<style>
+.adm-header-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; border: 1px solid var(--gray-200);
+  background: var(--surface); color: var(--gray-700);
+  text-decoration: none; cursor: pointer; transition: all .15s;
+}
+.adm-header-btn:hover { border-color: var(--signature); color: var(--signature); }
+
+.adm-th {
+  text-align: left; padding: 10px 16px; font-size: 11px;
+  font-weight: 600; color: var(--gray-500);
+  text-transform: uppercase; letter-spacing: .05em;
+}
+
+.adm-row { border-bottom: 1px solid var(--gray-100); transition: background .1s; }
+.adm-row:last-child { border-bottom: none; }
+.adm-row:hover { background: var(--gray-50); }
+
+.adm-pill {
+  font-size: 11px; font-weight: 600; padding: 3px 10px;
+  border-radius: 20px; background: var(--gray-100);
+  color: var(--gray-600); display: inline-flex; align-items: center;
+}
+.adm-pill--info { background: var(--signature-50); color: var(--signature); }
+.adm-pill--success { background: var(--success-soft); color: #166534; }
+
+.adm-icon-btn {
+  width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--gray-200);
+  background: var(--surface); display: flex; align-items: center;
+  justify-content: center; cursor: pointer; transition: all .15s;
+  color: var(--gray-500);
+}
+.adm-icon-btn:hover { border-color: var(--signature); color: var(--signature); }
+</style>
 {% endblock %}

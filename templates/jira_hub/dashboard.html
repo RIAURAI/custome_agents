@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Jira — WorkHub{% endblock %}
+{% block page_title %}Jira Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Header row -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div class="d-flex align-items-center gap-3">
+    <div style="width:44px;height:44px;border-radius:12px;background:#2684FF14;display:flex;align-items:center;justify-content:center;">
+      <i data-lucide="kanban" style="color:#2684FF;width:22px;height:22px;"></i>
+    </div>
+    <div>
+      <h4 class="fw-bold mb-0" style="font-size:1.25rem;">Jira Dashboard</h4>
+      <p class="text-muted mb-0" style="font-size:.82rem;">
+        Connected to <strong>{{ integration.jira_site_url }}</strong>
+        {% if integration.jira_display_name %} as {{ integration.jira_display_name }}{% endif %}
+      </p>
+    </div>
+  </div>
+  <form method="post" action="{% url 'jira_hub:sync_now' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary" style="border-radius:10px;padding:.55rem 1.5rem;font-size:.85rem;">
+      <i data-lucide="refresh-cw" class="lucide me-2" style="width:16px;height:16px;"></i>Sync Now
+    </button>
+  </form>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <div style="width:32px;height:32px;border-radius:8px;background:#0052CC14;display:flex;align-items:center;justify-content:center;">
+          <i data-lucide="layers" style="color:#0052CC;width:16px;height:16px;"></i>
+        </div>
+        <span class="text-muted" style="font-size:.78rem;font-weight:600;">Total Issues</span>
+      </div>
+      <div class="fw-bold" style="font-size:1.6rem;">{{ total_issues }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <div style="width:32px;height:32px;border-radius:8px;background:#FF991F14;display:flex;align-items:center;justify-content:center;">
+          <i data-lucide="clock" style="color:#FF991F;width:16px;height:16px;"></i>
+        </div>
+        <span class="text-muted" style="font-size:.78rem;font-weight:600;">Open</span>
+      </div>
+      <div class="fw-bold" style="font-size:1.6rem;">{{ open_count }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <div style="width:32px;height:32px;border-radius:8px;background:#FF991F14;display:flex;align-items:center;justify-content:center;">
+          <i data-lucide="loader" style="color:#FF991F;width:16px;height:16px;"></i>
+        </div>
+        <span class="text-muted" style="font-size:.78rem;font-weight:600;">In Progress</span>
+      </div>
+      <div class="fw-bold" style="font-size:1.6rem;">{{ in_progress_count }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <div style="width:32px;height:32px;border-radius:8px;background:#36B37E14;display:flex;align-items:center;justify-content:center;">
+          <i data-lucide="check-circle" style="color:#36B37E;width:16px;height:16px;"></i>
+        </div>
+        <span class="text-muted" style="font-size:.78rem;font-weight:600;">Done</span>
+      </div>
+      <div class="fw-bold" style="font-size:1.6rem;">{{ done_count }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Two columns: Recent Issues + Projects -->
+<div class="row g-4">
+  <!-- Recent Issues -->
+  <div class="col-lg-8">
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h6 class="fw-bold mb-0" style="font-size:.92rem;"><i data-lucide="list" class="lucide me-2" style="width:16px;height:16px;color:#2684FF;"></i>Recent Issues</h6>
+        <a href="{% url 'jira_hub:issues' %}" class="text-primary" style="font-size:.8rem;text-decoration:none;font-weight:600;">View All</a>
+      </div>
+      {% if recent_issues %}
+      <div class="table-responsive">
+        <table class="table table-sm mb-0" style="font-size:.82rem;">
+          <thead>
+            <tr style="color:#64748b;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">
+              <th style="border:0;padding:.5rem .6rem;">Key</th>
+              <th style="border:0;padding:.5rem .6rem;">Summary</th>
+              <th style="border:0;padding:.5rem .6rem;">Status</th>
+              <th style="border:0;padding:.5rem .6rem;">Priority</th>
+              <th style="border:0;padding:.5rem .6rem;">Assignee</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for issue in recent_issues %}
+            <tr style="cursor:pointer;" onclick="window.location='{% url 'jira_hub:issue_detail' key=issue.issue_key %}'">
+              <td style="padding:.6rem;font-weight:600;color:#2684FF;white-space:nowrap;">{{ issue.issue_key }}</td>
+              <td style="padding:.6rem;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ issue.summary }}</td>
+              <td style="padding:.6rem;">
+                <span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:600;background:{{ issue.status_color }}14;color:{{ issue.status_color }};">
+                  {{ issue.status }}
+                </span>
+              </td>
+              <td style="padding:.6rem;color:#64748b;">{{ issue.priority|default:"—" }}</td>
+              <td style="padding:.6rem;color:#64748b;">{{ issue.assignee_display_name|default:"Unassigned" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+        <i data-lucide="inbox" style="width:40px;height:40px;color:#cbd5e1;"></i>
+        <p class="text-muted mt-2 mb-0" style="font-size:.85rem;">No issues synced yet. Click <strong>Sync Now</strong> to pull issues from Jira.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Projects sidebar -->
+  <div class="col-lg-4">
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h6 class="fw-bold mb-0" style="font-size:.92rem;"><i data-lucide="folder" class="lucide me-2" style="width:16px;height:16px;color:#2684FF;"></i>Projects ({{ project_count }})</h6>
+        <a href="{% url 'jira_hub:projects' %}" class="text-primary" style="font-size:.8rem;text-decoration:none;font-weight:600;">View All</a>
+      </div>
+      {% if projects %}
+        {% for p in projects %}
+        <a href="{% url 'jira_hub:project_detail' key=p.key %}" class="d-flex align-items-center gap-2 p-2 mb-1" style="border-radius:8px;text-decoration:none;color:inherit;transition:background .15s;cursor:pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+          {% if p.avatar_url %}
+          <img src="{{ p.avatar_url }}" alt="" style="width:28px;height:28px;border-radius:6px;">
+          {% else %}
+          <div style="width:28px;height:28px;border-radius:6px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="folder" style="width:14px;height:14px;color:#64748b;"></i>
+          </div>
+          {% endif %}
+          <div class="flex-grow-1 min-w-0">
+            <div class="fw-semibold" style="font-size:.82rem;">{{ p.name }}</div>
+            <div class="text-muted" style="font-size:.72rem;">{{ p.key }} · {{ p.project_type }}</div>
+          </div>
+        </a>
+        {% endfor %}
+      {% else %}
+      <p class="text-muted text-center mb-0" style="font-size:.82rem;">No projects synced yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

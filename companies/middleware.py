@@ -49,14 +49,17 @@ def company_context(request):
         ctx["has_ms_access"] = True
         ctx["has_slack_access"] = True
         ctx["has_google_access"] = True
+        ctx["has_jira_access"] = True
     elif membership:
         ctx["has_ms_access"] = bool(has_platform_access(request, "microsoft"))
         ctx["has_slack_access"] = bool(has_platform_access(request, "slack"))
         ctx["has_google_access"] = bool(has_platform_access(request, "google"))
+        ctx["has_jira_access"] = False
     else:
         ctx["has_ms_access"] = False
         ctx["has_slack_access"] = False
         ctx["has_google_access"] = False
+        ctx["has_jira_access"] = False
 
     # Fallback: if user has a UserIntegration with a valid token, grant access
     if not ctx["has_slack_access"] and hasattr(request, "user") and request.user.is_authenticated:
@@ -73,6 +76,15 @@ def company_context(request):
             ctx["has_google_access"] = CompanyIntegration.objects.filter(
                 company=company, service="google", status="active",
             ).exclude(access_token_enc=None).exclude(access_token_enc=b"").exists()
+
+    # Fallback: if company has an active Jira integration, grant access
+    if not ctx["has_jira_access"]:
+        from integrations.models import CompanyIntegration
+        company = getattr(request, "company", None)
+        if company:
+            ctx["has_jira_access"] = CompanyIntegration.objects.filter(
+                company=company, service="jira", status="active",
+            ).exists()
 
     return ctx
 

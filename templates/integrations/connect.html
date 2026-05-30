@@ -558,7 +558,6 @@
     </div>
   </div>
 
-  {% comment %}
   <!-- ── Jira ──────────────────────────────────────────────────────────── -->
   <div class="col-md-6 col-xl-4 d-flex flex-column">
     <div class="int-card {% if integrations.jira %}int-card--connected{% else %}int-card--compact{% endif %} flex-grow-1">
@@ -585,10 +584,19 @@
         {% if integrations.jira %}
           <div class="int-account-box mb-4">
             <div class="d-flex align-items-center gap-2 mb-1">
-              <i data-lucide="kanban" class="lucide" style="color:#2684FF;font-size:1rem;"></i>
-              <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">{{ integrations.jira.jira_user_email }}</span>
+              {% if integrations.jira.jira_avatar_url %}
+                <img src="{{ integrations.jira.jira_avatar_url }}" alt="" style="width:24px;height:24px;border-radius:50%;">
+              {% else %}
+                <i data-lucide="kanban" class="lucide" style="color:#2684FF;font-size:1rem;"></i>
+              {% endif %}
+              <span class="fw-semibold" style="font-size:.88rem;color:#1e293b;">
+                {% if integrations.jira.jira_display_name %}{{ integrations.jira.jira_display_name }}{% else %}{{ integrations.jira.jira_user_email }}{% endif %}
+              </span>
             </div>
             <div class="text-muted" style="font-size:.8rem;">{{ integrations.jira.jira_site_url }}</div>
+            {% if integrations.jira.jira_user_email and integrations.jira.jira_display_name %}
+              <div class="text-muted" style="font-size:.78rem;">{{ integrations.jira.jira_user_email }}</div>
+            {% endif %}
             {% if integrations.jira.jira_project_key %}
               <div class="text-muted" style="font-size:.78rem;">Project: {{ integrations.jira.jira_project_key }}</div>
             {% endif %}
@@ -638,7 +646,6 @@
       </div>
     </div>
   </div>
-  {% endcomment %}
 
   {% comment %}
   <!-- ── Coming Soon cards ─────────────────────────────────────────────── -->
@@ -683,7 +690,7 @@
 {% include "integrations/_calendly_connect_modal.html" %}
 {% include "integrations/_google_connect_modal.html" %}
 {% include "integrations/_discord_connect_modal.html" %}
-{% comment %}{% include "integrations/_jira_connect_modal.html" %}{% endcomment %}
+{% include "integrations/_jira_connect_modal.html" %}
 
 <!-- Feature toggle styles -->
 <style>

@@ -852,35 +852,77 @@ def discord_disconnect(request):
 # ── Jira ──────────────────────────────────────────────────────────────────────
 
 
+def _normalize_jira_url(raw: str) -> str:
+    """Ensure https scheme, strip trailing slash."""
+    url = raw.strip().rstrip("/")
+    if url and not url.startswith("http"):
+        url = f"https://{url}"
+    # Upgrade http → https for Atlassian Cloud
+    if url.startswith("http://"):
+        url = "https://" + url[7:]
+    return url
+
+
 @company_admin_required
 @require_POST
 def jira_save_credentials(request):
-    """Save Jira credentials (API Token + site URL)."""
-    site_url = request.POST.get("jira_site_url", "").strip().rstrip("/")
+    """Save Jira credentials (API Token + site URL) after verifying them."""
+    import base64
+    from urllib.parse import urlparse
+
+    site_url = _normalize_jira_url(request.POST.get("jira_site_url", ""))
     user_email = request.POST.get("jira_user_email", "").strip()
     api_token = request.POST.get("jira_api_token", "").strip()
-    project_key = request.POST.get("jira_project_key", "").strip()
+    project_key = request.POST.get("jira_project_key", "").strip().upper()
 
     if not site_url or not user_email or not api_token:
         messages.error(request, "Jira Site URL, Email, and API Token are all required.")
         return redirect("integrations:connect")
 
+    # Validate URL structure
+    parsed = urlparse(site_url)
+    if parsed.scheme != "https" or not parsed.netloc:
+        messages.error(request, "Invalid Jira Site URL — must start with https://.")
+        return redirect("integrations:connect")
+
+    # Warn (but allow) non-Atlassian domains
+    if not parsed.netloc.endswith(".atlassian.net"):
+        logger.warning("Jira connect: non-standard domain %s (company=%s)", parsed.netloc, request.company.slug)
+
     # Verify credentials by calling Jira API
-    import base64
     auth_str = base64.b64encode(f"{user_email}:{api_token}".encode()).decode()
     headers = {
         "Authorization": f"Basic {auth_str}",
         "Content-Type": "application/json",
     }
     try:
-        resp = http_requests.get(f"{site_url}/rest/api/3/myself", headers=headers, timeout=10)
-        if resp.status_code != 200:
+        resp = http_requests.get(
+            f"{site_url}/rest/api/3/myself", headers=headers, timeout=10,
+        )
+        if resp.status_code == 401:
             messages.error(request, "Invalid Jira credentials — authentication failed.")
             return redirect("integrations:connect")
+        if resp.status_code != 200:
+            messages.error(request, f"Jira API returned status {resp.status_code}. Please try again.")
+            return redirect("integrations:connect")
         jira_user = resp.json()
+    except http_requests.exceptions.Timeout:
+        messages.error(request, "Jira API timed out. Check your site URL and try again.")
+        return redirect("integrations:connect")
+    except http_requests.exceptions.ConnectionError:
+        messages.error(request, "Could not reach Jira. Check the site URL.")
+        return redirect("integrations:connect")
     except Exception:
+        logger.exception("Unexpected error verifying Jira credentials (company=%s)", request.company.slug)
         messages.error(request, "Could not connect to Jira API. Check site URL.")
         return redirect("integrations:connect")
+
+    # Extract rich user metadata from the /myself response
+    account_id = jira_user.get("accountId", "")
+    display_name = jira_user.get("displayName", user_email)
+    avatar_url = ""
+    avatars = jira_user.get("avatarUrls", {})
+    avatar_url = avatars.get("48x48", avatars.get("32x32", ""))
 
     company = request.company
     integration, _ = CompanyIntegration.objects.update_or_create(
@@ -890,12 +932,15 @@ def jira_save_credentials(request):
             "jira_user_email": user_email,
             "jira_api_token_enc": encrypt_token(api_token),
             "jira_project_key": project_key,
+            "jira_account_id": account_id,
+            "jira_display_name": display_name,
+            "jira_avatar_url": avatar_url,
             "access_token_enc": encrypt_token(api_token),
             "connected_by": request.user,
             "status": "active",
         },
     )
-    display_name = jira_user.get("displayName", user_email)
+    logger.info("Jira connected for company=%s, account=%s", company.slug, account_id)
     messages.success(request, f"Jira connected! User: {display_name}")
     log_activity(request, "integration_connected", "jira", f"Site: {site_url}")
     return redirect("integrations:connect")

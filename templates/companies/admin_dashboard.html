@@ -3,189 +3,180 @@
 {% block title %}Admin Dashboard — WorkHub{% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="hub-header">
-  <div class="d-flex align-items-center gap-3">
-    <div class="hub-icon" style="background:var(--gradient-brand)"><i data-lucide="bar-chart-3" class="lucide"></i></div>
+<!-- ── Header ─────────────────────────────────────────────────────── -->
+<div style="margin-bottom:16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--gradient-brand);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i data-lucide="bar-chart-3" class="lucide" style="width:18px;height:18px;color:#fff"></i>
+      </div>
+      <div>
+        <h1 style="font-size:17px;font-weight:700;color:var(--gray-900);margin:0;letter-spacing:-0.02em">Admin Dashboard</h1>
+        <p style="font-size:12px;color:var(--gray-500);margin:1px 0 0">Team activity &amp; usage analytics</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <a href="{% url 'companies:team' %}" class="adm-header-btn"><i data-lucide="users" class="lucide" style="width:13px;height:13px"></i> Team</a>
+      <a href="{% url 'companies:activity_log' %}" class="adm-header-btn"><i data-lucide="scroll-text" class="lucide" style="width:13px;height:13px"></i> Activity Log</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Summary Stats ──────────────────────────────────────────────── -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:var(--signature-50);color:var(--signature)"><i data-lucide="users" class="lucide" style="width:18px;height:18px"></i></div>
     <div>
-      <h1 class="hub-title">Admin Dashboard</h1>
-      <p class="hub-subtitle">Team activity & usage analytics</p>
+      <div class="adm-stat-val">{{ total_members }}</div>
+      <div class="adm-stat-lbl">Team Members</div>
     </div>
   </div>
-  <div class="d-flex align-items-center gap-2">
-    <a href="{% url 'companies:team' %}" class="hub-btn-secondary"><i data-lucide="users" class="lucide"></i> Team</a>
-    <a href="{% url 'companies:activity_log' %}" class="hub-btn-secondary"><i data-lucide="scroll-text" class="lucide"></i> Activity Log</a>
-  </div>
-</div>
-
-<!-- Summary stats -->
-<div class="row g-3 mb-4">
-  <div class="col-6 col-md-3">
-    <div class="admin-stat-card">
-      <div class="admin-stat-icon" style="background:var(--signature-soft);color:var(--signature)">
-        <i data-lucide="users" class="lucide"></i>
-      </div>
-      <div>
-        <div class="admin-stat-value">{{ total_members }}</div>
-        <div class="admin-stat-label">Team Members</div>
-      </div>
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:rgba(16,185,129,.08);color:var(--success)"><i data-lucide="plug-zap" class="lucide" style="width:18px;height:18px"></i></div>
+    <div>
+      <div class="adm-stat-val">{{ active_integrations }}</div>
+      <div class="adm-stat-lbl">Integrations</div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="admin-stat-card">
-      <div class="admin-stat-icon" style="background:rgba(16,185,129,0.1);color:var(--emerald)">
-        <i data-lucide="plug-zap" class="lucide"></i>
-      </div>
-      <div>
-        <div class="admin-stat-value">{{ active_integrations }}</div>
-        <div class="admin-stat-label">Integrations</div>
-      </div>
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:rgba(59,130,246,.08);color:var(--info)"><i data-lucide="activity" class="lucide" style="width:18px;height:18px"></i></div>
+    <div>
+      <div class="adm-stat-val">{{ actions_7d }}</div>
+      <div class="adm-stat-lbl">Actions (7d)</div>
     </div>
-  </div>
-  <div class="col-6 col-md-3">
-    <div class="admin-stat-card">
-      <div class="admin-stat-icon" style="background:rgba(59,130,246,0.1);color:var(--info)">
-        <i data-lucide="activity" class="lucide"></i>
-      </div>
-      <div>
-        <div class="admin-stat-value">{{ actions_7d }}</div>
-        <div class="admin-stat-label">Actions (7d)</div>
-      </div>
+    {% if actions_prev_7d %}
+    <div class="adm-stat-change {% if actions_7d >= actions_prev_7d %}adm-stat-change--up{% else %}adm-stat-change--down{% endif %}">
+      <i data-lucide="{% if actions_7d >= actions_prev_7d %}trending-up{% else %}trending-down{% endif %}" class="lucide" style="width:12px;height:12px"></i>
+      {% widthratio actions_7d actions_prev_7d 100 as pct %}
+      vs prev week
     </div>
+    {% endif %}
   </div>
-  <div class="col-6 col-md-3">
-    <div class="admin-stat-card">
-      <div class="admin-stat-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6">
-        <i data-lucide="trending-up" class="lucide"></i>
-      </div>
-      <div>
-        <div class="admin-stat-value">{{ actions_30d }}</div>
-        <div class="admin-stat-label">Actions (30d)</div>
-      </div>
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:rgba(139,92,246,.08);color:#8b5cf6"><i data-lucide="trending-up" class="lucide" style="width:18px;height:18px"></i></div>
+    <div>
+      <div class="adm-stat-val">{{ actions_30d }}</div>
+      <div class="adm-stat-lbl">Actions (30d)</div>
     </div>
   </div>
 </div>
 
-<!-- Charts row -->
-<div class="row g-4 mb-4">
-  <div class="col-md-8">
-    <div class="dash-panel">
-      <div class="dash-panel-header">
-        <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Activity Trend (30 days)</span>
-      </div>
-      <div class="dash-panel-body">
-        <canvas id="activityChart" height="220"></canvas>
-      </div>
+<!-- ── Row 1: Activity Trend + Platform Breakdown ─────────────────── -->
+<div style="display:grid;grid-template-columns:1fr 260px;gap:10px;margin-bottom:10px">
+  <div class="adm-panel">
+    <div class="adm-panel-head"><span>Activity Trend (30 days)</span></div>
+    <div style="padding:10px 14px">
+      <canvas id="activityChart" height="140"></canvas>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="dash-panel">
-      <div class="dash-panel-header">
-        <span style="font-size:13px;font-weight:600;color:var(--gray-700)">By Platform</span>
-      </div>
-      <div class="dash-panel-body d-flex align-items-center justify-content-center" style="padding:16px">
-        <canvas id="platformChart" style="max-width:260px;max-height:260px"></canvas>
-      </div>
+  <div class="adm-panel">
+    <div class="adm-panel-head"><span>By Platform</span></div>
+    <div style="padding:12px;display:flex;align-items:center;justify-content:center">
+      <canvas id="platformChart" style="max-width:180px;max-height:180px"></canvas>
     </div>
   </div>
 </div>
 
-<!-- Top actions & user activity -->
-<div class="row g-4 mb-4">
-  <div class="col-md-6">
-    <div class="dash-panel">
-      <div class="dash-panel-header">
-        <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Top Actions</span>
-      </div>
-      <div class="dash-panel-body" style="padding:0">
-        {% for a in top_actions %}
-        <div class="d-flex align-items-center justify-content-between px-4 py-2" style="border-bottom:1px solid var(--gray-100)">
-          <span style="font-size:13px;color:var(--gray-700)">{{ a.label }}</span>
-          <div class="d-flex align-items-center gap-2">
-            <div class="progress-bar-sm">
-              <div class="progress-bar-sm-fill progress-bar-sm-fill--brand" style="width:{% widthratio a.count actions_30d 100 %}%"></div>
-            </div>
-            <span style="font-size:12px;font-weight:600;color:var(--gray-700);min-width:30px;text-align:right">{{ a.count }}</span>
+<!-- ── Row 2: Platform Stacked Bar + Hourly Heatmap ───────────────── -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+  <div class="adm-panel">
+    <div class="adm-panel-head"><span>Daily Activity by Platform</span></div>
+    <div style="padding:10px 14px">
+      <canvas id="stackedChart" height="140"></canvas>
+    </div>
+  </div>
+  <div class="adm-panel">
+    <div class="adm-panel-head"><span>Activity by Hour of Day</span></div>
+    <div style="padding:10px 14px">
+      <canvas id="hourlyChart" height="140"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ── Row 3: Top Actions + Most Active Users ─────────────────────── -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+  <div class="adm-panel">
+    <div class="adm-panel-head"><span>Top Actions</span></div>
+    <div>
+      {% for a in top_actions %}
+      <div class="adm-bar-row">
+        <span style="font-size:12px;color:var(--gray-700);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.label }}</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <div style="width:60px;height:4px;background:var(--gray-100);border-radius:2px;overflow:hidden">
+            <div style="height:100%;border-radius:2px;background:var(--signature);width:{% widthratio a.count actions_30d 100 %}%"></div>
           </div>
+          <span style="font-size:11px;font-weight:600;color:var(--gray-700);min-width:24px;text-align:right">{{ a.count }}</span>
         </div>
-        {% endfor %}
       </div>
+      {% empty %}
+      <div style="padding:24px;text-align:center;font-size:13px;color:var(--gray-400)">No data yet</div>
+      {% endfor %}
     </div>
   </div>
-  <div class="col-md-6">
-    <div class="dash-panel">
-      <div class="dash-panel-header">
-        <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Most Active Users</span>
-      </div>
-      <div class="dash-panel-body" style="padding:0">
-        {% for u in user_activity %}
-        <div class="d-flex align-items-center justify-content-between px-4 py-2" style="border-bottom:1px solid var(--gray-100)">
-          <div class="d-flex align-items-center gap-2">
-            <div class="team-member-avatar" style="width:26px;height:26px;font-size:10px">{{ u.display_name|first|upper }}</div>
-            <span style="font-size:13px;color:var(--gray-700)">{{ u.display_name }}</span>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <div class="progress-bar-sm">
-              <div class="progress-bar-sm-fill progress-bar-sm-fill--violet" style="width:{% widthratio u.count actions_30d 100 %}%"></div>
-            </div>
-            <span style="font-size:12px;font-weight:600;color:var(--gray-700);min-width:30px;text-align:right">{{ u.count }}</span>
-          </div>
+  <div class="adm-panel">
+    <div class="adm-panel-head"><span>Most Active Users</span></div>
+    <div>
+      {% for u in user_activity %}
+      <div class="adm-bar-row">
+        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
+          <div style="width:22px;height:22px;border-radius:6px;background:var(--gradient-brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0">{{ u.display_name|first|upper }}</div>
+          <span style="font-size:12px;color:var(--gray-700);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ u.display_name }}</span>
         </div>
-        {% endfor %}
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <div style="width:60px;height:4px;background:var(--gray-100);border-radius:2px;overflow:hidden">
+            <div style="height:100%;border-radius:2px;background:#8b5cf6;width:{% widthratio u.count actions_30d 100 %}%"></div>
+          </div>
+          <span style="font-size:11px;font-weight:600;color:var(--gray-700);min-width:24px;text-align:right">{{ u.count }}</span>
+        </div>
       </div>
+      {% empty %}
+      <div style="padding:24px;text-align:center;font-size:13px;color:var(--gray-400)">No data yet</div>
+      {% endfor %}
     </div>
   </div>
 </div>
 
-<!-- Integration health -->
-<div class="dash-panel mb-4">
-  <div class="dash-panel-header">
-    <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Integration Health</span>
-  </div>
-  <div class="dash-panel-body" style="padding:0">
-    <table class="hub-table">
-      <thead>
-        <tr><th>Service</th><th>Status</th><th>Connected</th><th>Last Updated</th></tr>
-      </thead>
-      <tbody>
-        {% for i in integrations_status %}
-        <tr>
-          <td style="font-size:13px;font-weight:600;text-transform:capitalize">{{ i.service }}</td>
-          <td>
-            <span class="hub-pill hub-pill--{% if i.status == 'active' %}success{% elif i.status == 'error' %}danger{% else %}muted{% endif %}">
-              {{ i.status }}
-            </span>
-          </td>
-          <td style="font-size:12px;color:var(--gray-500)">{{ i.connected_at|default:"—" }}</td>
-          <td style="font-size:12px;color:var(--gray-500)">{{ i.updated_at|default:"—" }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Recent activity -->
-<div class="dash-panel">
-  <div class="dash-panel-header d-flex align-items-center justify-content-between">
-    <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Recent Activity</span>
-    <a href="{% url 'companies:activity_log' %}" class="hub-btn-action" title="View all"><i data-lucide="external-link" class="lucide"></i></a>
-  </div>
-  <div class="dash-panel-body" style="padding:0">
-    {% for log in recent_logs %}
-    <div class="d-flex align-items-center gap-3 px-4 py-2" style="border-bottom:1px solid var(--gray-100)">
-      <div class="team-member-avatar" style="width:26px;height:26px;font-size:10px">
-        {% if log.user %}{{ log.user.first_name|first|upper }}{% else %}S{% endif %}
+<!-- ── Row 4: Integration Health + Recent Activity ────────────────── -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+  <div class="adm-panel">
+    <div class="adm-panel-head"><span>Integration Health</span></div>
+    <div>
+      {% for i in integrations_status %}
+      <div class="adm-bar-row">
+        <div style="display:flex;align-items:center;gap:8px;flex:1">
+          <div style="width:7px;height:7px;border-radius:50%;background:{% if i.status == 'active' %}var(--success){% elif i.status == 'error' %}var(--danger){% else %}var(--gray-300){% endif %};flex-shrink:0"></div>
+          <span style="font-size:12px;font-weight:600;color:var(--gray-800);text-transform:capitalize">{{ i.service }}</span>
+        </div>
+        <span class="adm-pill {% if i.status == 'active' %}adm-pill--success{% elif i.status == 'error' %}adm-pill--danger{% endif %}">{{ i.status }}</span>
       </div>
-      <div style="flex:1;min-width:0">
-        <span style="font-size:13px;font-weight:500;color:var(--gray-800)">
-          {% if log.user %}{{ log.user.get_full_name|default:log.user.username }}{% else %}System{% endif %}
-        </span>
-        <span style="font-size:12px;color:var(--gray-500)"> {{ log.get_action_display }}</span>
-      </div>
-      <span style="font-size:11px;color:var(--gray-400);white-space:nowrap">{{ log.created_at|timesince }} ago</span>
+      {% empty %}
+      <div style="padding:24px;text-align:center;font-size:13px;color:var(--gray-400)">No integrations configured</div>
+      {% endfor %}
     </div>
-    {% endfor %}
+  </div>
+  <div class="adm-panel">
+    <div class="adm-panel-head" style="display:flex;align-items:center;justify-content:space-between">
+      <span>Recent Activity</span>
+      <a href="{% url 'companies:activity_log' %}" style="font-size:12px;color:var(--signature);text-decoration:none;font-weight:600">View all</a>
+    </div>
+    <div>
+      {% for log in recent_logs %}
+      <div class="adm-bar-row">
+        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
+          <div style="width:20px;height:20px;border-radius:5px;background:var(--gradient-brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">
+            {% if log.user %}{{ log.user.first_name|first|upper }}{% else %}S{% endif %}
+          </div>
+          <span style="font-size:12px;color:var(--gray-700);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            {% if log.user %}{{ log.user.get_full_name|default:log.user.username }}{% else %}System{% endif %}
+          </span>
+          <span class="adm-pill" style="flex-shrink:0">{{ log.get_action_display }}</span>
+        </div>
+        <span style="font-size:10px;color:var(--gray-400);white-space:nowrap;flex-shrink:0">{{ log.created_at|timesince }} ago</span>
+      </div>
+      {% empty %}
+      <div style="padding:24px;text-align:center;font-size:13px;color:var(--gray-400)">No recent activity</div>
+      {% endfor %}
+    </div>
   </div>
 </div>
 {% endblock %}
@@ -197,56 +188,209 @@ lucide.createIcons();
 
 const dailyData = {{ daily_activity_json|safe }};
 const platformData = {{ platform_activity_json|safe }};
+const hourlyData = {{ hourly_activity_json|safe }};
+const dailyByPlatform = {{ daily_by_platform_json|safe }};
 const sig = getComputedStyle(document.documentElement).getPropertyValue('--signature').trim() || '#6366F1';
-const sig600 = getComputedStyle(document.documentElement).getPropertyValue('--signature-600').trim() || '#4F46E5';
 
-// Line chart
-const ctx1 = document.getElementById('activityChart').getContext('2d');
-new Chart(ctx1, {
+const chartFont = { family: "'Inter','Segoe UI',system-ui,sans-serif", size: 11 };
+const gridColor = 'rgba(0,0,0,.04)';
+
+// ── 1. Activity Trend (Area Line) ──────────────────────────────────
+new Chart(document.getElementById('activityChart'), {
   type: 'line',
   data: {
-    labels: dailyData.map(d => d.day),
+    labels: dailyData.map(d => { const dt=new Date(d.day); return dt.toLocaleDateString('en',{month:'short',day:'numeric'}); }),
     datasets: [{
       label: 'Actions',
       data: dailyData.map(d => d.count),
       borderColor: sig,
-      backgroundColor: sig + '14',
+      backgroundColor: sig + '18',
       fill: true,
-      tension: 0.3,
-      pointRadius: 2,
-      pointBackgroundColor: sig
+      tension: 0.4,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHoverBackgroundColor: sig,
+      borderWidth: 2
     }]
   },
   options: {
     responsive: true,
-    plugins: { legend: { display: false } },
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b', titleFont: chartFont, bodyFont: chartFont, padding: 10, cornerRadius: 8, displayColors: false } },
     scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 10 } },
-      y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 10 } } }
-    }
+      x: { grid: { display: false }, ticks: { font: chartFont, maxTicksLimit: 8, color: '#94a3b8' } },
+      y: { beginAtZero: true, grid: { color: gridColor }, ticks: { font: chartFont, color: '#94a3b8' } }
+    },
+    interaction: { intersect: false, mode: 'index' }
   }
 });
 
-// Doughnut chart
-const colors = [sig, '#10B981', '#F59E0B', '#EF4444', '#3B82F6', sig600];
-const ctx2 = document.getElementById('platformChart').getContext('2d');
-new Chart(ctx2, {
+// ── 2. Platform Doughnut ───────────────────────────────────────────
+const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8b5cf6', '#ec4899'];
+new Chart(document.getElementById('platformChart'), {
   type: 'doughnut',
   data: {
-    labels: platformData.map(p => p.platform),
+    labels: platformData.map(p => p.platform.charAt(0).toUpperCase() + p.platform.slice(1)),
     datasets: [{
       data: platformData.map(p => p.count),
       backgroundColor: colors.slice(0, platformData.length),
-      borderWidth: 0
+      borderWidth: 0,
+      hoverOffset: 6
     }]
   },
   options: {
     responsive: true,
     plugins: {
-      legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12, usePointStyle: true, pointStyle: 'circle' } }
+      legend: { position: 'bottom', labels: { font: chartFont, padding: 14, usePointStyle: true, pointStyle: 'circle' } },
+      tooltip: { backgroundColor: '#1e293b', titleFont: chartFont, bodyFont: chartFont, padding: 10, cornerRadius: 8 }
     },
-    cutout: '65%'
+    cutout: '68%'
   }
 });
+
+// ── 3. Daily Activity by Platform (Stacked Bar) ───────────────────
+{
+  const allDays = [...new Set(dailyByPlatform.map(d => d.day))].sort();
+  const platforms = [...new Set(dailyByPlatform.map(d => d.platform))];
+  const datasets = platforms.map((p, i) => ({
+    label: p.charAt(0).toUpperCase() + p.slice(1),
+    data: allDays.map(day => {
+      const match = dailyByPlatform.find(d => d.day === day && d.platform === p);
+      return match ? match.count : 0;
+    }),
+    backgroundColor: colors[i % colors.length] + 'CC',
+    borderRadius: 3,
+    borderSkipped: false
+  }));
+
+  new Chart(document.getElementById('stackedChart'), {
+    type: 'bar',
+    data: {
+      labels: allDays.map(d => { const dt=new Date(d); return dt.toLocaleDateString('en',{month:'short',day:'numeric'}); }),
+      datasets
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: chartFont, padding: 14, usePointStyle: true, pointStyle: 'circle' } },
+        tooltip: { backgroundColor: '#1e293b', titleFont: chartFont, bodyFont: chartFont, padding: 10, cornerRadius: 8 }
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: chartFont, maxTicksLimit: 8, color: '#94a3b8' } },
+        y: { stacked: true, beginAtZero: true, grid: { color: gridColor }, ticks: { font: chartFont, color: '#94a3b8' } }
+      }
+    }
+  });
+}
+
+// ── 4. Hourly Activity (Bar Chart) ────────────────────────────────
+{
+  const hours = Array.from({length: 24}, (_, i) => i);
+  const hourMap = {};
+  hourlyData.forEach(h => { hourMap[h.hour] = h.count; });
+  const hourCounts = hours.map(h => hourMap[h] || 0);
+
+  new Chart(document.getElementById('hourlyChart'), {
+    type: 'bar',
+    data: {
+      labels: hours.map(h => {
+        const ampm = h >= 12 ? 'pm' : 'am';
+        const h12 = h % 12 || 12;
+        return h12 + ampm;
+      }),
+      datasets: [{
+        label: 'Actions',
+        data: hourCounts,
+        backgroundColor: hourCounts.map(c => {
+          const max = Math.max(...hourCounts, 1);
+          const intensity = Math.round(20 + (c / max) * 80);
+          return `rgba(99,102,241,${intensity/100})`;
+        }),
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b', titleFont: chartFont, bodyFont: chartFont, padding: 10, cornerRadius: 8, displayColors: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { ...chartFont, size: 9 }, maxRotation: 0, color: '#94a3b8' } },
+        y: { beginAtZero: true, grid: { color: gridColor }, ticks: { font: chartFont, color: '#94a3b8' } }
+      }
+    }
+  });
+}
 </script>
+
+<style>
+.adm-header-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 7px; font-size: 12px;
+  font-weight: 600; border: 1px solid var(--gray-200);
+  background: var(--surface); color: var(--gray-700);
+  text-decoration: none; cursor: pointer; transition: all .15s;
+}
+.adm-header-btn:hover { border-color: var(--signature); color: var(--signature); }
+
+.adm-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+  position: relative;
+}
+.adm-stat-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.adm-stat-icon i { width: 15px; height: 15px; }
+.adm-stat-val { font-size: 1.15rem; font-weight: 700; color: var(--gray-900); line-height: 1; }
+.adm-stat-lbl { font-size: 11px; color: var(--gray-500); margin-top: 1px; }
+.adm-stat-change {
+  position: absolute; top: 8px; right: 10px;
+  font-size: 9px; font-weight: 600; display: flex; align-items: center; gap: 2px;
+  padding: 1px 6px; border-radius: 8px;
+}
+.adm-stat-change--up { background: rgba(16,185,129,.08); color: #166534; }
+.adm-stat-change--down { background: rgba(239,68,68,.08); color: #991b1b; }
+
+.adm-panel {
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.adm-panel-head {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 12px; font-weight: 600; color: var(--gray-700);
+}
+
+.adm-bar-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 14px; border-bottom: 1px solid var(--gray-100);
+  transition: background .1s; gap: 8px;
+}
+.adm-bar-row:last-child { border-bottom: none; }
+.adm-bar-row:hover { background: var(--gray-50); }
+
+.adm-pill {
+  font-size: 11px; font-weight: 600; padding: 3px 10px;
+  border-radius: 20px; background: var(--gray-100);
+  color: var(--gray-600); display: inline-flex; align-items: center;
+}
+.adm-pill--success { background: var(--success-soft); color: #166534; }
+.adm-pill--danger { background: var(--danger-soft); color: #991b1b; }
+.adm-pill--info { background: var(--signature-50); color: var(--signature); }
+
+@media (max-width: 768px) {
+  div[style*="grid-template-columns: 1fr 260px"],
+  div[style*="grid-template-columns: 1fr 1fr"],
+  div[style*="grid-template-columns:1fr 260px"],
+  div[style*="grid-template-columns:1fr 1fr"],
+  div[style*="grid-template-columns:repeat(4"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+</style>
 {% endblock %}
