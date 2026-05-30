@@ -108,7 +108,7 @@
         </div>
 
         <!-- Credential form -->
-        <form id="msCredentialsForm" novalidate>
+        <form id="msCredentialsForm" method="post" novalidate>
           {% csrf_token %}
 
           <div class="d-flex flex-column gap-3">
@@ -263,7 +263,7 @@
       hasError = true;
     }
     if (hasError) {
-      showAlert("warning", "<i data-lucide="triangle-alert" class="lucide me-1"></i>Please fill in all required fields.");
+      showAlert('warning', '<i data-lucide="triangle-alert" class="lucide me-1"></i>Please fill in all required fields.');
       return;
     }
 
@@ -282,17 +282,17 @@
       const data = await resp.json();
 
       if (data.success) {
-        showAlert("success", "<i data-lucide="check-circle" class="lucide me-1"></i>Credentials saved! Redirecting to Microsoft…");
+        showAlert('success', '<i data-lucide="check-circle" class="lucide me-1"></i>Credentials saved! Redirecting to Microsoft…');
         const toast = new bootstrap.Toast(document.getElementById("msSuccessToast"));
         toast.show();
         setTimeout(function () {
           window.location.href = "{% url 'integrations:microsoft_connect' %}";
         }, 1200);
       } else {
-        showAlert("danger", "<i data-lucide="x-circle" class="lucide me-1"></i>" + data.error);
+        showAlert('danger', '<i data-lucide="x-circle" class="lucide me-1"></i>' + data.error);
       }
     } catch (err) {
-      showAlert("danger", "<i data-lucide="wifi-off" class="lucide me-1"></i>Network error — please try again.");
+      showAlert('danger', '<i data-lucide="wifi-off" class="lucide me-1"></i>Network error — please try again.');
     } finally {
       btn.disabled = false;
       btnText.classList.remove("d-none");

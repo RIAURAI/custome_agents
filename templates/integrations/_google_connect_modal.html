@@ -283,7 +283,7 @@
             </h2>
             <div id="step6" class="accordion-collapse collapse show">
               <div class="accordion-body px-3 py-3" style="background:#fff;">
-                <form id="googleCredentialsForm" novalidate>
+                <form id="googleCredentialsForm" method="post" novalidate>
                   {% csrf_token %}
                   <div class="row g-3">
 
@@ -431,8 +431,8 @@
     const clientId     = document.getElementById("googleClientId").value.trim();
     const clientSecret = document.getElementById("googleClientSecret").value.trim();
 
-    if (!clientId) { showAlert("warning", "<i data-lucide="triangle-alert" class="lucide me-1"></i>Client ID is required."); return; }
-    if (!clientSecret) { showAlert("warning", "<i data-lucide="triangle-alert" class="lucide me-1"></i>Client Secret is required."); return; }
+    if (!clientId) { showAlert('warning', '<i data-lucide="triangle-alert" class="lucide me-1"></i>Client ID is required.'); return; }
+    if (!clientSecret) { showAlert('warning', '<i data-lucide="triangle-alert" class="lucide me-1"></i>Client Secret is required.'); return; }
 
     btn.disabled = true;
     btnText.classList.add("d-none");
@@ -448,18 +448,18 @@
       const data = await resp.json();
 
       if (data.ok) {
-        showAlert("success", "<i data-lucide="check-circle" class="lucide me-1"></i>" + data.message);
+        showAlert('success', '<i data-lucide="check-circle" class="lucide me-1"></i>' + data.message);
         const toast = new bootstrap.Toast(document.getElementById("googleSuccessToast"));
         toast.show();
         setTimeout(() => { window.location.href = data.redirect_url; }, 1200);
       } else {
-        showAlert("danger", "<i data-lucide="x-circle" class="lucide me-1"></i>" + (data.error || "Unknown error"));
+        showAlert('danger', '<i data-lucide="x-circle" class="lucide me-1"></i>' + (data.error || 'Unknown error'));
         btn.disabled = false;
         btnText.classList.remove("d-none");
         spinner.classList.add("d-none");
       }
     } catch (err) {
-      showAlert("danger", "<i data-lucide="x-circle" class="lucide me-1"></i>Network error — please try again.");
+      showAlert('danger', '<i data-lucide="x-circle" class="lucide me-1"></i>Network error — please try again.');
       btn.disabled = false;
       btnText.classList.remove("d-none");
       spinner.classList.add("d-none");
