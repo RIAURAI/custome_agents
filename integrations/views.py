@@ -473,7 +473,7 @@ def slack_manual_connect(request):
         "team_name": data.get("team", ""),
         "team_id": data.get("team_id", ""),
         "user_id": data.get("user_id", ""),
-        "connected_at": user_integ.connected_at.strftime("%b %-d, %Y"),
+        "connected_at": user_integ.connected_at.strftime("%b %d, %Y").replace(" 0", " "),
     })
 
 

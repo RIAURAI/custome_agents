@@ -356,7 +356,7 @@ def channel_messages_view(request, channel_id):
 
     # Step 9 – Render the processed messages to the template.
     return render(request, "slack_hub/messages.html", {
-        "messages": msgs,
+        "slack_messages": msgs,
         "channel_id": channel_id,
         "channel_name": channel_name,
         "error": error,
@@ -530,7 +530,7 @@ def auto_reply_history_view(request):
         "pending": sum(1 for m in tracked if m.ai_reply and not m.is_auto_replied),
     }
     return render(request, "slack_hub/auto_reply_history.html", {
-        "messages": tracked,
+        "reply_messages": tracked,
         "stats": stats,
     })
 

@@ -2,73 +2,87 @@
 {% block title %}#{{ channel_name }} — Slack — WorkHub{% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="hub-header">
-  <div class="d-flex align-items-center gap-3">
-    <div class="hub-icon hub-icon--slack"><i data-lucide="hash" class="lucide"></i></div>
-    <div>
-      <h1 class="hub-title">#{{ channel_name }}</h1>
-      <p class="hub-subtitle">{{ messages|length }} message{{ messages|length|pluralize }}</p>
+<!-- ── Header ─────────────────────────────────────────────────────── -->
+<div style="margin-bottom:24px">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="{% url 'slack_hub:channels' %}" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--gray-200);display:flex;align-items:center;justify-content:center;color:var(--gray-500);text-decoration:none;transition:all .15s;flex-shrink:0;cursor:pointer" onmouseenter="this.style.borderColor='var(--signature-200)';this.style.color='var(--signature)'" onmouseleave="this.style.borderColor='var(--gray-200)';this.style.color='var(--gray-500)'">
+        <i data-lucide="arrow-left" class="lucide" style="width:16px;height:16px"></i>
+      </a>
+      <div style="width:40px;height:40px;border-radius:10px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gray-600)">
+        <i data-lucide="hash" class="lucide" style="width:18px;height:18px"></i>
+      </div>
+      <div>
+        <h1 style="font-size:20px;font-weight:700;color:var(--gray-900);margin:0;letter-spacing:-0.02em">#{{ channel_name }}</h1>
+        <p style="font-size:13px;color:var(--gray-500);margin:2px 0 0">{{ slack_messages|length }} message{{ slack_messages|length|pluralize }}</p>
+      </div>
     </div>
-  </div>
-  <div class="d-flex align-items-center gap-2">
-    <a href="{% url 'slack_hub:channels' %}" class="hub-btn-secondary"><i data-lucide="arrow-left" class="lucide"></i> Channels</a>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="summarizeChannel(this)" class="slk-header-btn" style="background:var(--signature-50);color:var(--signature);border-color:var(--signature-200)">
+        <i data-lucide="sparkles" class="lucide" style="width:14px;height:14px"></i>
+        <span>Summarize</span>
+      </button>
+    </div>
   </div>
 </div>
 
 {% if error %}
-<div class="hub-alert d-flex align-items-center gap-2 mb-4">
-  <i data-lucide="alert-triangle" class="lucide"></i> {{ error }}
+<div style="background:var(--danger-soft);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:20px;font-size:13px;color:#991b1b">
+  <i data-lucide="alert-triangle" class="lucide" style="width:16px;height:16px;color:var(--danger);flex-shrink:0"></i> {{ error }}
 </div>
 {% endif %}
 
-{% if messages %}
-<div class="slack-msg-card">
-  <div class="card-header d-flex align-items-center justify-content-between">
-    <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Recent Messages</span>
-  </div>
-  <div>
-    {% for msg in messages %}
-    <div class="slack-msg-item" id="msg-{{ forloop.counter }}">
-      <div class="d-flex align-items-start gap-3">
-        <div class="slack-avatar">{{ msg.sender_name|first|upper }}</div>
-        <div style="flex:1;min-width:0">
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <span style="font-size:13px;font-weight:600;color:var(--gray-900)">{{ msg.sender_name }}</span>
-            <span style="font-size:11px;color:var(--gray-400)">{{ msg.ts_display }}</span>
-          </div>
-          <p style="font-size:13px;color:var(--gray-700);line-height:1.5;margin:0">{{ msg.text }}</p>
-          <!-- AI result container -->
-          <div id="ai-result-{{ forloop.counter }}" style="display:none"></div>
+<!-- AI Summary container -->
+<div id="channelSummary" style="display:none;margin-bottom:20px"></div>
+
+{% if slack_messages %}
+<!-- ── Messages ───────────────────────────────────────────────────── -->
+<div style="background:var(--surface);border:1px solid var(--gray-200);border-radius:14px;overflow:hidden">
+  {% for msg in slack_messages %}
+  <div class="slk-msg-row" id="msg-{{ forloop.counter }}">
+    <div style="display:flex;align-items:flex-start;gap:12px">
+      <!-- Avatar -->
+      <div class="slk-avatar">{{ msg.sender_name|first|upper }}</div>
+
+      <!-- Content -->
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:600;color:var(--gray-900)">{{ msg.sender_name }}</span>
+          <span style="font-size:11px;color:var(--gray-400)">{{ msg.ts_display }}</span>
         </div>
-        <div class="d-flex align-items-center gap-1">
-          <button class="hub-btn-action" title="AI Analyze"
-                  onclick="aiAnalyze({{ forloop.counter }}, this)"
-                  data-text="{{ msg.text|escapejs }}"
-                  data-channel="{{ channel_id }}"
-                  data-channel-name="{{ channel_name }}"
-                  data-sender-id="{{ msg.user }}"
-                  data-sender-name="{{ msg.sender_name }}"
-                  data-ts="{{ msg.ts }}">
-            <i data-lucide="sparkles" class="lucide"></i>
-          </button>
-          <button class="hub-btn-action" title="AI Reply"
-                  onclick="aiReply({{ forloop.counter }}, this)"
-                  data-text="{{ msg.text|escapejs }}"
-                  data-channel="{{ channel_id }}"
-                  data-ts="{{ msg.ts }}">
-            <i data-lucide="reply" class="lucide"></i>
-          </button>
-        </div>
+        <p style="font-size:13.5px;color:var(--gray-700);line-height:1.55;margin:0;word-break:break-word">{{ msg.text }}</p>
+        <div id="ai-result-{{ forloop.counter }}" style="display:none"></div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;align-items:center;gap:2px;opacity:0;transition:opacity .15s" class="slk-msg-actions">
+        <button class="slk-action-btn" title="AI Analyze"
+                onclick="aiAnalyze({{ forloop.counter }}, this)"
+                data-text="{{ msg.text|escapejs }}"
+                data-channel="{{ channel_id }}"
+                data-channel-name="{{ channel_name }}"
+                data-sender-id="{{ msg.user }}"
+                data-sender-name="{{ msg.sender_name }}"
+                data-ts="{{ msg.ts }}">
+          <i data-lucide="sparkles" class="lucide" style="width:14px;height:14px"></i>
+        </button>
+        <button class="slk-action-btn" title="AI Reply"
+                onclick="aiReply({{ forloop.counter }}, this)"
+                data-text="{{ msg.text|escapejs }}"
+                data-channel="{{ channel_id }}"
+                data-ts="{{ msg.ts }}">
+          <i data-lucide="reply" class="lucide" style="width:14px;height:14px"></i>
+        </button>
       </div>
     </div>
-    {% endfor %}
   </div>
+  {% endfor %}
 </div>
+
 {% else %}
-<div class="ibx-empty">
+<div style="text-align:center;padding:80px 20px">
   <i data-lucide="message-square" class="lucide" style="width:48px;height:48px;color:var(--gray-300)"></i>
-  <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:12px 0 4px">No messages</h3>
+  <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:14px 0 6px">No messages</h3>
   <p style="font-size:13px;color:var(--gray-500)">This channel has no recent messages</p>
 </div>
 {% endif %}
@@ -78,11 +92,42 @@
 <script>
 lucide.createIcons();
 
+function summarizeChannel(btn) {
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Summarizing…';
+  const container = document.getElementById('channelSummary');
+  container.style.display = 'block';
+  container.innerHTML = '<div style="background:var(--signature-50);border:1px solid var(--signature-100);border-radius:12px;padding:16px 20px;font-size:13px;color:var(--signature-700);display:flex;align-items:center;gap:10px"><i data-lucide="loader" class="lucide" style="width:16px;height:16px;animation:spin 1s linear infinite"></i> AI is summarizing this channel\u2026</div>';
+  lucide.createIcons();
+
+  fetch("{% url 'slack_hub:ai_summarize' %}", {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','X-CSRFToken':'{{ csrf_token }}'},
+    body: JSON.stringify({ channel_id: '{{ channel_id }}', channel_name: '{{ channel_name }}' })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) {
+      container.innerHTML = '<div style="background:var(--danger-soft);border:1px solid rgba(239,68,68,.15);border-radius:12px;padding:16px 20px;font-size:13px;color:#991b1b">' + data.error + '</div>';
+    } else {
+      container.innerHTML = '<div style="background:var(--signature-50);border:1px solid var(--signature-100);border-radius:12px;padding:16px 20px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><i data-lucide="sparkles" class="lucide" style="width:14px;height:14px;color:var(--signature)"></i><span style="font-size:12px;font-weight:600;color:var(--signature)">AI Summary</span></div><p style="margin:0;font-size:13px;color:var(--gray-700);line-height:1.6">' + data.summary + '</p></div>';
+    }
+    lucide.createIcons();
+    btn.disabled = false;
+    btn.querySelector('span').textContent = 'Summarize';
+  })
+  .catch(() => {
+    container.innerHTML = '<div style="background:var(--danger-soft);border-radius:12px;padding:16px 20px;font-size:13px;color:#991b1b">Summary failed \u2014 please try again.</div>';
+    btn.disabled = false;
+    btn.querySelector('span').textContent = 'Summarize';
+  });
+}
+
 function aiAnalyze(idx, btn) {
   btn.disabled = true;
   const container = document.getElementById('ai-result-' + idx);
   container.style.display = 'block';
-  container.innerHTML = '<div class="slack-ai-result"><i data-lucide="loader" class="lucide" style="width:14px;height:14px;animation:spin 1s linear infinite"></i> Analyzing…</div>';
+  container.innerHTML = '<div class="slk-ai-bubble"><i data-lucide="loader" class="lucide" style="width:13px;height:13px;animation:spin 1s linear infinite"></i> Analyzing\u2026</div>';
   lucide.createIcons();
 
   fetch("{% url 'slack_hub:ai_analyze' %}", {
@@ -100,21 +145,14 @@ function aiAnalyze(idx, btn) {
   .then(r => r.json())
   .then(data => {
     if (data.error) {
-      container.innerHTML = `<div class="slack-ai-result" style="border-left:3px solid var(--danger);color:var(--danger)">${data.error}</div>`;
+      container.innerHTML = '<div class="slk-ai-bubble" style="border-left-color:var(--danger);color:#991b1b">' + data.error + '</div>';
     } else {
-      container.innerHTML = `
-        <div class="slack-ai-result">
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <span class="hub-pill hub-pill--info">${data.classification}</span>
-            <span style="font-size:11px;color:var(--gray-400)">AI Analysis</span>
-          </div>
-          <p style="margin:0;font-size:12px;color:var(--gray-600)">${data.summary}</p>
-        </div>`;
+      container.innerHTML = '<div class="slk-ai-bubble"><div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span class="slk-pill slk-pill--info">' + data.classification + '</span><span style="font-size:11px;color:var(--gray-400)">AI Analysis</span></div><p style="margin:0;font-size:12.5px;color:var(--gray-600);line-height:1.5">' + data.summary + '</p></div>';
     }
     btn.disabled = false;
   })
   .catch(() => {
-    container.innerHTML = '<div class="slack-ai-result" style="color:var(--danger)">Analysis failed</div>';
+    container.innerHTML = '<div class="slk-ai-bubble" style="border-left-color:var(--danger);color:#991b1b">Analysis failed</div>';
     btn.disabled = false;
   });
 }
@@ -123,7 +161,7 @@ function aiReply(idx, btn) {
   btn.disabled = true;
   const container = document.getElementById('ai-result-' + idx);
   container.style.display = 'block';
-  container.innerHTML = '<div class="slack-ai-result"><i data-lucide="loader" class="lucide" style="width:14px;height:14px;animation:spin 1s linear infinite"></i> Generating reply…</div>';
+  container.innerHTML = '<div class="slk-ai-bubble"><i data-lucide="loader" class="lucide" style="width:13px;height:13px;animation:spin 1s linear infinite"></i> Generating reply\u2026</div>';
   lucide.createIcons();
 
   fetch("{% url 'slack_hub:ai_reply' %}", {
@@ -139,31 +177,35 @@ function aiReply(idx, btn) {
   .then(r => r.json())
   .then(data => {
     if (data.error) {
-      container.innerHTML = `<div class="slack-ai-result" style="border-left:3px solid var(--danger);color:var(--danger)">${data.error}</div>`;
+      container.innerHTML = '<div class="slk-ai-bubble" style="border-left-color:var(--danger);color:#991b1b">' + data.error + '</div>';
     } else {
-      container.innerHTML = `
-        <div class="reply-bubble mt-2">
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <i data-lucide="bot" class="lucide" style="width:12px;height:12px;color:var(--emerald)"></i>
-            <span style="font-size:11px;font-weight:600;color:#166534">AI Draft Reply</span>
-          </div>
-          <p style="margin:0;font-size:13px">${data.reply}</p>
-          ${data.sent ? '<span class="hub-pill hub-pill--success mt-1">Sent</span>' : '<button class="hub-btn-create mt-2" style="font-size:11px;padding:4px 12px" onclick="sendReply(this,\''+btn.dataset.channel+'\',\''+btn.dataset.ts+'\')">Send to Slack</button>'}
-        </div>`;
+      container.innerHTML =
+        '<div class="slk-reply-bubble">' +
+          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">' +
+            '<i data-lucide="bot" class="lucide" style="width:13px;height:13px;color:var(--success)"></i>' +
+            '<span style="font-size:11px;font-weight:600;color:#166534">AI Draft Reply</span>' +
+          '</div>' +
+          '<p style="margin:0;font-size:13px;line-height:1.5">' + data.reply + '</p>' +
+          (data.sent
+            ? '<span class="slk-pill slk-pill--success" style="margin-top:8px">Sent</span>'
+            : '<button class="slk-send-btn" onclick="sendReply(this,\'' + btn.dataset.channel + '\',\'' + btn.dataset.ts + '\')"><i data-lucide="send" class="lucide" style="width:12px;height:12px"></i> Send to Slack</button>'
+          ) +
+        '</div>';
       lucide.createIcons();
     }
     btn.disabled = false;
   })
   .catch(() => {
-    container.innerHTML = '<div class="slack-ai-result" style="color:var(--danger)">Reply generation failed</div>';
+    container.innerHTML = '<div class="slk-ai-bubble" style="border-left-color:var(--danger);color:#991b1b">Reply generation failed</div>';
     btn.disabled = false;
   });
 }
 
 function sendReply(sendBtn, channelId, ts) {
   sendBtn.disabled = true;
-  sendBtn.textContent = 'Sending…';
-  const parentBubble = sendBtn.closest('.reply-bubble');
+  sendBtn.innerHTML = '<i data-lucide="loader" class="lucide" style="width:12px;height:12px;animation:spin 1s linear infinite"></i> Sending\u2026';
+  lucide.createIcons();
+  const parentBubble = sendBtn.closest('.slk-reply-bubble');
   const replyText = parentBubble.querySelector('p').textContent;
 
   fetch("{% url 'slack_hub:ai_reply' %}", {
@@ -174,14 +216,82 @@ function sendReply(sendBtn, channelId, ts) {
   .then(r => r.json())
   .then(data => {
     if (data.sent) {
-      sendBtn.outerHTML = '<span class="hub-pill hub-pill--success mt-1">Sent ✓</span>';
+      sendBtn.outerHTML = '<span class="slk-pill slk-pill--success" style="margin-top:8px">Sent</span>';
     } else {
-      sendBtn.textContent = 'Failed – retry';
+      sendBtn.textContent = 'Failed \u2013 retry';
       sendBtn.disabled = false;
     }
   })
   .catch(() => { sendBtn.textContent = 'Failed'; sendBtn.disabled = false; });
 }
 </script>
-<style>@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}</style>
+
+<style>
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+.slk-msg-row {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-100);
+  transition: background .1s;
+}
+.slk-msg-row:last-child { border-bottom: none; }
+.slk-msg-row:hover { background: var(--gray-50); }
+.slk-msg-row:hover .slk-msg-actions { opacity: 1; }
+
+.slk-avatar {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--gradient-brand); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+
+.slk-action-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--gray-200); background: var(--surface);
+  color: var(--gray-500); display: flex; align-items: center;
+  justify-content: center; cursor: pointer; transition: all .15s;
+}
+.slk-action-btn:hover {
+  border-color: var(--signature-200); color: var(--signature);
+  background: var(--signature-50);
+}
+
+.slk-header-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; border: 1px solid var(--gray-200);
+  background: var(--surface); color: var(--gray-700);
+  cursor: pointer; transition: all .15s;
+}
+.slk-header-btn:hover { border-color: var(--signature-200); color: var(--signature); }
+
+.slk-ai-bubble {
+  background: var(--gray-50); border-left: 3px solid var(--signature-300);
+  border-radius: 0 10px 10px 0; padding: 10px 14px;
+  font-size: 13px; margin-top: 10px; display: flex;
+  flex-direction: column; gap: 2px;
+}
+
+.slk-reply-bubble {
+  background: rgba(16,185,129,.05); border-left: 3px solid var(--success);
+  border-radius: 0 10px 10px 0; padding: 10px 14px;
+  font-size: 13px; margin-top: 10px; color: #166534;
+}
+
+.slk-pill {
+  font-size: 11px; font-weight: 600; padding: 2px 10px;
+  border-radius: 20px; display: inline-flex; align-items: center;
+}
+.slk-pill--info { background: var(--signature-50); color: var(--signature); }
+.slk-pill--success { background: var(--success-soft); color: #166534; }
+.slk-pill--danger { background: var(--danger-soft); color: #991b1b; }
+
+.slk-send-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 10px; padding: 6px 14px; border-radius: 8px;
+  background: var(--success); color: #fff; font-size: 12px;
+  font-weight: 600; border: none; cursor: pointer; transition: opacity .15s;
+}
+.slk-send-btn:hover { opacity: .9; }
+</style>
 {% endblock %}

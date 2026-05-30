@@ -2,65 +2,168 @@
 {% block title %}Slack Channels — WorkHub{% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="hub-header">
-  <div class="d-flex align-items-center gap-3">
-    <div class="hub-icon hub-icon--slack"><i data-lucide="hash" class="lucide"></i></div>
-    <div>
-      <h1 class="hub-title">Slack Channels</h1>
-      <p class="hub-subtitle">Browse and read messages from your connected workspace</p>
+{% if not slack_connected %}
+<!-- ── Not Connected ──────────────────────────────────────────────── -->
+<div style="display:flex;align-items:center;justify-content:center;min-height:60vh">
+  <div style="text-align:center;max-width:380px">
+    <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#e01e5a,#36c5f0);display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
     </div>
+    <h2 style="font-size:20px;font-weight:700;color:var(--gray-900);margin:0 0 6px">Connect Slack</h2>
+    <p style="font-size:13px;color:var(--gray-500);margin:0 0 20px;line-height:1.6">Link your Slack workspace to browse channels, track messages, and enable AI auto-replies.</p>
+    <a href="{% url 'integrations:connect' %}" style="display:inline-flex;align-items:center;gap:6px;padding:10px 24px;background:var(--signature);color:#fff;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s;cursor:pointer" onmouseenter="this.style.opacity='0.9'" onmouseleave="this.style.opacity='1'">
+      <i data-lucide="plug" class="lucide" style="width:15px;height:15px"></i> Connect Slack
+    </a>
   </div>
-  <div class="d-flex align-items-center gap-2">
-    <a href="{% url 'slack_hub:track' %}" class="hub-btn-secondary"><i data-lucide="activity" class="lucide"></i> Tracked</a>
-    <a href="{% url 'slack_hub:settings' %}" class="hub-btn-secondary"><i data-lucide="settings" class="lucide"></i> Settings</a>
+</div>
+
+{% else %}
+<!-- ── Header ─────────────────────────────────────────────────────── -->
+<div style="margin-bottom:28px">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#e01e5a,#36c5f0);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
+      </div>
+      <div>
+        <h1 style="font-size:20px;font-weight:700;color:var(--gray-900);margin:0;letter-spacing:-0.02em">Slack Channels</h1>
+        <p style="font-size:13px;color:var(--gray-500);margin:2px 0 0">{{ channels|length }} channel{{ channels|length|pluralize }} in your workspace</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="position:relative">
+        <i data-lucide="search" class="lucide" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--gray-400);pointer-events:none"></i>
+        <input type="text" id="channelSearch" placeholder="Search channels…"
+               style="padding:8px 12px 8px 34px;border:1px solid var(--gray-200);border-radius:8px;font-size:13px;width:220px;background:var(--surface);color:var(--gray-800);outline:none;transition:border-color .15s"
+               onfocus="this.style.borderColor='var(--signature)'" onblur="this.style.borderColor='var(--gray-200)'">
+      </div>
+    </div>
   </div>
 </div>
 
 {% if error %}
-<div class="hub-alert d-flex align-items-center gap-2 mb-4">
-  <i data-lucide="alert-triangle" class="lucide"></i> {{ error }}
+<div style="background:var(--danger-soft);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:20px;font-size:13px;color:#991b1b">
+  <i data-lucide="alert-triangle" class="lucide" style="width:16px;height:16px;color:var(--danger);flex-shrink:0"></i> {{ error }}
 </div>
 {% endif %}
 
-{% if not slack_connected %}
-<div class="ibx-empty">
-  <i data-lucide="plug-zap" class="lucide" style="width:48px;height:48px;color:var(--gray-300)"></i>
-  <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:12px 0 4px">Connect Slack</h3>
-  <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px">Link your Slack workspace to browse channels</p>
-  <a href="{% url 'integrations:connect' %}" class="ibx-connect-btn">Connect Slack</a>
+{% if channels %}
+<!-- ── Channel Grid ───────────────────────────────────────────────── -->
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px" id="channelGrid">
+  {% for ch in channels %}
+  <a href="{% url 'slack_hub:channel_messages' ch.id %}?name={{ ch.name|urlencode }}"
+     class="slk-channel-card" data-name="{{ ch.name|lower }}">
+    <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+      <div class="slk-channel-icon {% if ch.is_im or ch.is_mpim %}slk-channel-icon--dm{% endif %}">
+        <i data-lucide="{% if ch.is_im or ch.is_mpim %}user{% else %}hash{% endif %}" class="lucide" style="width:16px;height:16px"></i>
+      </div>
+      <div style="min-width:0;flex:1">
+        <div style="font-size:14px;font-weight:600;color:var(--gray-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ ch.name|default:ch.id }}</div>
+        {% if ch.num_members %}
+        <div style="font-size:12px;color:var(--gray-400);margin-top:2px;display:flex;align-items:center;gap:4px">
+          <i data-lucide="users" class="lucide" style="width:11px;height:11px"></i>
+          {{ ch.num_members }} member{{ ch.num_members|pluralize }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <i data-lucide="chevron-right" class="lucide slk-channel-arrow"></i>
+  </a>
+  {% endfor %}
 </div>
-{% elif channels %}
-<div class="dash-panel">
-  <div class="dash-panel-header d-flex align-items-center justify-content-between">
-    <span style="font-size:13px;font-weight:600;color:var(--gray-700)">{{ channels|length }} channel{{ channels|length|pluralize }}</span>
-  </div>
-  <div class="dash-panel-body" style="padding:0">
-    {% for ch in channels %}
-    <a href="{% url 'slack_hub:channel_messages' ch.id %}?name={{ ch.name|urlencode }}"
-       class="d-flex align-items-center gap-3 px-4 py-3 text-decoration-none slack-msg-row"
-       style="border-bottom:1px solid var(--gray-100)">
-      <span class="slack-channel-badge {% if ch.is_im or ch.is_mpim %}slack-channel-badge--dm{% else %}slack-channel-badge--ch{% endif %}">
-        <i data-lucide="{% if ch.is_im or ch.is_mpim %}user{% else %}hash{% endif %}" class="lucide" style="width:12px;height:12px"></i>
-        {{ ch.name|default:ch.id }}
-      </span>
-      {% if ch.num_members %}
-      <span style="font-size:11px;color:var(--gray-400)">{{ ch.num_members }} member{{ ch.num_members|pluralize }}</span>
-      {% endif %}
-      <i data-lucide="chevron-right" class="lucide ms-auto" style="width:14px;height:14px;color:var(--gray-300)"></i>
-    </a>
-    {% endfor %}
-  </div>
+
+<div id="noResults" style="display:none;text-align:center;padding:60px 20px">
+  <i data-lucide="search-x" class="lucide" style="width:40px;height:40px;color:var(--gray-300)"></i>
+  <p style="font-size:14px;color:var(--gray-500);margin:12px 0 0">No channels match your search</p>
 </div>
+
 {% else %}
-<div class="ibx-empty">
+<div style="text-align:center;padding:80px 20px">
   <i data-lucide="hash" class="lucide" style="width:48px;height:48px;color:var(--gray-300)"></i>
-  <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:12px 0 4px">No channels found</h3>
+  <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:14px 0 6px">No channels found</h3>
   <p style="font-size:13px;color:var(--gray-500)">Your Slack workspace channels will appear here</p>
 </div>
+{% endif %}
+
 {% endif %}
 {% endblock %}
 
 {% block extra_js %}
-<script>lucide.createIcons();</script>
+<script>
+lucide.createIcons();
+
+const searchInput = document.getElementById('channelSearch');
+if (searchInput) {
+  searchInput.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    const cards = document.querySelectorAll('.slk-channel-card');
+    let visible = 0;
+    cards.forEach(card => {
+      const name = card.dataset.name || '';
+      const show = !q || name.includes(q);
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    const noRes = document.getElementById('noResults');
+    const grid = document.getElementById('channelGrid');
+    if (noRes) noRes.style.display = visible === 0 ? '' : 'none';
+    if (grid) grid.style.display = visible === 0 ? 'none' : '';
+  });
+}
+</script>
+
+<style>
+.slk-channel-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all .15s ease;
+  cursor: pointer;
+}
+.slk-channel-card:hover {
+  border-color: var(--signature-200);
+  box-shadow: 0 2px 12px rgba(79,70,229,.08);
+  transform: translateY(-1px);
+}
+.slk-channel-card:hover .slk-channel-arrow {
+  color: var(--signature);
+  transform: translateX(2px);
+}
+.slk-channel-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.slk-channel-card:hover .slk-channel-icon {
+  background: var(--signature-50);
+  color: var(--signature);
+}
+.slk-channel-icon--dm {
+  background: rgba(124,58,237,.08);
+  color: #7c3aed;
+}
+.slk-channel-card:hover .slk-channel-icon--dm {
+  background: rgba(124,58,237,.14);
+  color: #7c3aed;
+}
+.slk-channel-arrow {
+  width: 16px;
+  height: 16px;
+  color: var(--gray-300);
+  flex-shrink: 0;
+  transition: all .15s;
+}
+</style>
 {% endblock %}

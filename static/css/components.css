@@ -643,6 +643,12 @@ i[data-lucide], svg.lucide {
   color: #fff;
 }
 
+.wh-user-pill-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .wh-user-pill-name {
   font-size: 13px;
   font-weight: 600;
@@ -651,11 +657,22 @@ i[data-lucide], svg.lucide {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.wh-user-pill-email {
+  font-size: 11px;
+  color: var(--gray-500);
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 @media (max-width: 767px) {
   .wh-search { display: none; }
-  .wh-user-pill-name { display: none; }
+  .wh-user-pill-info { display: none; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════

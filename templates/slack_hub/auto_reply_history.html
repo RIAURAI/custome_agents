@@ -2,62 +2,71 @@
 {% block title %}Auto-Reply History — Slack — WorkHub{% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="hub-header">
-  <div class="d-flex align-items-center gap-3">
-    <div class="hub-icon hub-icon--slack"><i data-lucide="history" class="lucide"></i></div>
-    <div>
-      <h1 class="hub-title">Auto-Reply History</h1>
-      <p class="hub-subtitle">{{ stats.replied }} sent · {{ stats.pending }} pending drafts</p>
+<!-- ── Header ─────────────────────────────────────────────────────── -->
+<div style="margin-bottom:24px">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#e01e5a,#36c5f0);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i data-lucide="history" class="lucide" style="width:22px;height:22px;color:#fff"></i>
+      </div>
+      <div>
+        <h1 style="font-size:20px;font-weight:700;color:var(--gray-900);margin:0;letter-spacing:-0.02em">Auto-Reply History</h1>
+        <p style="font-size:13px;color:var(--gray-500);margin:2px 0 0">
+          <span style="font-weight:600;color:var(--success)">{{ stats.replied }}</span> sent
+          <span style="color:var(--gray-300);margin:0 4px">·</span>
+          <span style="font-weight:600;color:var(--warning)">{{ stats.pending }}</span> pending drafts
+        </p>
+      </div>
     </div>
-  </div>
-  <div class="d-flex align-items-center gap-2">
-    <a href="{% url 'slack_hub:track' %}" class="hub-btn-secondary"><i data-lucide="arrow-left" class="lucide"></i> Tracked</a>
-    <a href="{% url 'slack_hub:settings' %}" class="hub-btn-secondary"><i data-lucide="settings" class="lucide"></i> Settings</a>
+    <a href="{% url 'slack_hub:settings' %}" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);border:1px solid var(--gray-200);border-radius:8px;font-size:13px;font-weight:600;color:var(--gray-700);text-decoration:none;transition:border-color .15s;cursor:pointer" onmouseenter="this.style.borderColor='var(--signature)'" onmouseleave="this.style.borderColor='var(--gray-200)'">
+      <i data-lucide="settings" class="lucide" style="width:14px;height:14px"></i> Settings
+    </a>
   </div>
 </div>
 
-{% if messages %}
-<div class="d-flex flex-column gap-3">
-  {% for msg in messages %}
+<!-- ── Reply Cards ────────────────────────────────────────────────── -->
+{% if reply_messages %}
+<div style="display:flex;flex-direction:column;gap:10px">
+  {% for msg in reply_messages %}
   {% if msg.ai_reply %}
-  <div class="dash-panel">
-    <div class="dash-panel-body">
-      <div class="d-flex align-items-start gap-3">
-        <div class="slack-avatar">{{ msg.sender_name|first|upper }}</div>
-        <div style="flex:1;min-width:0">
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <span style="font-size:13px;font-weight:600;color:var(--gray-900)">{{ msg.sender_name }}</span>
-            <span class="slack-channel-badge slack-channel-badge--ch" style="font-size:10px;padding:2px 6px">
-              <i data-lucide="hash" class="lucide" style="width:9px;height:9px"></i>{{ msg.channel_name }}
-            </span>
-            <span style="font-size:11px;color:var(--gray-400)">{{ msg.tracked_at|timesince }} ago</span>
-          </div>
-          <div class="incoming-bubble mb-2">{{ msg.text|truncatewords:30 }}</div>
-          <div class="{% if msg.is_auto_replied %}reply-bubble{% else %}draft-bubble{% endif %}">
-            <div class="d-flex align-items-center gap-1 mb-1">
-              <i data-lucide="bot" class="lucide" style="width:11px;height:11px"></i>
-              <span style="font-size:11px;font-weight:600">
-                {% if msg.is_auto_replied %}Sent Reply{% else %}Draft Reply{% endif %}
-              </span>
-            </div>
-            {{ msg.ai_reply|truncatewords:40 }}
-          </div>
-          {% if msg.ai_classification %}
-          <div class="mt-2">
-            <span class="hub-pill hub-pill--{% if msg.ai_classification == 'urgent' %}danger{% elif msg.ai_classification == 'question' %}info{% else %}muted{% endif %}">
-              {{ msg.ai_classification }}
-            </span>
-          </div>
-          {% endif %}
+  <div class="slk-reply-card">
+    <div style="display:flex;align-items:flex-start;gap:12px">
+      <!-- Avatar -->
+      <div style="width:34px;height:34px;border-radius:10px;background:var(--gradient-brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">{{ msg.sender_name|first|upper }}</div>
+
+      <!-- Content -->
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <span style="font-size:13px;font-weight:600;color:var(--gray-900)">{{ msg.sender_name }}</span>
+          <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--gray-100);color:var(--gray-600);display:inline-flex;align-items:center;gap:3px">
+            <i data-lucide="hash" class="lucide" style="width:9px;height:9px"></i>{{ msg.channel_name }}
+          </span>
+          <span style="font-size:11px;color:var(--gray-400)">{{ msg.tracked_at|timesince }} ago</span>
         </div>
-        <div>
-          {% if msg.is_auto_replied %}
-          <span class="hub-pill hub-pill--success">Sent</span>
-          {% else %}
-          <span class="hub-pill hub-pill--warning">Pending</span>
-          {% endif %}
+        <!-- Incoming message -->
+        <div style="background:var(--gray-50);border-left:3px solid var(--gray-200);border-radius:0 8px 8px 0;padding:8px 12px;font-size:13px;color:var(--gray-700);line-height:1.5;margin-bottom:8px">{{ msg.text|truncatewords:30 }}</div>
+        <!-- AI reply -->
+        <div style="background:{% if msg.is_auto_replied %}rgba(16,185,129,.06){% else %}rgba(245,158,11,.06){% endif %};border-left:3px solid {% if msg.is_auto_replied %}var(--success){% else %}var(--warning){% endif %};border-radius:0 8px 8px 0;padding:8px 12px;font-size:13px;line-height:1.5;color:{% if msg.is_auto_replied %}#166534{% else %}#92400e{% endif %}">
+          <div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;margin-bottom:4px;opacity:.7">
+            <i data-lucide="bot" class="lucide" style="width:11px;height:11px"></i>
+            {% if msg.is_auto_replied %}Sent Reply{% else %}Draft Reply{% endif %}
+          </div>
+          {{ msg.ai_reply|truncatewords:40 }}
         </div>
+        {% if msg.ai_classification %}
+        <div style="margin-top:8px">
+          <span class="slk-pill slk-pill--{% if msg.ai_classification == 'urgent' %}danger{% elif msg.ai_classification == 'question' %}info{% elif msg.ai_classification == 'request' %}warning{% else %}muted{% endif %}">{{ msg.ai_classification }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Status badge -->
+      <div style="flex-shrink:0">
+        {% if msg.is_auto_replied %}
+        <span class="slk-pill slk-pill--success">Sent</span>
+        {% else %}
+        <span class="slk-pill slk-pill--warning">Pending</span>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -65,14 +74,37 @@
   {% endfor %}
 </div>
 {% else %}
-<div class="ibx-empty">
-  <i data-lucide="bot" class="lucide" style="width:48px;height:48px;color:var(--gray-300)"></i>
-  <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:12px 0 4px">No replies yet</h3>
-  <p style="font-size:13px;color:var(--gray-500)">AI-generated replies will appear here once auto-reply is enabled</p>
+<div style="background:var(--surface);border:1px solid var(--gray-200);border-radius:14px;text-align:center;padding:60px 20px">
+  <i data-lucide="bot" class="lucide" style="width:44px;height:44px;color:var(--gray-300)"></i>
+  <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:14px 0 6px">No replies yet</h3>
+  <p style="font-size:13px;color:var(--gray-500);margin:0">AI-generated replies will appear here once auto-reply is enabled</p>
 </div>
 {% endif %}
 {% endblock %}
 
 {% block extra_js %}
 <script>lucide.createIcons();</script>
+<style>
+.slk-reply-card {
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  padding: 16px 20px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.slk-reply-card:hover {
+  border-color: var(--gray-300);
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.slk-pill {
+  font-size: 11px; font-weight: 600; padding: 2px 10px;
+  border-radius: 20px; display: inline-flex; align-items: center;
+}
+.slk-pill--info { background: var(--signature-50); color: var(--signature); }
+.slk-pill--success { background: var(--success-soft); color: #166534; }
+.slk-pill--danger { background: var(--danger-soft); color: #991b1b; }
+.slk-pill--warning { background: rgba(245,158,11,.1); color: #92400e; }
+.slk-pill--muted { background: var(--gray-100); color: var(--gray-500); }
+</style>
 {% endblock %}
