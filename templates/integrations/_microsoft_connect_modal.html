@@ -14,8 +14,8 @@
     40%, 80% { transform: translateX(6px); }
   }
   @keyframes msPulseGlow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255,89,0,.3); }
-    50%      { box-shadow: 0 0 0 8px rgba(255,89,0,0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(79,70,229,.3); }
+    50%      { box-shadow: 0 0 0 8px rgba(79,70,229,0); }
   }
   #msConnectModal .modal-content {
     animation: msModalSlideUp .35s cubic-bezier(.16,1,.3,1);
@@ -24,14 +24,14 @@
   #msConnectModal .ms-field:nth-child(2) { animation-delay: .08s; }
   #msConnectModal .ms-field:nth-child(3) { animation-delay: .16s; }
   #msConnectModal .ms-input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(255,89,0,.15);
+    border-color: var(--signature,#4F46E5);
+    box-shadow: 0 0 0 3px rgba(79,70,229,.15);
   }
   #msConnectModal .ms-input.is-invalid { animation: msShake .4s ease; }
   #msConnectBtn:not(:disabled):hover {
     filter: brightness(1.06);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(255,89,0,.25);
+    box-shadow: 0 6px 20px rgba(79,70,229,.25);
   }
   #msConnectBtn { transition: all .2s ease; }
   .ms-redirect-uri {
@@ -39,7 +39,7 @@
     cursor: pointer;
     transition: background .2s;
   }
-  .ms-redirect-uri:hover { background: #d1e5f7 !important; }
+  .ms-redirect-uri:hover { background: var(--gray-200,#e4e4e7) !important; }
   .ms-copy-feedback {
     opacity: 0;
     transition: opacity .3s ease;
@@ -57,7 +57,7 @@
       <!-- Header -->
       <div class="modal-header">
         <div class="d-flex align-items-center gap-3">
-          <div style="background:rgba(255,255,255,.12);border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <div style="background:var(--gray-100,#f4f4f5);border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg viewBox="0 0 23 23" width="20" height="20" style="vertical-align:middle"><rect x="1" y="1" width="10" height="10" fill="#f25022"/><rect x="12" y="1" width="10" height="10" fill="#7fba00"/><rect x="1" y="12" width="10" height="10" fill="#00a4ef"/><rect x="12" y="12" width="10" height="10" fill="#ffb900"/></svg>
           </div>
           <div>
@@ -80,7 +80,7 @@
             <h2 class="accordion-header">
               <button class="accordion-button collapsed py-2 px-3" type="button"
                       data-bs-toggle="collapse" data-bs-target="#msGuideBody"
-                      style="font-size:.82rem;font-weight:600;color:var(--primary);background:var(--primary-light);border-radius:12px!important;">
+                      style="font-size:.82rem;font-weight:600;color:var(--gray-700,#3f3f46);background:var(--gray-50,#fafafa);border-radius:12px!important;">
                 <i data-lucide="notebook-pen" class="lucide me-2"></i>How to register your Azure App — step-by-step
               </button>
             </h2>
@@ -94,7 +94,7 @@
                   </li>
                   <li>Set <strong>Redirect URI</strong> → Platform: <em>Web</em> → URI:<br>
                     <span class="ms-redirect-uri d-inline-block mt-1"
-                          style="font-family:monospace;font-size:.74rem;background:var(--primary-light);padding:3px 10px;border-radius:6px;"
+                          style="font-family:monospace;font-size:.74rem;background:var(--gray-100,#f4f4f5);padding:3px 10px;border-radius:6px;"
                           onclick="navigator.clipboard.writeText(this.textContent.trim()).then(()=>{document.getElementById('msCopyFeedback').classList.add('show');setTimeout(()=>document.getElementById('msCopyFeedback').classList.remove('show'),1500)})">{{ ms_redirect_uri }}</span>
                     <span id="msCopyFeedback" class="ms-copy-feedback"><i data-lucide="check" class="lucide"></i> Copied!</span>
                   </li>
@@ -116,7 +116,7 @@
             <!-- Application (Client) ID -->
             <div class="ms-field">
               <label for="msClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:var(--text-secondary);">
-                <i data-lucide="fingerprint" class="lucide me-1" style="color:var(--primary);"></i>Application (Client) ID <span class="text-danger">*</span>
+                <i data-lucide="fingerprint" class="lucide me-1" style="color:var(--gray-500,#71717a);"></i>Application (Client) ID <span class="text-danger">*</span>
               </label>
               <div class="input-group">
                 <input type="text" class="form-control ms-input" id="msClientId" name="client_id"
@@ -136,7 +136,7 @@
             <!-- Client Secret -->
             <div class="ms-field">
               <label for="msClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:var(--text-secondary);">
-                <i data-lucide="shield" class="lucide me-1" style="color:#16a34a;"></i>Client Secret <span class="text-danger">*</span>
+                <i data-lucide="shield" class="lucide me-1" style="color:var(--gray-500,#71717a);"></i>Client Secret <span class="text-danger">*</span>
               </label>
               <div class="input-group">
                 <input type="password" class="form-control ms-input" id="msClientSecret" name="client_secret"
@@ -156,7 +156,7 @@
             <!-- Tenant ID (optional) -->
             <div class="ms-field">
               <label for="msTenantId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:var(--text-secondary);">
-                <i data-lucide="building-2" class="lucide me-1" style="color:var(--primary);"></i>Tenant ID
+                <i data-lucide="building-2" class="lucide me-1" style="color:var(--gray-500,#71717a);"></i>Tenant ID
                 <span class="badge bg-light text-secondary" style="font-size:.65rem;vertical-align:middle;">Optional</span>
               </label>
               <input type="text" class="form-control ms-input" id="msTenantId" name="tenant_id"
@@ -171,15 +171,15 @@
           </div>
 
           <!-- What gets enabled -->
-          <div class="mt-4 mb-3 p-3" style="background:var(--primary-light);border-radius:10px;border:1px solid var(--primary-pale);">
-            <div class="fw-semibold mb-2" style="font-size:.78rem;color:var(--primary-deeper);">
+          <div class="mt-4 mb-3 p-3" style="background:var(--gray-50,#fafafa);border-radius:10px;border:1px solid var(--gray-200,#e4e4e7);">
+            <div class="fw-semibold mb-2" style="font-size:.78rem;color:var(--gray-600,#52525b);">
               <i data-lucide="check-check" class="lucide me-1"></i>What gets enabled after connecting:
             </div>
             <div class="d-flex flex-wrap gap-2">
-              <span class="feature-chip"><i data-lucide="mail" class="lucide"></i>Email (Outlook)</span>
-              <span class="feature-chip"><i data-lucide="calendar" class="lucide"></i>Calendar</span>
-              <span class="feature-chip"><i data-lucide="video" class="lucide"></i>Meetings</span>
-              <span class="feature-chip"><i data-lucide="id-card" class="lucide"></i>Profile</span>
+              <span class="scope-chip"><i data-lucide="mail" class="lucide"></i>Email (Outlook)</span>
+              <span class="scope-chip"><i data-lucide="calendar" class="lucide"></i>Calendar</span>
+              <span class="scope-chip"><i data-lucide="video" class="lucide"></i>Meetings</span>
+              <span class="scope-chip"><i data-lucide="id-card" class="lucide"></i>Profile</span>
             </div>
           </div>
 
@@ -188,7 +188,8 @@
 
           <!-- Actions -->
           <div class="d-flex gap-2 pb-4">
-            <button type="submit" class="btn btn-modal-primary flex-grow-1" id="msConnectBtn">
+            <button type="submit" class="btn flex-grow-1 fw-semibold" id="msConnectBtn"
+                    style="background:var(--signature,#4F46E5);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-size:.88rem;">
               <span id="msBtnText"><i data-lucide="plug" class="lucide me-2"></i>Save &amp; Connect</span>
               <span id="msBtnSpinner" class="d-none">
                 <span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving…
