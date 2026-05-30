@@ -1,87 +1,109 @@
 {% extends "base.html" %}
-{% block title %}To Do — WorkHub{% endblock %}
-{% block page_title %}Microsoft To Do{% endblock %}
+{% block title %}To Do — Microsoft 365 — WorkHub{% endblock %}
+{% block page_title %}To Do{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center gap-3 mb-4">
-  <div style="width:42px;height:42px;border-radius:12px;background:var(--primary);display:flex;align-items:center;justify-content:center;">
-    <i data-lucide="square-check" class="lucide text-white" style="font-size:1.1rem;"></i>
-  </div>
-  <div>
-    <h4 class="mb-0 fw-bold" style="color:var(--ink-dark);letter-spacing:-.02em;">Microsoft To Do</h4>
-    <p class="mb-0" style="color:#64748b;font-size:.85rem;">Manage your tasks and to-do lists</p>
+<div class="hub-header">
+  <div class="hub-icon hub-icon--todo"><i data-lucide="check-square" class="lucide"></i></div>
+  <div class="flex-grow-1">
+    <h4 class="hub-title">Microsoft To Do</h4>
+    <p class="hub-sub">Manage your tasks and to-do lists</p>
   </div>
 </div>
 
 {% if not ms_connected or not has_access %}
 <div class="dash-connect-banner mb-4">
-  <div class="dash-connect-icon"><i class="bi bi-microsoft"></i></div>
+  <div class="dash-connect-icon"><svg viewBox="0 0 23 23" width="20" height="20" style="vertical-align:middle"><rect x="1" y="1" width="10" height="10" fill="#f25022"/><rect x="12" y="1" width="10" height="10" fill="#7fba00"/><rect x="1" y="12" width="10" height="10" fill="#00a4ef"/><rect x="12" y="12" width="10" height="10" fill="#ffb900"/></svg></div>
   <div class="flex-grow-1">
     <div class="dash-connect-title">Connect Microsoft 365</div>
-    <div class="dash-connect-sub">Enable the Tasks feature to manage your to-do lists.</div>
+    <div class="dash-connect-sub">Link your account to access To Do lists.</div>
   </div>
-  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i data-lucide="plug" class="lucide me-2"></i>Setup</a>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i data-lucide="plug" class="lucide me-2"></i>Connect</a>
 </div>
 {% else %}
 
 {% if error %}
-<div class="alert alert-warning mb-4" style="font-size:.85rem;border-radius:12px;">
-  <i data-lucide="triangle-alert" class="lucide me-2"></i>{{ error }}
-</div>
+<div class="hub-alert mb-3"><i data-lucide="triangle-alert" class="lucide me-2"></i>{{ error }}</div>
 {% endif %}
 
-<div class="row g-0" style="min-height:600px;">
-  <!-- Lists sidebar -->
-  <div class="col-md-3" style="border-right:1px solid #e2e8f0;background:#f8fafc;border-radius:12px 0 0 12px;">
-    <div class="p-3">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <span class="fw-semibold" style="font-size:.85rem;color:#1e293b;">My Lists</span>
-        <button class="btn btn-sm" id="newListBtn" style="background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-pale);border-radius:8px;font-size:.72rem;">
-          <i data-lucide="plus" class="lucide me-1"></i>New
-        </button>
+<div class="ms-todo-layout">
+  <!-- List sidebar -->
+  <div class="ms-todo-sidebar">
+    <div class="d-flex align-items-center justify-content-between p-3 border-bottom" style="border-color:var(--border)!important;">
+      <span class="fw-bold" style="font-size:13px;color:var(--ink);">Lists</span>
+      <button class="hub-btn-action" title="New List" data-bs-toggle="modal" data-bs-target="#newListModal">
+        <i data-lucide="plus" class="lucide"></i>
+      </button>
+    </div>
+    <div id="listSidebar" class="overflow-auto" style="max-height:calc(100vh - 320px);">
+      {% for lst in todo_lists %}
+      <div class="todo-list-item{% if forloop.first %} active{% endif %}"
+           data-list-id="{{ lst.id }}"
+           onclick="selectList('{{ lst.id }}', '{{ lst.displayName|escapejs }}', this)">
+        <i data-lucide="list" class="lucide" style="width:14px;color:var(--ink-light);flex-shrink:0;"></i>
+        <span class="flex-grow-1 text-truncate">{{ lst.displayName }}</span>
+        {% if lst.tasks %}
+        <span class="badge bg-light text-dark" style="font-size:10px;">{{ lst.tasks.length }}</span>
+        {% endif %}
       </div>
-      <div id="todoLists">
-        {% for lst in todo_lists %}
-        <div class="todo-list-item{% if forloop.first %} active{% endif %}" data-list-id="{{ lst.id }}" data-name="{{ lst.displayName }}">
-          <i data-lucide="list-checks" class="lucide me-2" style="color:var(--primary);"></i>{{ lst.displayName }}
-        </div>
-        {% empty %}
-        <div class="text-muted text-center py-3" style="font-size:.82rem;">No lists found</div>
-        {% endfor %}
-      </div>
+      {% empty %}
+      <div class="text-center text-muted py-4" style="font-size:12px;">No lists found</div>
+      {% endfor %}
     </div>
   </div>
 
-  <!-- Tasks area -->
-  <div class="col-md-9" style="background:#fff;border-radius:0 12px 12px 0;">
-    <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
-      <span class="fw-semibold" id="activeListName" style="font-size:.9rem;">
-        {% if todo_lists %}{{ todo_lists.0.displayName }}{% else %}Tasks{% endif %}
-      </span>
-      <div class="d-flex gap-2">
-        <select id="taskFilter" class="form-select form-select-sm" style="width:auto;border-radius:8px;font-size:.78rem;">
-          <option value="all">All</option>
-          <option value="active">Active</option>
-          <option value="completed">Completed</option>
-        </select>
-      </div>
+  <!-- Task area -->
+  <div class="flex-grow-1 d-flex flex-column" style="min-width:0;">
+    <!-- Task toolbar -->
+    <div class="d-flex align-items-center justify-content-between p-3 border-bottom" style="border-color:var(--border)!important;">
+      <h6 class="fw-bold mb-0" id="taskListTitle" style="font-size:14px;color:var(--ink);">
+        {% if todo_lists %}{{ todo_lists.0.displayName }}{% else %}Select a list{% endif %}
+      </h6>
+      <button class="btn btn-sm hub-btn-create" id="addTaskBtn" style="display:{% if todo_lists %}inline-flex{% else %}none{% endif %};">
+        <i data-lucide="plus" class="lucide me-1"></i>Add Task
+      </button>
     </div>
 
-    <!-- Add task -->
-    <div class="p-3 border-bottom" style="background:#f8fafc;">
-      <div class="d-flex gap-2">
-        <input type="text" id="newTaskInput" class="form-control form-control-sm" placeholder="Add a task…" style="border-radius:8px;">
-        <input type="date" id="newTaskDue" class="form-control form-control-sm" style="width:140px;border-radius:8px;font-size:.78rem;">
-        <button id="addTaskBtn" class="btn btn-sm" style="background:var(--primary);color:#fff;border-radius:8px;white-space:nowrap;padding:4px 16px;">
-          <i data-lucide="plus" class="lucide"></i>Add
-        </button>
+    <!-- Inline add task form -->
+    <div id="addTaskForm" style="display:none;" class="border-bottom p-3" style="border-color:var(--border)!important;">
+      <div class="d-flex gap-2 align-items-end">
+        <div class="flex-grow-1">
+          <input type="text" id="newTaskTitle" class="form-control form-control-sm" placeholder="Task title">
+        </div>
+        <input type="date" id="newTaskDue" class="form-control form-control-sm" style="width:140px;">
+        <select id="newTaskImportance" class="form-select form-select-sm" style="width:120px;">
+          <option value="normal">Normal</option>
+          <option value="high">High</option>
+          <option value="low">Low</option>
+        </select>
+        <button class="btn btn-sm hub-btn-create" id="saveTaskBtn"><i data-lucide="check" class="lucide"></i></button>
+        <button class="btn btn-sm hub-btn-secondary" onclick="document.getElementById('addTaskForm').style.display='none'"><i data-lucide="x" class="lucide"></i></button>
       </div>
     </div>
 
     <!-- Task list -->
-    <div id="taskList" class="p-3" style="max-height:500px;overflow-y:auto;">
-      <div class="text-center py-4 text-muted" style="font-size:.85rem;">
-        <div class="spinner-border spinner-border-sm me-2"></div>Loading tasks…
+    <div id="taskArea" class="flex-grow-1 overflow-auto p-3">
+      <div class="text-center text-muted py-5" style="font-size:13px;">
+        <i data-lucide="check-circle" class="lucide me-2" style="width:24px;height:24px;"></i>
+        <div class="mt-2">{% if todo_lists %}Loading tasks…{% else %}Select or create a list{% endif %}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New List modal -->
+<div class="modal fade" id="newListModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h6 class="modal-title fw-bold"><i data-lucide="list-plus" class="lucide me-2" style="color:var(--signature);"></i>New List</h6><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <label class="form-label">List Name</label>
+        <input type="text" id="newListName" class="form-control" placeholder="My List">
+        <div id="listMsg" class="mt-2"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn hub-btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-sm hub-btn-create" id="createListBtn">Create</button>
       </div>
     </div>
   </div>
@@ -89,148 +111,123 @@
 
 {% endif %}
 
-<style>
-.todo-list-item {
-  padding:8px 12px; border-radius:8px; cursor:pointer; font-size:.84rem;
-  color:#475569; margin-bottom:2px; transition:background .1s;
-}
-.todo-list-item:hover { background:var(--primary-light); }
-.todo-list-item.active { background:var(--primary-light); color:var(--primary); font-weight:600; }
-.task-row {
-  display:flex; align-items:center; gap:10px; padding:10px 12px;
-  border-bottom:1px solid #f1f5f9; transition:background .1s;
-}
-.task-row:hover { background:#f8fafc; }
-.task-check { width:18px; height:18px; border-radius:50%; border:2px solid #cbd5e1; cursor:pointer; flex-shrink:0; transition:all .15s; }
-.task-check:hover { border-color:var(--primary); }
-.task-check.completed { background:var(--primary); border-color:var(--primary); }
-.task-check.completed::after { content:'✓'; color:#fff; font-size:.7rem; display:flex; align-items:center; justify-content:center; height:100%; }
-.task-title { flex-grow:1; font-size:.84rem; color:#1e293b; }
-.task-title.completed { text-decoration:line-through; color:#94a3b8; }
-.task-due { font-size:.72rem; color:#64748b; white-space:nowrap; }
-.task-due.overdue { color:#dc2626; font-weight:600; }
-.task-importance { font-size:.7rem; padding:1px 6px; border-radius:10px; }
-.task-importance--high { background:#fee2e2; color:#dc2626; }
-.task-importance--normal { background:#f1f5f9; color:#64748b; }
-</style>
-
 <script>
+const CSRF = '{{ csrf_token }}';
+let activeListId = '{{ todo_lists.0.id|default:"" }}';
+
+/* ── Select list ── */
+function selectList(listId, name, el) {
+  activeListId = listId;
+  document.querySelectorAll('.todo-list-item').forEach(e => e.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('taskListTitle').textContent = name;
+  document.getElementById('addTaskBtn').style.display = 'inline-flex';
+  document.getElementById('addTaskForm').style.display = 'none';
+  loadTasks(listId);
+}
+
+/* ── Load tasks ── */
+function loadTasks(listId) {
+  const area = document.getElementById('taskArea');
+  area.innerHTML = '<div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>';
+
+  fetch(`/microsoft/api/todo/${listId}/tasks/`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { area.innerHTML = `<div class="hub-alert">${data.error}</div>`; return; }
+      const tasks = data.tasks || [];
+      if (!tasks.length) { area.innerHTML = '<div class="text-center text-muted py-5" style="font-size:13px;">No tasks in this list.</div>'; return; }
+      area.innerHTML = tasks.map(t => {
+        const done = t.status === 'completed';
+        const due = t.dueDateTime?.dateTime ? new Date(t.dueDateTime.dateTime).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+        const imp = t.importance === 'high';
+        return `<div class="task-row" data-task-id="${t.id}">
+          <button class="task-check ${done?'task-check--done':''}" onclick="toggleTask('${listId}','${t.id}',${done})">
+            <i data-lucide="${done?'check-circle':'circle'}" class="lucide"></i>
+          </button>
+          <span class="task-title ${done?'task-title--done':''}">${t.title}</span>
+          <span class="flex-grow-1"></span>
+          ${due ? `<span class="task-due"><i data-lucide="calendar" class="lucide"></i>${due}</span>` : ''}
+          <button class="task-importance ${imp?'task-importance--high':''}" onclick="toggleImportance('${listId}','${t.id}','${t.importance}')" title="${imp?'High':'Normal'}">
+            <i data-lucide="star" class="lucide"></i>
+          </button>
+          <button class="hub-btn-action hub-btn-action--danger" onclick="deleteTask('${listId}','${t.id}')" title="Delete">
+            <i data-lucide="trash-2" class="lucide"></i>
+          </button>
+        </div>`;
+      }).join('');
+    })
+    .catch(() => { area.innerHTML = '<div class="hub-alert">Failed to load tasks.</div>'; });
+}
+
+function toggleTask(listId, taskId, currentlyDone) {
+  const newStatus = currentlyDone ? 'notStarted' : 'completed';
+  fetch(`/microsoft/api/todo/${listId}/tasks/${taskId}/update/`, {
+    method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+    body:JSON.stringify({status: newStatus})
+  }).then(()=>loadTasks(listId));
+}
+
+function toggleImportance(listId, taskId, current) {
+  const newVal = current === 'high' ? 'normal' : 'high';
+  fetch(`/microsoft/api/todo/${listId}/tasks/${taskId}/update/`, {
+    method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+    body:JSON.stringify({importance: newVal})
+  }).then(()=>loadTasks(listId));
+}
+
+function deleteTask(listId, taskId) {
+  if (!confirm('Delete this task?')) return;
+  fetch(`/microsoft/api/todo/${listId}/tasks/${taskId}/delete/`, {
+    method:'POST', headers:{'X-CSRFToken':CSRF}
+  }).then(()=>loadTasks(listId));
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-  const csrf = '{{ csrf_token }}';
-  let activeListId = '{{ todo_lists.0.id|default:"" }}';
-  let allTasks = [];
+  if (activeListId) loadTasks(activeListId);
 
-  // List click
-  document.querySelectorAll('.todo-list-item').forEach(el => {
-    el.addEventListener('click', function() {
-      document.querySelectorAll('.todo-list-item').forEach(c => c.classList.remove('active'));
-      this.classList.add('active');
-      activeListId = this.dataset.listId;
-      document.getElementById('activeListName').textContent = this.dataset.name;
-      loadTasks();
-    });
+  document.getElementById('addTaskBtn')?.addEventListener('click', () => {
+    document.getElementById('addTaskForm').style.display = '';
+    document.getElementById('newTaskTitle').focus();
   });
 
-  function loadTasks() {
-    if (!activeListId) return;
-    const box = document.getElementById('taskList');
-    box.innerHTML = '<div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>';
-    fetch(`/microsoft/api/todo/${activeListId}/tasks/`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.error) { box.innerHTML = '<div class="text-danger p-3">'+data.error+'</div>'; return; }
-        allTasks = data.tasks || [];
-        renderTasks();
-      });
-  }
-
-  function renderTasks() {
-    const box = document.getElementById('taskList');
-    const filter = document.getElementById('taskFilter').value;
-    let tasks = allTasks;
-    if (filter === 'active') tasks = tasks.filter(t => t.status !== 'completed');
-    if (filter === 'completed') tasks = tasks.filter(t => t.status === 'completed');
-
-    if (!tasks.length) {
-      box.innerHTML = '<div class="text-center py-4 text-muted"><i data-lucide="square-check" class="lucide" style="font-size:1.5rem;"></i><div class="mt-2">No tasks</div></div>';
-      return;
-    }
-
-    const today = new Date().toISOString().slice(0,10);
-    box.innerHTML = tasks.map(t => {
-      const done = t.status === 'completed';
-      const due = t.dueDateTime?.dateTime?.slice(0,10) || '';
-      const overdue = due && due < today && !done;
-      const imp = t.importance || 'normal';
-      return `<div class="task-row" data-task-id="${t.id}">
-        <div class="task-check${done?' completed':''}" onclick="toggleTask('${t.id}',${!done})"></div>
-        <div class="task-title${done?' completed':''}">${t.title}</div>
-        ${imp==='high'?'<span class="task-importance task-importance--high">High</span>':''}
-        ${due?`<span class="task-due${overdue?' overdue':''}">${overdue?'<i class=\\"bi bi-exclamation-circle me-1\\"></i>':''}${due}</span>`:''}
-        <button class="file-action" onclick="deleteTask('${t.id}')" title="Delete"><i data-lucide="trash-2" class="lucide"></i></button>
-      </div>`;
-    }).join('');
-  }
-
-  document.getElementById('taskFilter').addEventListener('change', renderTasks);
-
-  // Toggle complete
-  window.toggleTask = function(taskId, complete) {
-    const body = complete
-      ? {status: 'completed', completedDateTime: {dateTime: new Date().toISOString(), timeZone:'UTC'}}
-      : {status: 'notStarted', completedDateTime: null};
-    fetch(`/microsoft/api/todo/${activeListId}/tasks/${taskId}/update/`, {
-      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrf},
-      body:JSON.stringify(body)
-    }).then(r=>r.json()).then(()=>loadTasks());
-  };
-
-  // Delete task
-  window.deleteTask = function(taskId) {
-    fetch(`/microsoft/api/todo/${activeListId}/tasks/${taskId}/delete/`, {
-      method:'POST', headers:{'X-CSRFToken':csrf}
-    }).then(r=>r.json()).then(data => {
-      if (data.success) loadTasks();
-      else if (data.error) alert(data.error);
-    });
-  };
-
-  // Add task
-  document.getElementById('addTaskBtn').addEventListener('click', addTask);
-  document.getElementById('newTaskInput').addEventListener('keydown', e => { if(e.key==='Enter') addTask(); });
-  function addTask() {
-    if (!activeListId) return;
-    const title = document.getElementById('newTaskInput').value.trim();
-    if (!title) return;
+  document.getElementById('saveTaskBtn')?.addEventListener('click', function() {
+    const title = document.getElementById('newTaskTitle').value.trim();
+    if (!title || !activeListId) return;
     const due = document.getElementById('newTaskDue').value;
-    const payload = {title};
-    if (due) payload.dueDateTime = due;
-    document.getElementById('newTaskInput').value = '';
-    document.getElementById('newTaskDue').value = '';
-    fetch(`/microsoft/api/todo/${activeListId}/tasks/create/`, {
-      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrf},
-      body:JSON.stringify(payload)
-    }).then(r=>r.json()).then(data => {
-      if (data.error) alert(data.error);
-      else loadTasks();
-    });
-  }
+    const importance = document.getElementById('newTaskImportance').value;
+    this.disabled = true;
 
-  // New list
-  document.getElementById('newListBtn')?.addEventListener('click', function() {
-    const name = prompt('New list name:');
-    if (!name) return;
-    fetch('/microsoft/api/todo/lists/create/', {
-      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrf},
-      body:JSON.stringify({displayName: name})
-    }).then(r=>r.json()).then(data => {
-      if (data.error) alert(data.error);
-      else location.reload();
-    });
+    fetch(`/microsoft/api/todo/${activeListId}/tasks/create/`, {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+      body:JSON.stringify({title, dueDateTime:due||null, importance})
+    }).then(r=>r.json()).then(data=>{
+      this.disabled=false;
+      if(data.task) {
+        document.getElementById('newTaskTitle').value='';
+        document.getElementById('newTaskDue').value='';
+        document.getElementById('addTaskForm').style.display='none';
+        loadTasks(activeListId);
+      }
+    }).catch(()=>{this.disabled=false;});
   });
 
-  // Initial load
-  if (activeListId) loadTasks();
+  document.getElementById('newTaskTitle')?.addEventListener('keydown', e => {
+    if(e.key==='Enter') document.getElementById('saveTaskBtn').click();
+  });
+
+  document.getElementById('createListBtn')?.addEventListener('click', function() {
+    const name = document.getElementById('newListName').value.trim();
+    if(!name){document.getElementById('listMsg').innerHTML='<div class="hub-alert">Enter a name.</div>';return;}
+    this.disabled=true;
+    fetch('{% url "microsoft:create_list" %}', {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+      body:JSON.stringify({displayName:name})
+    }).then(r=>r.json()).then(data=>{
+      if(data.list) { window.location.reload(); }
+      else { document.getElementById('listMsg').innerHTML='<div class="hub-alert">'+(data.error||'Failed')+'</div>'; this.disabled=false; }
+    }).catch(()=>{this.disabled=false;});
+  });
 });
 </script>
 {% endblock %}

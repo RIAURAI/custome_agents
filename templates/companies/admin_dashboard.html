@@ -1,252 +1,251 @@
 {% extends "base.html" %}
-{% block title %}Admin Dashboard{% endblock %}
-{% block page_title %}Admin Dashboard{% endblock %}
+{% load static %}
+{% block title %}Admin Dashboard — WorkHub{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center gap-3 mb-4">
-  <div style="width:42px;height:42px;border-radius:12px;background:var(--primary);display:flex;align-items:center;justify-content:center;">
-    <i data-lucide="bar-chart-3" class="lucide text-white" style="font-size:1.1rem;"></i>
+<!-- Header -->
+<div class="hub-header">
+  <div class="d-flex align-items-center gap-3">
+    <div class="hub-icon" style="background:var(--gradient-brand)"><i data-lucide="bar-chart-3" class="lucide"></i></div>
+    <div>
+      <h1 class="hub-title">Admin Dashboard</h1>
+      <p class="hub-subtitle">Team activity & usage analytics</p>
+    </div>
   </div>
-  <div>
-    <h4 class="mb-0 fw-bold" style="color:var(--ink-dark);">Admin Dashboard</h4>
-    <p class="mb-0" style="color:#64748b;font-size:.85rem;">Team activity &amp; usage analytics (last 30 days)</p>
+  <div class="d-flex align-items-center gap-2">
+    <a href="{% url 'companies:team' %}" class="hub-btn-secondary"><i data-lucide="users" class="lucide"></i> Team</a>
+    <a href="{% url 'companies:activity_log' %}" class="hub-btn-secondary"><i data-lucide="scroll-text" class="lucide"></i> Activity Log</a>
   </div>
 </div>
 
-<!-- Summary Cards -->
+<!-- Summary stats -->
 <div class="row g-3 mb-4">
-  <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="stat-icon" style="background:var(--primary-light);color:var(--primary);"><i data-lucide="users" class="lucide"></i></div>
+  <div class="col-6 col-md-3">
+    <div class="admin-stat-card">
+      <div class="admin-stat-icon" style="background:var(--signature-soft);color:var(--signature)">
+        <i data-lucide="users" class="lucide"></i>
+      </div>
       <div>
-        <div class="stat-value">{{ total_members }}</div>
-        <div class="stat-label">Team Members</div>
+        <div class="admin-stat-value">{{ total_members }}</div>
+        <div class="admin-stat-label">Team Members</div>
       </div>
     </div>
   </div>
-  <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#ecfdf5;color:#10b981;"><i data-lucide="plug" class="lucide"></i></div>
+  <div class="col-6 col-md-3">
+    <div class="admin-stat-card">
+      <div class="admin-stat-icon" style="background:rgba(16,185,129,0.1);color:var(--emerald)">
+        <i data-lucide="plug-zap" class="lucide"></i>
+      </div>
       <div>
-        <div class="stat-value">{{ active_integrations }}</div>
-        <div class="stat-label">Active Integrations</div>
+        <div class="admin-stat-value">{{ active_integrations }}</div>
+        <div class="admin-stat-label">Integrations</div>
       </div>
     </div>
   </div>
-  <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#fef3c7;color:#f59e0b;"><i data-lucide="zap" class="lucide"></i></div>
+  <div class="col-6 col-md-3">
+    <div class="admin-stat-card">
+      <div class="admin-stat-icon" style="background:rgba(59,130,246,0.1);color:var(--info)">
+        <i data-lucide="activity" class="lucide"></i>
+      </div>
       <div>
-        <div class="stat-value">{{ actions_7d }}</div>
-        <div class="stat-label">Actions (7 days)</div>
+        <div class="admin-stat-value">{{ actions_7d }}</div>
+        <div class="admin-stat-label">Actions (7d)</div>
       </div>
     </div>
   </div>
-  <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#ede9fe;color:#8b5cf6;"><i data-lucide="activity" class="lucide"></i></div>
+  <div class="col-6 col-md-3">
+    <div class="admin-stat-card">
+      <div class="admin-stat-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6">
+        <i data-lucide="trending-up" class="lucide"></i>
+      </div>
       <div>
-        <div class="stat-value">{{ actions_30d }}</div>
-        <div class="stat-label">Actions (30 days)</div>
+        <div class="admin-stat-value">{{ actions_30d }}</div>
+        <div class="admin-stat-label">Actions (30d)</div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="row g-4">
-  <!-- Activity Over Time -->
-  <div class="col-lg-8">
-    <div class="card border-0 shadow-sm" style="border-radius:14px;">
-      <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="trending-up" class="lucide me-2"></i>Activity Over Time</h6>
-        <canvas id="dailyChart" height="220"></canvas>
+<!-- Charts row -->
+<div class="row g-4 mb-4">
+  <div class="col-md-8">
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Activity Trend (30 days)</span>
+      </div>
+      <div class="dash-panel-body">
+        <canvas id="activityChart" height="220"></canvas>
       </div>
     </div>
   </div>
-
-  <!-- Platform Breakdown -->
-  <div class="col-lg-4">
-    <div class="card border-0 shadow-sm" style="border-radius:14px;">
-      <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="pie-chart" class="lucide me-2"></i>By Platform</h6>
-        <canvas id="platformChart" height="220"></canvas>
+  <div class="col-md-4">
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <span style="font-size:13px;font-weight:600;color:var(--gray-700)">By Platform</span>
+      </div>
+      <div class="dash-panel-body d-flex align-items-center justify-content-center" style="padding:16px">
+        <canvas id="platformChart" style="max-width:260px;max-height:260px"></canvas>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Top Actions -->
-  <div class="col-lg-6">
-    <div class="card border-0 shadow-sm" style="border-radius:14px;">
-      <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="list-ordered" class="lucide me-2"></i>Top Actions</h6>
+<!-- Top actions & user activity -->
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Top Actions</span>
+      </div>
+      <div class="dash-panel-body" style="padding:0">
         {% for a in top_actions %}
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span style="font-size:.82rem;color:#334155;">{{ a.label }}</span>
+        <div class="d-flex align-items-center justify-content-between px-4 py-2" style="border-bottom:1px solid var(--gray-100)">
+          <span style="font-size:13px;color:var(--gray-700)">{{ a.label }}</span>
           <div class="d-flex align-items-center gap-2">
-            <div style="width:120px;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;">
-              <div style="height:100%;background:var(--primary);border-radius:4px;width:{% widthratio a.count actions_30d 100 %}%;"></div>
+            <div class="progress-bar-sm">
+              <div class="progress-bar-sm-fill progress-bar-sm-fill--brand" style="width:{% widthratio a.count actions_30d 100 %}%"></div>
             </div>
-            <span class="badge bg-light text-dark" style="font-size:.72rem;">{{ a.count }}</span>
+            <span style="font-size:12px;font-weight:600;color:var(--gray-700);min-width:30px;text-align:right">{{ a.count }}</span>
           </div>
         </div>
-        {% empty %}
-        <p class="text-muted" style="font-size:.82rem;">No activity yet</p>
         {% endfor %}
       </div>
     </div>
   </div>
-
-  <!-- Per-User Activity -->
-  <div class="col-lg-6">
-    <div class="card border-0 shadow-sm" style="border-radius:14px;">
-      <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="id-card" class="lucide me-2"></i>Most Active Users</h6>
+  <div class="col-md-6">
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Most Active Users</span>
+      </div>
+      <div class="dash-panel-body" style="padding:0">
         {% for u in user_activity %}
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span style="font-size:.82rem;color:#334155;">{{ u.display_name }}</span>
+        <div class="d-flex align-items-center justify-content-between px-4 py-2" style="border-bottom:1px solid var(--gray-100)">
           <div class="d-flex align-items-center gap-2">
-            <div style="width:120px;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;">
-              <div style="height:100%;background:#8b5cf6;border-radius:4px;width:{% widthratio u.count actions_30d 100 %}%;"></div>
+            <div class="team-member-avatar" style="width:26px;height:26px;font-size:10px">{{ u.display_name|first|upper }}</div>
+            <span style="font-size:13px;color:var(--gray-700)">{{ u.display_name }}</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="progress-bar-sm">
+              <div class="progress-bar-sm-fill progress-bar-sm-fill--violet" style="width:{% widthratio u.count actions_30d 100 %}%"></div>
             </div>
-            <span class="badge bg-light text-dark" style="font-size:.72rem;">{{ u.count }}</span>
+            <span style="font-size:12px;font-weight:600;color:var(--gray-700);min-width:30px;text-align:right">{{ u.count }}</span>
           </div>
         </div>
-        {% empty %}
-        <p class="text-muted" style="font-size:.82rem;">No user activity yet</p>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-
-  <!-- Integration Health -->
-  <div class="col-lg-6">
-    <div class="card border-0 shadow-sm" style="border-radius:14px;">
-      <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="shield-check" class="lucide me-2"></i>Integration Health</h6>
-        <div class="table-responsive">
-          <table class="table table-sm mb-0" style="font-size:.82rem;">
-            <thead><tr><th>Service</th><th>Status</th><th>Connected</th></tr></thead>
-            <tbody>
-            {% for i in integrations_status %}
-            <tr>
-              <td class="fw-semibold text-capitalize">{{ i.service }}</td>
-              <td>
-                {% if i.status == "active" %}
-                <span class="badge bg-success-subtle text-success">Active</span>
-                {% elif i.status == "expired" %}
-                <span class="badge bg-warning-subtle text-warning">Expired</span>
-                {% elif i.status == "error" %}
-                <span class="badge bg-danger-subtle text-danger">Error</span>
-                {% else %}
-                <span class="badge bg-secondary-subtle text-secondary">{{ i.status }}</span>
-                {% endif %}
-              </td>
-              <td class="text-muted">{{ i.connected_at|truncatechars:10 }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="3" class="text-muted text-center">No integrations connected</td></tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Recent Activity -->
-  <div class="col-lg-6">
-    <div class="card border-0 shadow-sm" style="border-radius:14px;">
-      <div class="card-body">
-        <h6 class="fw-bold mb-3" style="color:#1e293b;"><i data-lucide="history" class="lucide me-2"></i>Recent Activity</h6>
-        {% for log in recent_logs %}
-        <div class="d-flex gap-2 mb-2 pb-2 {% if not forloop.last %}border-bottom{% endif %}" style="font-size:.8rem;">
-          <div class="text-muted" style="min-width:110px;">{{ log.created_at|date:"M d, H:i" }}</div>
-          <div class="flex-grow-1">
-            <span class="fw-semibold">{{ log.user.get_full_name|default:log.user.username }}</span>
-            <span class="text-muted"> — {{ log.get_action_display }}</span>
-            {% if log.platform %}<span class="badge bg-light text-dark ms-1" style="font-size:.65rem;">{{ log.platform }}</span>{% endif %}
-          </div>
-        </div>
-        {% empty %}
-        <p class="text-muted" style="font-size:.82rem;">No activity yet</p>
         {% endfor %}
       </div>
     </div>
   </div>
 </div>
 
-<style>
-.stat-card {
-  display:flex; align-items:center; gap:14px; padding:18px;
-  background:#fff; border:1px solid #e2e8f0; border-radius:14px;
-  transition:all .15s;
-}
-.stat-card:hover { border-color:var(--primary-pale); box-shadow:0 2px 12px rgba(255,89,0,.08); }
-.stat-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
-.stat-value { font-size:1.5rem; font-weight:700; color:#1e293b; line-height:1.1; }
-.stat-label { font-size:.78rem; color:#64748b; }
-</style>
+<!-- Integration health -->
+<div class="dash-panel mb-4">
+  <div class="dash-panel-header">
+    <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Integration Health</span>
+  </div>
+  <div class="dash-panel-body" style="padding:0">
+    <table class="hub-table">
+      <thead>
+        <tr><th>Service</th><th>Status</th><th>Connected</th><th>Last Updated</th></tr>
+      </thead>
+      <tbody>
+        {% for i in integrations_status %}
+        <tr>
+          <td style="font-size:13px;font-weight:600;text-transform:capitalize">{{ i.service }}</td>
+          <td>
+            <span class="hub-pill hub-pill--{% if i.status == 'active' %}success{% elif i.status == 'error' %}danger{% else %}muted{% endif %}">
+              {{ i.status }}
+            </span>
+          </td>
+          <td style="font-size:12px;color:var(--gray-500)">{{ i.connected_at|default:"—" }}</td>
+          <td style="font-size:12px;color:var(--gray-500)">{{ i.updated_at|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
+<!-- Recent activity -->
+<div class="dash-panel">
+  <div class="dash-panel-header d-flex align-items-center justify-content-between">
+    <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Recent Activity</span>
+    <a href="{% url 'companies:activity_log' %}" class="hub-btn-action" title="View all"><i data-lucide="external-link" class="lucide"></i></a>
+  </div>
+  <div class="dash-panel-body" style="padding:0">
+    {% for log in recent_logs %}
+    <div class="d-flex align-items-center gap-3 px-4 py-2" style="border-bottom:1px solid var(--gray-100)">
+      <div class="team-member-avatar" style="width:26px;height:26px;font-size:10px">
+        {% if log.user %}{{ log.user.first_name|first|upper }}{% else %}S{% endif %}
+      </div>
+      <div style="flex:1;min-width:0">
+        <span style="font-size:13px;font-weight:500;color:var(--gray-800)">
+          {% if log.user %}{{ log.user.get_full_name|default:log.user.username }}{% else %}System{% endif %}
+        </span>
+        <span style="font-size:12px;color:var(--gray-500)"> {{ log.get_action_display }}</span>
+      </div>
+      <span style="font-size:11px;color:var(--gray-400);white-space:nowrap">{{ log.created_at|timesince }} ago</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const dailyData = {{ daily_activity_json|safe }};
-  const platformData = {{ platform_activity_json|safe }};
+lucide.createIcons();
 
-  // Daily activity chart
-  if (dailyData.length) {
-    new Chart(document.getElementById('dailyChart'), {
-      type: 'line',
-      data: {
-        labels: dailyData.map(d => d.day),
-        datasets: [{
-          label: 'Actions',
-          data: dailyData.map(d => d.count),
-          borderColor: '#FF5900',
-          backgroundColor: 'rgba(255,89,0,.10)',
-          fill: true,
-          tension: .3,
-          pointRadius: 3,
-          pointBackgroundColor: '#FF5900',
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { font: { size: 10 }, maxTicksLimit: 10 } },
-          y: { beginAtZero: true, ticks: { font: { size: 10 }, stepSize: 1 } },
-        }
-      }
-    });
+const dailyData = {{ daily_activity_json|safe }};
+const platformData = {{ platform_activity_json|safe }};
+const sig = getComputedStyle(document.documentElement).getPropertyValue('--signature').trim() || '#6366F1';
+const sig600 = getComputedStyle(document.documentElement).getPropertyValue('--signature-600').trim() || '#4F46E5';
+
+// Line chart
+const ctx1 = document.getElementById('activityChart').getContext('2d');
+new Chart(ctx1, {
+  type: 'line',
+  data: {
+    labels: dailyData.map(d => d.day),
+    datasets: [{
+      label: 'Actions',
+      data: dailyData.map(d => d.count),
+      borderColor: sig,
+      backgroundColor: sig + '14',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 2,
+      pointBackgroundColor: sig
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 10 } },
+      y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 10 } } }
+    }
   }
+});
 
-  // Platform doughnut chart
-  const COLORS = ['#FF5900','#3B82F6','#10B981','#8B5CF6','#F59E0B','#EC4899','#14B8A6','#F43F5E'];
-  if (platformData.length) {
-    new Chart(document.getElementById('platformChart'), {
-      type: 'doughnut',
-      data: {
-        labels: platformData.map(d => d.platform),
-        datasets: [{
-          data: platformData.map(d => d.count),
-          backgroundColor: COLORS.slice(0, platformData.length),
-          borderWidth: 2,
-          borderColor: '#ffffff',
-          hoverOffset: 6,
-        }]
-      },
-      options: {
-        responsive: true,
-        cutout: '62%',
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { font: { size: 11 }, padding: 16, usePointStyle: true, pointStyleWidth: 10 }
-          }
-        }
-      }
-    });
+// Doughnut chart
+const colors = [sig, '#10B981', '#F59E0B', '#EF4444', '#3B82F6', sig600];
+const ctx2 = document.getElementById('platformChart').getContext('2d');
+new Chart(ctx2, {
+  type: 'doughnut',
+  data: {
+    labels: platformData.map(p => p.platform),
+    datasets: [{
+      data: platformData.map(p => p.count),
+      backgroundColor: colors.slice(0, platformData.length),
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12, usePointStyle: true, pointStyle: 'circle' } }
+    },
+    cutout: '65%'
   }
 });
 </script>

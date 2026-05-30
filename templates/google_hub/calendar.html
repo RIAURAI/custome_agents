@@ -7,7 +7,7 @@
 <!-- Top toolbar -->
 <div class="ibx-toolbar mb-4">
   <div class="d-flex align-items-center gap-3">
-    <div class="ibx-toolbar-icon" style="background:linear-gradient(135deg,#4285F4,#34A853);">
+    <div class="ibx-toolbar-icon hub-icon--calendar">
       <i data-lucide="calendar" class="lucide"></i>
     </div>
     <div>
@@ -16,17 +16,16 @@
     </div>
   </div>
   <div class="d-flex align-items-center gap-2 flex-wrap">
-    <select id="daysSelect" class="ibx-shortcut-btn" style="background:#fff;color:#374151;border-color:#d1d5db;cursor:pointer;" onchange="changeDays(this.value)">
+    <select id="daysSelect" class="ibx-shortcut-btn" style="cursor:pointer;" onchange="changeDays(this.value)">
       <option value="7">7 days</option>
       <option value="14">14 days</option>
       <option value="30">30 days</option>
       <option value="90">90 days</option>
     </select>
-    <a href="{% url 'google_hub:inbox' %}" class="ibx-shortcut-btn" style="background:#fef3c7;color:#92400e;border-color:#fde68a;"><i data-lucide="mail" class="lucide"></i>Gmail</a>
-    <a href="{% url 'google_hub:meet' %}" class="ibx-shortcut-btn" style="background:#f0fdf4;color:#166534;border-color:#bbf7d0;"><i data-lucide="video" class="lucide"></i>Meet</a>
+    <a href="{% url 'google_hub:inbox' %}" class="ibx-shortcut-btn"><i data-lucide="mail" class="lucide"></i>Gmail</a>
+    <a href="{% url 'google_hub:meet' %}" class="ibx-shortcut-btn"><i data-lucide="video" class="lucide"></i>Meet</a>
     {% if google_connected %}
-    <button class="ibx-compose-btn" style="background:linear-gradient(135deg,#4285F4,#34A853);box-shadow:0 2px 12px rgba(66,133,244,.35);"
-            data-bs-toggle="modal" data-bs-target="#createEventModal">
+    <button class="ibx-compose-btn" data-bs-toggle="modal" data-bs-target="#createEventModal">
       <i data-lucide="circle-plus" class="lucide me-1"></i>New Event
     </button>
     {% endif %}
@@ -34,7 +33,7 @@
 </div>
 
 {% if error %}
-<div class="alert alert-warning mb-3" style="font-size:.875rem;border-radius:12px;">
+<div class="hub-alert mb-3">
   <i data-lucide="triangle-alert" class="lucide me-2"></i>{{ error }}
   {% if 'expired' in error or 'reconnect' in error|lower %}
   <a href="{% url 'integrations:connect' %}" class="alert-link ms-2">Reconnect Google →</a>
@@ -46,57 +45,50 @@
 <div id="eventList" class="row g-3">
   {% for event in events %}
   <div class="col-12" id="event-{{ event.id }}">
-    <div class="card" style="border-radius:14px;border:1px solid #e2e8f0;">
-      <div class="card-body p-3">
-        <div class="d-flex align-items-start gap-3">
-          <!-- Date circle -->
-          <div style="min-width:54px;text-align:center;flex-shrink:0;">
-            <div style="background:var(--primary-light);border-radius:12px;padding:8px 10px;">
-              <div style="font-size:.7rem;color:var(--primary);font-weight:700;text-transform:uppercase;">
-                {% if event.start.dateTime %}{{ event.start.dateTime|slice:"5:7" }}/{{ event.start.dateTime|slice:"8:10" }}
-                {% elif event.start.date %}{{ event.start.date|slice:"5:7" }}/{{ event.start.date|slice:"8:10" }}{% endif %}
-              </div>
-              <div style="font-size:.75rem;color:var(--primary);font-weight:600;">
-                {% if event.start.dateTime %}{{ event.start.dateTime|slice:"11:16" }}{% else %}All day{% endif %}
-              </div>
-            </div>
+    <div class="gh-event">
+      <div class="d-flex align-items-start gap-3">
+        <!-- Date badge -->
+        <div class="gh-date-badge">
+          <div class="gh-date-badge-month">
+            {% if event.start.dateTime %}{{ event.start.dateTime|slice:"5:7" }}/{{ event.start.dateTime|slice:"8:10" }}
+            {% elif event.start.date %}{{ event.start.date|slice:"5:7" }}/{{ event.start.date|slice:"8:10" }}{% endif %}
           </div>
+          <div class="gh-date-badge-time">
+            {% if event.start.dateTime %}{{ event.start.dateTime|slice:"11:16" }}{% else %}All day{% endif %}
+          </div>
+        </div>
 
-          <!-- Event details -->
-          <div class="flex-grow-1">
-            <div class="fw-semibold" style="font-size:.9rem;color:#1e293b;">{{ event.summary|default:"(No title)" }}</div>
-            {% if event.location %}
-            <div class="text-muted" style="font-size:.78rem;"><i data-lucide="map-pin" class="lucide"></i>{{ event.location|truncatechars:50 }}</div>
-            {% endif %}
-            {% if event.description %}
-            <div class="text-muted mt-1" style="font-size:.78rem;">{{ event.description|truncatechars:100 }}</div>
-            {% endif %}
-            {% if event.attendees %}
-            <div class="mt-1" style="font-size:.74rem;color:#64748b;">
-              <i data-lucide="users" class="lucide"></i>{{ event.attendees|length }} attendee{{ event.attendees|length|pluralize }}
-            </div>
-            {% endif %}
-            {% if event.hangoutLink %}
-            <a href="{{ event.hangoutLink }}" target="_blank" rel="noopener" class="btn btn-sm mt-2"
-               style="background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9;border-radius:8px;font-size:.75rem;font-weight:600;">
-              <i data-lucide="video" class="lucide"></i>Join Google Meet
-            </a>
-            {% endif %}
-          </div>
+        <!-- Event details -->
+        <div class="flex-grow-1">
+          <div class="gh-event-title">{{ event.summary|default:"(No title)" }}</div>
+          {% if event.location %}
+          <div class="gh-event-meta"><i data-lucide="map-pin" class="lucide"></i> {{ event.location|truncatechars:50 }}</div>
+          {% endif %}
+          {% if event.description %}
+          <div class="gh-event-meta mt-1">{{ event.description|truncatechars:100 }}</div>
+          {% endif %}
+          {% if event.attendees %}
+          <div class="gh-event-meta mt-1"><i data-lucide="users" class="lucide"></i> {{ event.attendees|length }} attendee{{ event.attendees|length|pluralize }}</div>
+          {% endif %}
+          {% if event.hangoutLink %}
+          <a href="{{ event.hangoutLink }}" target="_blank" rel="noopener" class="gh-meet-btn mt-2">
+            <i data-lucide="video" class="lucide"></i>Join Google Meet
+          </a>
+          {% endif %}
+        </div>
 
-          <!-- Right: time + delete -->
-          <div class="d-flex flex-column align-items-end gap-2" style="min-width:80px;flex-shrink:0;">
-            {% if event.start.dateTime and event.end.dateTime %}
-            <small class="text-muted" style="font-size:.75rem;">{{ event.start.dateTime|slice:"11:16" }} — {{ event.end.dateTime|slice:"11:16" }}</small>
-            {% endif %}
-            {% if event.organizer %}
-            <div style="font-size:.7rem;color:#94a3b8;"><i data-lucide="user" class="lucide"></i>{{ event.organizer.email|truncatechars:18 }}</div>
-            {% endif %}
-            <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:.72rem;"
-                    onclick="deleteEvent('{{ event.id }}', '{{ event.summary|escapejs }}')">
-              <i data-lucide="trash-2" class="lucide"></i>
-            </button>
-          </div>
+        <!-- Right: time + delete -->
+        <div class="d-flex flex-column align-items-end gap-2" style="min-width:80px;flex-shrink:0;">
+          {% if event.start.dateTime and event.end.dateTime %}
+          <small class="gh-event-meta">{{ event.start.dateTime|slice:"11:16" }} — {{ event.end.dateTime|slice:"11:16" }}</small>
+          {% endif %}
+          {% if event.organizer %}
+          <div class="gh-event-meta"><i data-lucide="user" class="lucide"></i> {{ event.organizer.email|truncatechars:18 }}</div>
+          {% endif %}
+          <button class="hub-btn-action hub-btn-action--danger"
+                  onclick="deleteEvent('{{ event.id }}', '{{ event.summary|escapejs }}')">
+            <i data-lucide="trash-2" class="lucide"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -111,7 +103,7 @@
   <div class="ibx-empty-visual">
     <div class="ibx-empty-ring"></div>
     <div class="ibx-empty-ring ibx-empty-ring--2"></div>
-    <div class="ibx-empty-circle"><i class="bi bi-google"></i></div>
+    <div class="ibx-empty-circle"><svg viewBox="0 0 24 24" width="20" height="20" style="vertical-align:middle"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div>
   </div>
   <h5 class="ibx-empty-title">Connect Google Workspace to view Calendar</h5>
   <p class="ibx-empty-sub">See your upcoming events, meetings, and schedule directly in WorkHub.</p>
@@ -131,58 +123,57 @@
 {% if google_connected %}
 <div class="modal fade" id="createEventModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content" style="border-radius:18px;border:none;box-shadow:0 24px 80px rgba(0,0,0,.18);">
-      <div class="modal-header border-0 px-4 pt-4 pb-2">
+    <div class="modal-content">
+      <div class="modal-header">
         <div class="d-flex align-items-center gap-3">
-          <div style="background:linear-gradient(135deg,#4285F4,#34A853);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;">
-            <i data-lucide="calendar-plus" class="lucide text-white"></i>
+          <div class="hub-icon hub-icon--calendar" style="width:38px;height:38px;">
+            <i data-lucide="calendar-plus" class="lucide"></i>
           </div>
-          <h5 class="modal-title fw-bold mb-0" style="color:var(--ink-dark);">New Calendar Event</h5>
+          <h5 class="modal-title fw-bold mb-0">New Calendar Event</h5>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body px-4 py-3">
+      <div class="modal-body">
         <div id="createEventMsg"></div>
         <div class="row g-3">
           <div class="col-12">
-            <label class="form-label fw-semibold mb-1" style="font-size:.84rem;">Event Title <span class="text-danger">*</span></label>
-            <input type="text" id="evtSummary" class="form-control" placeholder="e.g. Team standup" style="border-radius:10px;">
+            <label class="form-label">Event Title <span class="text-danger">*</span></label>
+            <input type="text" id="evtSummary" class="form-control" placeholder="e.g. Team standup">
           </div>
           <div class="col-md-6">
-            <label class="form-label fw-semibold mb-1" style="font-size:.84rem;">Start <span class="text-danger">*</span></label>
-            <input type="datetime-local" id="evtStart" class="form-control" style="border-radius:10px;">
+            <label class="form-label">Start <span class="text-danger">*</span></label>
+            <input type="datetime-local" id="evtStart" class="form-control">
           </div>
           <div class="col-md-6">
-            <label class="form-label fw-semibold mb-1" style="font-size:.84rem;">End <span class="text-danger">*</span></label>
-            <input type="datetime-local" id="evtEnd" class="form-control" style="border-radius:10px;">
+            <label class="form-label">End <span class="text-danger">*</span></label>
+            <input type="datetime-local" id="evtEnd" class="form-control">
           </div>
           <div class="col-12">
-            <label class="form-label fw-semibold mb-1" style="font-size:.84rem;">Location</label>
-            <input type="text" id="evtLocation" class="form-control" placeholder="e.g. Conference Room A" style="border-radius:10px;">
+            <label class="form-label">Location</label>
+            <input type="text" id="evtLocation" class="form-control" placeholder="e.g. Conference Room A">
           </div>
           <div class="col-12">
-            <label class="form-label fw-semibold mb-1" style="font-size:.84rem;">Description</label>
-            <textarea id="evtDescription" class="form-control" rows="2" placeholder="Agenda, notes…" style="border-radius:10px;"></textarea>
+            <label class="form-label">Description</label>
+            <textarea id="evtDescription" class="form-control" rows="2" placeholder="Agenda, notes…"></textarea>
           </div>
           <div class="col-12">
-            <label class="form-label fw-semibold mb-1" style="font-size:.84rem;">Attendees <span class="text-muted" style="font-weight:400;font-size:.78rem;">(comma-separated emails)</span></label>
-            <input type="text" id="evtAttendees" class="form-control" placeholder="alice@example.com, bob@example.com" style="border-radius:10px;">
+            <label class="form-label">Attendees <span class="text-muted" style="font-weight:400;font-size:12px;">(comma-separated emails)</span></label>
+            <input type="text" id="evtAttendees" class="form-control" placeholder="alice@example.com, bob@example.com">
           </div>
           <div class="col-12">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" id="evtAddMeet">
-              <label class="form-check-label" for="evtAddMeet" style="font-size:.84rem;">
-                <i data-lucide="video" class="lucide" style="color:#34A853;"></i>Add Google Meet link
+              <label class="form-check-label" for="evtAddMeet" style="font-size:13px;">
+                <i data-lucide="video" class="lucide" style="color:#34A853;width:14px;height:14px;"></i> Add Google Meet link
               </label>
             </div>
           </div>
         </div>
       </div>
-      <div class="modal-footer border-0 px-4 pb-4">
-        <button type="button" class="btn" data-bs-dismiss="modal" style="border-radius:10px;font-size:.84rem;">Cancel</button>
-        <button type="button" class="btn" id="createEventBtn"
-                style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;border:none;border-radius:10px;font-size:.84rem;font-weight:600;">
-          <i data-lucide="calendar-plus" class="lucide"></i>Create Event
+      <div class="modal-footer">
+        <button class="btn hub-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn hub-btn-create" id="createEventBtn">
+          <i data-lucide="calendar-plus" class="lucide"></i> Create Event
         </button>
       </div>
     </div>
@@ -191,79 +182,59 @@
 {% endif %}
 
 <script>
-const csrfToken = '{{ csrf_token }}';
+const CSRF = '{{ csrf_token }}';
 
-function changeDays(days) {
-  window.location.href = '{% url "google_hub:calendar" %}?days=' + days;
-}
-
-// Create event
-document.addEventListener('DOMContentLoaded', function () {
-  const btn = document.getElementById('createEventBtn');
-  if (!btn) return;
-  btn.addEventListener('click', function () {
-    const summary = document.getElementById('evtSummary').value.trim();
-    const start   = document.getElementById('evtStart').value;
-    const end     = document.getElementById('evtEnd').value;
-    if (!summary || !start || !end) {
-      showMsg('danger', 'Title, start date, and end date are required.');
-      return;
-    }
-    const attendeeStr = document.getElementById('evtAttendees').value;
-    const attendees = attendeeStr ? attendeeStr.split(',').map(e => e.trim()).filter(Boolean) : [];
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Creating…';
-
-    fetch('{% url "google_hub:calendar_event_create" %}', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
-      body: JSON.stringify({
-        summary, description: document.getElementById('evtDescription').value,
-        location: document.getElementById('evtLocation').value,
-        start: new Date(start).toISOString(),
-        end: new Date(end).toISOString(),
-        attendees,
-        add_meet: document.getElementById('evtAddMeet').checked,
-      })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.ok) {
-        showMsg('success', '✓ Event created! Refreshing…');
-        setTimeout(() => window.location.reload(), 1200);
-      } else {
-        showMsg('danger', data.error || 'Failed to create event.');
-      }
-    })
-    .catch(() => showMsg('danger', 'Network error. Please try again.'))
-    .finally(() => {
-      btn.disabled = false;
-      btn.innerHTML = '<i data-lucide="calendar-plus" class="lucide"></i>Create Event';
-    });
-  });
-});
-
-function showMsg(type, text) {
-  document.getElementById('createEventMsg').innerHTML =
-    `<div class="alert alert-${type} py-2" style="font-size:.83rem;border-radius:8px;">${text}</div>`;
+function changeDays(val) {
+  document.getElementById('daysLabel').textContent = val;
+  window.location.href = '{% url "google_hub:calendar" %}?days=' + val;
 }
 
 function deleteEvent(eventId, title) {
-  if (!confirm('Delete "' + title + '"?')) return;
-  fetch('{% url "google_hub:calendar_event_delete" event_id="__ID__" %}'.replace('__ID__', eventId), {
+  if (!confirm(`Delete "${title}"?`)) return;
+  const card = document.getElementById('event-' + eventId);
+  fetch(`/google/api/calendar/events/${eventId}/delete/`, {
     method: 'POST',
-    headers: {'X-CSRFToken': csrfToken},
+    headers: {'Content-Type':'application/json','X-CSRFToken':CSRF},
+    body: JSON.stringify({event_id: eventId})
   })
   .then(r => r.json())
   .then(data => {
-    if (data.ok) {
-      const el = document.getElementById('event-' + eventId);
-      if (el) el.remove();
-    } else { alert(data.error || 'Delete failed.'); }
+    if (data.ok && card) { card.style.transition='opacity .3s'; card.style.opacity='0'; setTimeout(()=>card.remove(),300); }
+    else alert(data.error || 'Failed to delete');
   })
-  .catch(() => alert('Network error.'));
+  .catch(() => alert('Network error'));
 }
-</script>
 
+document.getElementById('createEventBtn')?.addEventListener('click', function() {
+  const btn = this;
+  const summary   = document.getElementById('evtSummary').value.trim();
+  const startTime = document.getElementById('evtStart').value;
+  const endTime   = document.getElementById('evtEnd').value;
+  const location  = document.getElementById('evtLocation').value.trim();
+  const desc      = document.getElementById('evtDescription').value.trim();
+  const attendees = document.getElementById('evtAttendees').value.trim();
+  const addMeet   = document.getElementById('evtAddMeet').checked;
+  const msgBox    = document.getElementById('createEventMsg');
+
+  if (!summary || !startTime || !endTime) {
+    msgBox.innerHTML = '<div class="hub-alert"><i data-lucide="triangle-alert" class="lucide me-1"></i>Please fill in Title, Start, and End.</div>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Creating…';
+
+  fetch('{% url "google_hub:calendar_event_create" %}', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','X-CSRFToken':CSRF},
+    body: JSON.stringify({summary, start:startTime, end:endTime, location, description:desc, attendees, addMeet})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) { window.location.reload(); }
+    else { msgBox.innerHTML = '<div class="hub-alert">' + (data.error||'Failed') + '</div>'; btn.disabled = false; btn.innerHTML = '<i data-lucide="calendar-plus" class="lucide"></i> Create Event'; }
+  })
+  .catch(() => { msgBox.innerHTML = '<div class="hub-alert">Network error.</div>'; btn.disabled = false; btn.innerHTML = '<i data-lucide="calendar-plus" class="lucide"></i> Create Event'; });
+});
+</script>
 {% endblock %}

@@ -129,3 +129,23 @@ def sheets_create_api(request):
         return JsonResponse({"ok": True, "spreadsheet": sheet})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+@platform_access_required("google")
+def sheets_data_api(request):
+    """AJAX: Fetch cell values from a spreadsheet (query-param based)."""
+    _, token = get_google_token(request)
+    if not token:
+        return JsonResponse({"error": "Google session expired."}, status=401)
+
+    sheet_id = request.GET.get("sheet_id", "")
+    cell_range = request.GET.get("range", "Sheet1!A1:Z50")
+
+    if not sheet_id:
+        return JsonResponse({"error": "sheet_id is required."}, status=400)
+
+    try:
+        data = google_api_get(token, f"{SHEETS_API}/{sheet_id}/values/{cell_range}")
+        return JsonResponse({"values": data.get("values", [])})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

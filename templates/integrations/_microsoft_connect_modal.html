@@ -58,7 +58,7 @@
       <div class="modal-header">
         <div class="d-flex align-items-center gap-3">
           <div style="background:rgba(255,255,255,.12);border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i class="bi bi-microsoft" style="color:#fff;font-size:1.3rem;"></i>
+            <svg viewBox="0 0 23 23" width="20" height="20" style="vertical-align:middle"><rect x="1" y="1" width="10" height="10" fill="#f25022"/><rect x="12" y="1" width="10" height="10" fill="#7fba00"/><rect x="1" y="12" width="10" height="10" fill="#00a4ef"/><rect x="12" y="12" width="10" height="10" fill="#ffb900"/></svg>
           </div>
           <div>
             <h5 class="modal-title fw-bold mb-0" id="msConnectModalLabel" style="letter-spacing:-.02em;">
@@ -222,8 +222,9 @@
   window.toggleMsField = function (inputId, iconId) {
     const inp = document.getElementById(inputId);
     const ico = document.getElementById(iconId);
-    if (inp.type === "password") { inp.type = "text"; ico.className = "bi bi-eye-slash"; }
-    else { inp.type = "password"; ico.className = "bi bi-eye"; }
+    if (inp.type === "password") { inp.type = "text"; ico.outerHTML = '<i data-lucide="eye-off" class="lucide" id="' + iconId + '"></i>'; }
+    else { inp.type = "password"; ico.outerHTML = '<i data-lucide="eye" class="lucide" id="' + iconId + '"></i>'; }
+    lucide.createIcons();
   };
 
   const form    = document.getElementById("msCredentialsForm");

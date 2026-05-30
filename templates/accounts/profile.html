@@ -3,87 +3,69 @@
 {% block page_title %}My Profile{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-8 col-lg-6">
+<div style="max-width:640px;">
 
-    <!-- Back button -->
-    <div class="mb-4">
-      <button onclick="history.back()" class="btn btn-sm d-inline-flex align-items-center gap-2"
-              style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px !important;color:#64748b;font-weight:600;padding:7px 16px;box-shadow:0 1px 3px rgba(0,0,0,.05);">
-        <i data-lucide="arrow-left" class="lucide" style="font-size:.9rem;"></i>Back
-      </button>
-    </div>
+  <!-- Back -->
+  <button onclick="history.back()" class="wh-btn-back">
+    <i data-lucide="arrow-left"></i> Back
+  </button>
 
-    <!-- Profile hero card -->
-    <div class="mb-4" style="background:linear-gradient(135deg,var(--ink-dark) 0%,var(--ink-medium) 55%,var(--primary) 100%);border-radius:20px;padding:32px;box-shadow:0 8px 28px rgba(255,89,0,.35);position:relative;overflow:hidden;">
-      <!-- Decorative orbs -->
-      <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none;"></div>
-      <div style="position:absolute;bottom:-50px;right:30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none;"></div>
-
-      <div class="d-flex align-items-center gap-4 position-relative">
-        <!-- Avatar -->
-        <div style="width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.25),rgba(255,255,255,.1));border:3px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 4px 18px rgba(0,0,0,.2);">
-          {{ user.first_name|first|upper|default:user.username|first|upper }}
-        </div>
-        <!-- Info -->
-        <div>
-          <h4 class="mb-1 fw-bold" style="color:#fff;letter-spacing:-.02em;">
-            {{ user.get_full_name|default:user.username }}
-          </h4>
-          <p class="mb-2" style="color:rgba(255,255,255,.65);font-size:.875rem;">{{ user.email }}</p>
-          <span style="background:rgba(165,180,252,.25);color:var(--primary-pale);font-size:.72rem;font-weight:700;padding:3px 12px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase;">
-            Member
-          </span>
-        </div>
+  <!-- Hero card -->
+  <div class="profile-hero">
+    <div class="profile-hero-orb profile-hero-orb--1"></div>
+    <div class="profile-hero-orb profile-hero-orb--2"></div>
+    <div class="profile-hero-inner">
+      <div class="profile-avatar-lg">
+        {{ user.first_name|first|upper|default:user.username|first|upper }}
+      </div>
+      <div>
+        <h4 class="profile-hero-name">{{ user.get_full_name|default:user.username }}</h4>
+        <p class="profile-hero-email">{{ user.email }}</p>
+        <span class="profile-hero-badge">Member</span>
       </div>
     </div>
-
-    <!-- Account details card -->
-    <div class="card mb-4">
-      <div class="card-header d-flex align-items-center gap-2">
-        <div style="width:28px;height:28px;border-radius:8px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;">
-          <i data-lucide="user" class="lucide" style="color:var(--primary);font-size:.85rem;"></i>
-        </div>
-        <span class="fw-semibold" style="font-size:.9rem;color:#1e293b;">Account Details</span>
-      </div>
-      <div class="card-body p-0">
-        <table class="table table-borderless mb-0" style="font-size:.875rem;">
-          <tbody>
-            <tr style="border-bottom:1px solid #f1f5f9;">
-              <td class="ps-4 py-3" style="width:38%;color:#94a3b8;font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;">Username</td>
-              <td class="py-3 fw-semibold" style="color:#1e293b;">{{ user.username }}</td>
-            </tr>
-            <tr style="border-bottom:1px solid #f1f5f9;">
-              <td class="ps-4 py-3" style="color:#94a3b8;font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;">Email</td>
-              <td class="py-3 fw-semibold" style="color:#1e293b;">{{ user.email }}</td>
-            </tr>
-            <tr style="border-bottom:1px solid #f1f5f9;">
-              <td class="ps-4 py-3" style="color:#94a3b8;font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;">Full Name</td>
-              <td class="py-3 fw-semibold" style="color:#1e293b;">{{ user.get_full_name|default:"—" }}</td>
-            </tr>
-            <tr>
-              <td class="ps-4 py-3" style="color:#94a3b8;font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;">Member Since</td>
-              <td class="py-3 fw-semibold" style="color:#1e293b;">{{ user.date_joined|date:"N j, Y" }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Actions -->
-    <div class="d-flex gap-2">
-      <a href="{% url 'integrations:connect' %}" class="btn btn-primary flex-fill"
-         style="padding:11px;font-weight:600;">
-        <i data-lucide="plug" class="lucide me-2"></i>Manage Connections
-      </a>
-      <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
-        <button class="btn btn-outline-danger" style="padding:11px 20px;font-weight:600;">
-          <i data-lucide="log-out" class="lucide me-1"></i>Logout
-        </button>
-      </form>
-    </div>
-
   </div>
+
+  <!-- Account details -->
+  <div class="wh-card">
+    <div class="wh-card-header">
+      <div class="wh-card-icon"><i data-lucide="user"></i></div>
+      <span>Account Details</span>
+    </div>
+    <table class="profile-table">
+      <tbody>
+        <tr>
+          <td class="profile-table-label">Username</td>
+          <td class="profile-table-value">{{ user.username }}</td>
+        </tr>
+        <tr>
+          <td class="profile-table-label">Email</td>
+          <td class="profile-table-value">{{ user.email }}</td>
+        </tr>
+        <tr>
+          <td class="profile-table-label">Full Name</td>
+          <td class="profile-table-value">{{ user.get_full_name|default:"—" }}</td>
+        </tr>
+        <tr class="profile-table-last">
+          <td class="profile-table-label">Member Since</td>
+          <td class="profile-table-value">{{ user.date_joined|date:"N j, Y" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Actions -->
+  <div class="profile-actions">
+    <a href="{% url 'integrations:connect' %}" class="wh-btn wh-btn-primary">
+      <i data-lucide="plug"></i> Manage Connections
+    </a>
+    <form method="post" action="{% url 'accounts:logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="wh-btn wh-btn-danger-outline">
+        <i data-lucide="log-out"></i> Logout
+      </button>
+    </form>
+  </div>
+
 </div>
 {% endblock %}
-

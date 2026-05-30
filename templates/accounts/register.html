@@ -2,120 +2,83 @@
 {% block title %}Create Account — WorkHub{% endblock %}
 
 {% block content %}
-<style>
-  /* ── Mobile: aggressive height reduction (< 576px) ── */
-  @media (max-width: 575.98px) {
-    /* Hide labels — placeholders do the job */
-    .reg-label { display: none !important; }
-    /* Smaller inputs */
-    .reg-input .form-control { padding: .3rem .65rem; font-size: .8rem; height: auto; }
-    /* Tight field gaps */
-    .reg-field  { margin-bottom: .35rem !important; }
-    .reg-row    { margin-bottom: .35rem !important; }
-    /* Compact card */
-    .reg-card   { padding: .9rem !important; border-radius: 14px !important; }
-    .reg-card-hd  { margin-bottom: .1rem !important; font-size: .95rem !important; }
-    .reg-card-sub { display: none !important; }
-    /* Compact header: inline logo + title */
-    .reg-header { margin-bottom: .6rem !important; flex-direction: row !important; align-items: center !important; gap: .6rem; }
-    .reg-header-text { text-align: left !important; }
-    .reg-logo   { width:36px !important; height:36px !important; border-radius:10px !important; flex-shrink:0; margin-bottom:0 !important; }
-    .reg-title  { font-size:1.1rem !important; margin-bottom:0 !important; }
-    .reg-sub    { display: none !important; }
-    /* Compact submit & link buttons */
-    .reg-btn-submit { padding-top:.35rem !important; padding-bottom:.35rem !important; font-size:.85rem !important; }
-    .reg-btn-signin { padding-top:.3rem !important; padding-bottom:.3rem !important; font-size:.85rem !important; }
-    .reg-divider { margin-top:.5rem !important; margin-bottom:.5rem !important; font-size:.72rem !important; }
-    .reg-footer  { display: none !important; }
-    .reg-mt      { margin-top:.3rem !important; }
-  }
-</style>
+<div class="auth-form-title">Join WorkHub</div>
+<div class="auth-form-subtitle">Create your free account to get started.</div>
 
-<div class="auth-bg d-flex align-items-start align-items-sm-center justify-content-center px-3"
-     style="min-height:100vh;overflow-y:auto;padding-top:1rem;padding-bottom:1rem;">
-  <div style="width:100%;max-width:460px;position:relative;z-index:1;">
+{% if form.non_field_errors %}
+<div class="auth-error">{{ form.non_field_errors|join:", " }}</div>
+{% endif %}
 
-    <!-- Header -->
-    <div class="reg-header d-flex flex-column text-center mb-3 mb-sm-4">
-      <div class="reg-logo d-inline-flex align-items-center justify-content-center mb-2 mb-sm-3 mx-auto mx-sm-auto"
-           style="width:54px;height:54px;border-radius:16px;background:var(--primary);box-shadow:0 8px 24px rgba(255,89,0,.4);">
-        <i data-lucide="layout-grid" class="lucide text-white fs-5"></i>
-      </div>
-      <div class="reg-header-text">
-        <h2 class="reg-title text-white fw-bold mb-1" style="letter-spacing:-.03em;">Join WorkHub</h2>
-        <p class="reg-sub mb-0" style="color:rgba(255,255,255,.5);font-size:.875rem;">Create your free account today</p>
-      </div>
-    </div>
+<form method="post" novalidate>
+  {% csrf_token %}
 
-    <!-- Card -->
-    <div class="auth-card reg-card p-3 p-sm-4 p-md-5">
-      <h4 class="reg-card-hd fw-bold mb-1" style="letter-spacing:-.02em;">Create account</h4>
-      <p class="reg-card-sub text-muted mb-3" style="font-size:.875rem;">Fill in your details to get started</p>
-
-      <form method="post" novalidate>
-        {% csrf_token %}
-
-        <div class="reg-field mb-3">
-          <label class="reg-label form-label fw-semibold small">Company Name</label>
-          <div class="reg-input">{{ form.company_name }}</div>
-          {% if form.company_name.errors %}<div class="invalid-feedback d-block" style="font-size:.75rem;">{{ form.company_name.errors|join:", " }}</div>{% endif %}
-        </div>
-
-        <div class="reg-row row g-2 mb-3">
-          <div class="col-6">
-            <label class="reg-label form-label fw-semibold small">First Name</label>
-            <div class="reg-input">{{ form.first_name }}</div>
-            {% if form.first_name.errors %}<div class="invalid-feedback d-block" style="font-size:.75rem;">{{ form.first_name.errors|join:", " }}</div>{% endif %}
-          </div>
-          <div class="col-6">
-            <label class="reg-label form-label fw-semibold small">Last Name</label>
-            <div class="reg-input">{{ form.last_name }}</div>
-            {% if form.last_name.errors %}<div class="invalid-feedback d-block" style="font-size:.75rem;">{{ form.last_name.errors|join:", " }}</div>{% endif %}
-          </div>
-        </div>
-
-        <div class="reg-row row g-2 mb-3">
-          <div class="col-12 col-sm-6">
-            <label class="reg-label form-label fw-semibold small">Username</label>
-            <div class="reg-input">{{ form.username }}</div>
-            {% if form.username.errors %}<div class="invalid-feedback d-block" style="font-size:.75rem;">{{ form.username.errors|join:", " }}</div>{% endif %}
-          </div>
-          <div class="col-12 col-sm-6">
-            <label class="reg-label form-label fw-semibold small">Work Email</label>
-            <div class="reg-input">{{ form.email }}</div>
-            {% if form.email.errors %}<div class="invalid-feedback d-block" style="font-size:.75rem;">{{ form.email.errors|join:", " }}</div>{% endif %}
-          </div>
-        </div>
-
-        <div class="reg-row row g-2 mb-3">
-          <div class="col-12 col-sm-6">
-            <label class="reg-label form-label fw-semibold small">Password</label>
-            <div class="reg-input">{{ form.password1 }}</div>
-            {% if form.password1.errors %}<div class="invalid-feedback d-block" style="font-size:.75rem;">{{ form.password1.errors|join:", " }}</div>{% endif %}
-          </div>
-          <div class="col-12 col-sm-6">
-            <label class="reg-label form-label fw-semibold small">Confirm Password</label>
-            <div class="reg-input">{{ form.password2 }}</div>
-            {% if form.password2.errors %}<div class="invalid-feedback d-block" style="font-size:.75rem;">{{ form.password2.errors|join:", " }}</div>{% endif %}
-          </div>
-        </div>
-
-        {% if form.non_field_errors %}
-          <div class="alert alert-danger py-2" style="font-size:.8rem;"><i data-lucide="circle-alert" class="lucide me-2"></i>{{ form.non_field_errors|join:", " }}</div>
-        {% endif %}
-
-        <button type="submit" class="reg-btn-submit btn btn-primary w-100 py-2 fw-semibold reg-mt mt-2">
-          Create Account
-        </button>
-      </form>
-
-      <div class="auth-divider reg-divider my-3">already have an account?</div>
-      <a href="{% url 'accounts:login' %}" class="reg-btn-signin btn btn-outline-primary w-100 py-2 fw-semibold">
-        Sign In Instead
-      </a>
-    </div>
-
-    <p class="reg-footer text-center mt-3" style="font-size:.75rem;color:rgba(255,255,255,.3);">© 2026 WorkHub · All rights reserved</p>
+  <div class="auth-field">
+    <label class="form-label">Company Name</label>
+    {{ form.company_name }}
+    {% if form.company_name.errors %}
+      <div class="invalid-feedback d-block">{{ form.company_name.errors|join:", " }}</div>
+    {% endif %}
   </div>
-</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="auth-field">
+      <label class="form-label">First Name</label>
+      {{ form.first_name }}
+      {% if form.first_name.errors %}
+        <div class="invalid-feedback d-block">{{ form.first_name.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+    <div class="auth-field">
+      <label class="form-label">Last Name</label>
+      {{ form.last_name }}
+      {% if form.last_name.errors %}
+        <div class="invalid-feedback d-block">{{ form.last_name.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="auth-field">
+      <label class="form-label">Username</label>
+      {{ form.username }}
+      {% if form.username.errors %}
+        <div class="invalid-feedback d-block">{{ form.username.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+    <div class="auth-field">
+      <label class="form-label">Work Email</label>
+      {{ form.email }}
+      {% if form.email.errors %}
+        <div class="invalid-feedback d-block">{{ form.email.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="auth-field">
+      <label class="form-label">Password</label>
+      {{ form.password1 }}
+      {% if form.password1.errors %}
+        <div class="invalid-feedback d-block">{{ form.password1.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+    <div class="auth-field">
+      <label class="form-label">Confirm</label>
+      {{ form.password2 }}
+      {% if form.password2.errors %}
+        <div class="invalid-feedback d-block">{{ form.password2.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <button type="submit" class="btn-auth-primary" style="margin-top:8px;">
+    Create Account
+  </button>
+</form>
+
+<div class="auth-divider">already have an account?</div>
+
+<a href="{% url 'accounts:login' %}" class="btn-social">
+  Sign In Instead
+</a>
 {% endblock %}

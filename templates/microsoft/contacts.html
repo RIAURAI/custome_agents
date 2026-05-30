@@ -1,196 +1,125 @@
 {% extends "base.html" %}
-{% block title %}People — WorkHub{% endblock %}
-{% block page_title %}People & Contacts{% endblock %}
+{% block title %}Contacts — Microsoft 365 — WorkHub{% endblock %}
+{% block page_title %}Contacts{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center gap-3 mb-4">
-  <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);display:flex;align-items:center;justify-content:center;">
-    <i data-lucide="contact" class="lucide text-white" style="font-size:1.1rem;"></i>
-  </div>
-  <div>
-    <h4 class="mb-0 fw-bold" style="color:var(--ink-dark);letter-spacing:-.02em;">People & Contacts</h4>
-    <p class="mb-0" style="color:#64748b;font-size:.85rem;">Search your relevant contacts and organization directory</p>
+<div class="hub-header">
+  <div class="hub-icon hub-icon--outlook"><i data-lucide="contact" class="lucide"></i></div>
+  <div class="flex-grow-1">
+    <h4 class="hub-title">People &amp; Contacts</h4>
+    <p class="hub-sub">Microsoft 365 directory</p>
   </div>
 </div>
 
 {% if not ms_connected or not has_access %}
 <div class="dash-connect-banner mb-4">
-  <div class="dash-connect-icon"><i class="bi bi-microsoft"></i></div>
+  <div class="dash-connect-icon"><svg viewBox="0 0 23 23" width="20" height="20" style="vertical-align:middle"><rect x="1" y="1" width="10" height="10" fill="#f25022"/><rect x="12" y="1" width="10" height="10" fill="#7fba00"/><rect x="1" y="12" width="10" height="10" fill="#00a4ef"/><rect x="12" y="12" width="10" height="10" fill="#ffb900"/></svg></div>
   <div class="flex-grow-1">
     <div class="dash-connect-title">Connect Microsoft 365</div>
-    <div class="dash-connect-sub">Enable the Contacts feature to browse your people.</div>
+    <div class="dash-connect-sub">Link your account to browse contacts and directory.</div>
   </div>
-  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i data-lucide="plug" class="lucide me-2"></i>Setup</a>
+  <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i data-lucide="plug" class="lucide me-2"></i>Connect</a>
 </div>
 {% else %}
 
-{% if error %}
-<div class="alert alert-warning mb-4" style="font-size:.85rem;border-radius:12px;">
-  <i data-lucide="triangle-alert" class="lucide me-2"></i>{{ error }}
-</div>
-{% endif %}
-
-<!-- Tab Nav -->
-<ul class="nav nav-tabs mb-4" id="contactsTabs" role="tablist" style="border-bottom:2px solid #e2e8f0;">
-  <li class="nav-item">
-    <button class="nav-link active" id="people-tab" data-bs-toggle="tab" data-bs-target="#peoplePane" type="button" style="font-size:.85rem;font-weight:600;">
-      <i data-lucide="users" class="lucide me-1"></i>Relevant People
-    </button>
-  </li>
-  <li class="nav-item">
-    <button class="nav-link" id="directory-tab" data-bs-toggle="tab" data-bs-target="#directoryPane" type="button" style="font-size:.85rem;font-weight:600;">
-      <i data-lucide="building-2" class="lucide me-1"></i>Organization Directory
-    </button>
-  </li>
+<!-- Tab nav -->
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabPeople">Relevant People</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabDirectory" id="dirTab">Org Directory</a></li>
 </ul>
 
 <div class="tab-content">
-  <!-- Relevant People -->
-  <div class="tab-pane fade show active" id="peoplePane">
-    <div class="mb-3">
-      <div class="input-group" style="max-width:380px;">
-        <input type="text" class="form-control form-control-sm" id="peopleSearch" placeholder="Search people…" style="border-radius:8px 0 0 8px;font-size:.82rem;">
-        <button class="btn btn-sm" id="peopleSearchBtn" style="background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-pale);border-radius:0 8px 8px 0;">
-          <i data-lucide="search" class="lucide"></i>
-        </button>
-      </div>
-    </div>
+  <!-- People tab -->
+  <div class="tab-pane fade show active" id="tabPeople">
     <div id="peopleGrid" class="row g-3">
-      {% for person in people %}
-      <div class="col-sm-6 col-lg-4 col-xl-3 person-card-wrap">
-        <div class="person-card">
-          <div class="person-avatar" style="background:#8b5cf6;">
-            {{ person.displayName|first|upper }}
-          </div>
-          <div class="flex-grow-1 min-w-0">
-            <div class="person-name text-truncate">{{ person.displayName }}</div>
-            {% if person.jobTitle %}
-            <div class="person-info text-truncate">{{ person.jobTitle }}</div>
-            {% endif %}
-            {% if person.department %}
-            <div class="person-info text-truncate"><i data-lucide="building-2" class="lucide me-1"></i>{{ person.department }}</div>
-            {% endif %}
-            {% for email in person.emailAddresses|slice:":1" %}
-            <div class="person-email text-truncate">
-              <a href="mailto:{{ email.address }}" style="color:var(--primary);text-decoration:none;font-size:.72rem;">{{ email.address }}</a>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-      {% empty %}
-      <div class="col-12 text-center py-4 text-muted">
-        <i data-lucide="users" class="lucide" style="font-size:2rem;color:#cbd5e1;"></i>
-        <div class="mt-2" style="font-size:.85rem;">No people found</div>
-      </div>
-      {% endfor %}
+      <div class="col-12 text-center py-5 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading people…</div>
     </div>
   </div>
 
-  <!-- Directory -->
-  <div class="tab-pane fade" id="directoryPane">
-    <div class="mb-3">
-      <div class="input-group" style="max-width:380px;">
-        <input type="text" class="form-control form-control-sm" id="dirSearch" placeholder="Search directory…" style="border-radius:8px 0 0 8px;font-size:.82rem;">
-        <button class="btn btn-sm" id="dirSearchBtn" style="background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-pale);border-radius:0 8px 8px 0;">
-          <i data-lucide="search" class="lucide"></i>
-        </button>
+  <!-- Directory tab -->
+  <div class="tab-pane fade" id="tabDirectory">
+    <div class="d-flex gap-2 mb-3">
+      <div class="input-group hub-search-group">
+        <input type="text" class="form-control form-control-sm" id="dirSearch" placeholder="Search by name or email…">
+        <button class="btn btn-sm" id="dirSearchBtn"><i data-lucide="search" class="lucide"></i></button>
       </div>
     </div>
-    <div id="directoryGrid" class="row g-3">
-      <div class="col-12 text-center py-4 text-muted">
-        <div class="spinner-border spinner-border-sm me-2"></div>Loading directory…
-      </div>
+    <div id="dirGrid" class="row g-3">
+      <div class="col-12 text-center py-5 text-muted">Enter a search term to find users.</div>
     </div>
   </div>
 </div>
-
 {% endif %}
 
-<style>
-.person-card {
-  display:flex; align-items:flex-start; gap:12px; padding:14px;
-  background:#fff; border:1px solid #e2e8f0; border-radius:12px;
-  transition:all .15s; height:100%;
-}
-.person-card:hover { border-color:var(--primary-pale); box-shadow:0 2px 12px rgba(255,89,0,.08); }
-.person-avatar {
-  width:42px; height:42px; border-radius:12px; display:flex;
-  align-items:center; justify-content:center; color:#fff;
-  font-weight:700; font-size:1rem; flex-shrink:0;
-}
-.person-name { font-size:.84rem; font-weight:600; color:#1e293b; margin-bottom:2px; }
-.person-info { font-size:.74rem; color:#64748b; }
-.person-email { margin-top:4px; }
-</style>
-
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const COLORS = ['#8b5cf6','var(--primary)','#ec4899','#0ea5e9','#14b8a6','#f97316','#f43f5e','#84cc16'];
-  function hashColor(name) {
-    let h=0; for(let i=0;i<name.length;i++) h=name.charCodeAt(i)+((h<<5)-h);
-    return COLORS[Math.abs(h)%COLORS.length];
-  }
+const COLORS = ['#6366F1','#8B5CF6','#EC4899','#F97316','#14B8A6','#0EA5E9','#EF4444','#22C55E'];
 
-  function renderPersonCard(p) {
-    const name = p.displayName||'Unknown';
-    const initial = name[0].toUpperCase();
-    const color = hashColor(name);
-    const email = (p.emailAddresses||p.mail) ?
-      (Array.isArray(p.emailAddresses) ? (p.emailAddresses[0]||{}).address : p.mail) : '';
-    return `<div class="col-sm-6 col-lg-4 col-xl-3 person-card-wrap">
-      <div class="person-card">
-        <div class="person-avatar" style="background:${color};">${initial}</div>
-        <div class="flex-grow-1 min-w-0">
-          <div class="person-name text-truncate">${name}</div>
-          ${p.jobTitle?`<div class="person-info text-truncate">${p.jobTitle}</div>`:''}
-          ${p.department?`<div class="person-info text-truncate"><i data-lucide="building-2" class="lucide me-1"></i>${p.department}</div>`:''}
-          ${p.officeLocation?`<div class="person-info text-truncate"><i data-lucide="map-pin" class="lucide me-1"></i>${p.officeLocation}</div>`:''}
-          ${email?`<div class="person-email text-truncate"><a href="mailto:${email}" style="color:var(--primary);text-decoration:none;font-size:.72rem;">${email}</a></div>`:''}
-        </div>
-      </div>
-    </div>`;
-  }
+function getColor(name) {
+  let hash = 0;
+  for (let i = 0; i < (name||'').length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return COLORS[Math.abs(hash) % COLORS.length];
+}
 
-  // People search
-  document.getElementById('peopleSearchBtn').addEventListener('click', searchPeople);
-  document.getElementById('peopleSearch').addEventListener('keydown', e => { if(e.key==='Enter') searchPeople(); });
-  function searchPeople() {
-    const q = document.getElementById('peopleSearch').value.trim();
-    const grid = document.getElementById('peopleGrid');
-    grid.innerHTML = '<div class="col-12 text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>';
-    const qs = q ? '?q='+encodeURIComponent(q) : '';
-    fetch('{% url "microsoft:people_api" %}'+qs)
-      .then(r=>r.json())
-      .then(data => {
-        if (data.error) { grid.innerHTML = '<div class="col-12 text-danger p-3">'+data.error+'</div>'; return; }
-        const people = data.people||[];
-        if (!people.length) { grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No results</div>'; return; }
-        grid.innerHTML = people.map(renderPersonCard).join('');
-      });
-  }
+function personCard(p) {
+  const name = p.displayName || 'Unknown';
+  const email = (p.emailAddresses?.[0]?.address) || p.scoredEmailAddresses?.[0]?.address || p.mail || p.userPrincipalName || '';
+  const job = p.jobTitle || '';
+  const dept = p.department || '';
+  const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const color = getColor(name);
+  return `<div class="col-sm-6 col-md-4 col-xl-3">
+    <div class="person-card">
+      <div class="person-avatar" style="background:${color};">${initials}</div>
+      <div class="person-name">${name}</div>
+      ${job ? `<div class="person-info">${job}</div>` : ''}
+      ${dept ? `<div class="person-info">${dept}</div>` : ''}
+      ${email ? `<div class="person-email"><i data-lucide="mail" class="lucide"></i>${email}</div>` : ''}
+    </div>
+  </div>`;
+}
 
-  // Directory
-  let dirLoaded = false;
-  document.getElementById('directory-tab').addEventListener('shown.bs.tab', function() {
-    if (!dirLoaded) { loadDirectory(); dirLoaded = true; }
+/* Load relevant people */
+function loadPeople() {
+  const grid = document.getElementById('peopleGrid');
+  if (!grid) return;
+  fetch('{% url "microsoft:people_api" %}')
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.error){grid.innerHTML=`<div class="col-12"><div class="hub-alert">${data.error}</div></div>`;return;}
+      const people=data.people||[];
+      if(!people.length){grid.innerHTML='<div class="col-12 text-center py-5 text-muted">No people found.</div>';return;}
+      grid.innerHTML=people.map(personCard).join('');
+    })
+    .catch(()=>{grid.innerHTML='<div class="col-12"><div class="hub-alert">Failed to load.</div></div>';});
+}
+
+/* Directory search */
+function searchDir() {
+  const q=document.getElementById('dirSearch').value.trim();
+  const grid=document.getElementById('dirGrid');
+  grid.innerHTML='<div class="col-12 text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>';
+
+  let url='{% url "microsoft:directory_api" %}';
+  if(q) url+='?q='+encodeURIComponent(q);
+
+  fetch(url).then(r=>r.json()).then(data=>{
+    if(data.error){grid.innerHTML=`<div class="col-12"><div class="hub-alert">${data.error}</div></div>`;return;}
+    const users=data.users||[];
+    if(!users.length){grid.innerHTML='<div class="col-12 text-center py-5 text-muted">No users found.</div>';return;}
+    grid.innerHTML=users.map(u=>{
+      u.emailAddresses=[{address:u.mail||u.userPrincipalName}];
+      return personCard(u);
+    }).join('');
   });
-  document.getElementById('dirSearchBtn').addEventListener('click', loadDirectory);
-  document.getElementById('dirSearch').addEventListener('keydown', e => { if(e.key==='Enter') loadDirectory(); });
-  function loadDirectory() {
-    const q = document.getElementById('dirSearch').value.trim();
-    const grid = document.getElementById('directoryGrid');
-    grid.innerHTML = '<div class="col-12 text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>';
-    const qs = q ? '?q='+encodeURIComponent(q) : '';
-    fetch('{% url "microsoft:directory_api" %}'+qs)
-      .then(r=>r.json())
-      .then(data => {
-        if (data.error) { grid.innerHTML = '<div class="col-12 text-danger p-3">'+data.error+'</div>'; return; }
-        const users = data.users||[];
-        if (!users.length) { grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No users found</div>'; return; }
-        grid.innerHTML = users.map(renderPersonCard).join('');
-      });
-  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  loadPeople();
+  document.getElementById('dirSearchBtn')?.addEventListener('click',searchDir);
+  document.getElementById('dirSearch')?.addEventListener('keydown',e=>{if(e.key==='Enter')searchDir();});
+  document.getElementById('dirTab')?.addEventListener('shown.bs.tab',()=>{
+    if(!document.getElementById('dirGrid').querySelector('.person-card'))searchDir();
+  });
 });
 </script>
 {% endblock %}

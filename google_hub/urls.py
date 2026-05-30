@@ -42,8 +42,7 @@ urlpatterns = [
 
     # ── Sheets ────────────────────────────────────────────────────────
     path("sheets/", sheets.sheets_view, name="sheets"),
-    path("api/sheets/", sheets.sheets_list_api, name="sheets_list"),
-    path("api/sheets/create/", sheets.sheets_create_api, name="sheets_create"),
+    path("api/sheets/", sheets.sheets_list_api, name="sheets_list"),    path("api/sheets/data/", sheets.sheets_data_api, name="sheets_data"),    path("api/sheets/create/", sheets.sheets_create_api, name="sheets_create"),
     path("api/sheets/<str:spreadsheet_id>/", sheets.sheets_get_api, name="sheets_get"),
 
     # ── Forms ─────────────────────────────────────────────────────────

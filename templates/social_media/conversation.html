@@ -1,109 +1,55 @@
 {% extends "base.html" %}
-{% block title %}Conversation — {{ account.get_platform_display }} — WorkHub{% endblock %}
-
-{% block extra_head %}
-<style>
-  .chat-card {
-    border: none; border-radius: 20px; overflow: hidden;
-    box-shadow: 0 4px 24px rgba(0,0,0,.08); max-width: 680px; margin: 0 auto;
-  }
-  .chat-header {
-    padding: 1rem 1.5rem; border-bottom: 2px solid #f1f5f9;
-    background: #fff; display: flex; align-items: center; gap: .75rem;
-  }
-  .chat-avatar {
-    width: 40px; height: 40px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
-  }
-  .chat-area { padding: 1.5rem; max-height: 480px; overflow-y: auto; background: #f8fafc; }
-
-  .bubble {
-    max-width: 72%; padding: .65rem 1rem; margin-bottom: .75rem;
-    font-size: .9rem; line-height: 1.5; position: relative;
-  }
-  .bubble-in { background: #fff; border-radius: 4px 16px 16px 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-  .bubble-out {
-    background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;
-    border-radius: 16px 4px 16px 16px; margin-left: auto;
-  }
-  .bubble small { font-size: .7rem; }
-  .bubble-out small { opacity: .7; }
-
-  .chat-footer { padding: 1rem 1.5rem; background: #fff; border-top: 2px solid #f1f5f9; }
-  .chat-input {
-    border-radius: 12px; border: 1.5px solid #e5e7eb; padding: .6rem 1rem;
-    font-size: .9rem; transition: border-color .2s, box-shadow .2s;
-  }
-  .chat-input:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,.15); }
-  .btn-send {
-    border-radius: 12px; width: 44px; height: 44px;
-    display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, #667eea, #764ba2); border: none; color: #fff;
-    transition: transform .15s;
-  }
-  .btn-send:hover { transform: scale(1.05); color: #fff; }
-
-  .breadcrumb a { color: #667eea; text-decoration: none; }
-</style>
-{% endblock %}
+{% block title %}Conversation — Social Media — WorkHub{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-  <nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb small">
-      <li class="breadcrumb-item"><a href="{% url 'social_media:dashboard' %}">Social Media</a></li>
-      <li class="breadcrumb-item"><a href="{% url 'social_media:messages_inbox' %}">Messages</a></li>
-      <li class="breadcrumb-item active">{{ contact_id }}</li>
-    </ol>
-  </nav>
-
-  <div class="chat-card card">
-    <!-- Header -->
-    <div class="chat-header">
-      <div class="chat-avatar" style="background: {% if account.platform == 'whatsapp' %}#25D36615{% elif account.platform == 'linkedin' %}#0A66C215{% elif account.platform == 'facebook' %}#1877F215{% elif account.platform == 'instagram' %}#E4405F15{% else %}#00000010{% endif %};">
-        <i class="bi bi-{% if account.platform == 'whatsapp' %}whatsapp{% elif account.platform == 'linkedin' %}linkedin{% elif account.platform == 'facebook' %}facebook{% elif account.platform == 'instagram' %}instagram{% else %}twitter-x{% endif %}"
-           style="color: {% if account.platform == 'whatsapp' %}#25D366{% elif account.platform == 'linkedin' %}#0A66C2{% elif account.platform == 'facebook' %}#1877F2{% elif account.platform == 'instagram' %}#E4405F{% else %}#000{% endif %};"></i>
-      </div>
-      <div>
-        <h6 class="mb-0 fw-bold">{{ contact_id }}</h6>
-        <span class="small text-muted">{{ account.get_platform_display }} — {{ account.account_name }}</span>
-      </div>
+<!-- Header -->
+<div class="hub-header">
+  <div class="d-flex align-items-center gap-3">
+    <div class="hub-icon" style="background:var(--gradient-brand)"><i data-lucide="message-circle" class="lucide"></i></div>
+    <div>
+      <h1 class="hub-title">{{ contact_id }}</h1>
+      <p class="hub-subtitle">{{ account.get_platform_display }} · {{ account.account_name }}</p>
     </div>
-
-    <!-- Chat Area -->
-    <div class="chat-area" id="chat-area">
-      {% for msg in thread %}
-      <div class="d-flex {% if msg.direction == 'outbound' %}justify-content-end{% endif %}">
-        <div class="bubble {% if msg.direction == 'outbound' %}bubble-out{% else %}bubble-in{% endif %}">
-          <p class="mb-1">{{ msg.content }}</p>
-          <small class="{% if msg.direction == 'outbound' %}text-white-50{% else %}text-muted{% endif %}">
-            {{ msg.timestamp|date:"M d, H:i" }}
-          </small>
-        </div>
-      </div>
-      {% empty %}
-      <div class="text-center text-muted py-4">
-        <i data-lucide="message-circle" class="lucide fs-2"></i>
-        <p class="mt-2 small">No messages in this conversation yet.</p>
-      </div>
-      {% endfor %}
-    </div>
-
-    <!-- Footer / Input -->
-    <div class="chat-footer">
-      <form method="post" class="d-flex gap-2">
-        {% csrf_token %}
-        <input type="text" name="content" class="form-control chat-input" placeholder="Type a message..." required autofocus>
-        <button type="submit" class="btn btn-send">
-          <i data-lucide="send" class="lucide"></i>
-        </button>
-      </form>
-    </div>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <a href="{% url 'social_media:messages_inbox' %}" class="hub-btn-secondary"><i data-lucide="arrow-left" class="lucide"></i> Inbox</a>
   </div>
 </div>
 
+<!-- Chat -->
+<div class="dash-panel" style="max-width:700px">
+  <div class="dash-panel-body" style="display:flex;flex-direction:column;gap:12px;min-height:300px;max-height:500px;overflow-y:auto" id="chatArea">
+    {% for msg in thread %}
+    <div class="d-flex flex-column {% if msg.direction == 'outbound' %}align-items-end{% else %}align-items-start{% endif %}">
+      <div class="sm-chat-bubble {% if msg.direction == 'outbound' %}{% if msg.is_bot_reply %}sm-chat-bubble--bot{% else %}sm-chat-bubble--outgoing{% endif %}{% else %}sm-chat-bubble--incoming{% endif %}">
+        {{ msg.content }}
+      </div>
+      <div class="sm-chat-time">
+        {% if msg.direction == 'outbound' %}
+          {% if msg.is_bot_reply %}<i data-lucide="bot" class="lucide" style="width:10px;height:10px"></i> Bot · {% endif %}
+        {% endif %}
+        {{ msg.timestamp|timesince }} ago
+      </div>
+    </div>
+    {% empty %}
+    <div class="text-center" style="padding:40px 0;color:var(--gray-400);font-size:13px">No messages yet</div>
+    {% endfor %}
+  </div>
+  <!-- Reply form -->
+  <div style="border-top:1px solid var(--gray-100);padding:14px 20px">
+    <form method="post" class="d-flex gap-2">
+      {% csrf_token %}
+      <input type="text" name="content" class="hub-input" placeholder="Type a reply…" required style="flex:1">
+      <button type="submit" class="hub-btn-create"><i data-lucide="send" class="lucide"></i></button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-  const chatArea = document.getElementById('chat-area');
-  if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+lucide.createIcons();
+const chat = document.getElementById('chatArea');
+if (chat) chat.scrollTop = chat.scrollHeight;
 </script>
 {% endblock %}

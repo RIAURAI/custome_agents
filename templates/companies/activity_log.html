@@ -1,116 +1,103 @@
 {% extends "base.html" %}
-{% block title %}Activity Log{% endblock %}
+{% block title %}Activity Log — WorkHub{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i data-lucide="history" class="lucide me-2"></i>Activity Log</h2>
-  </div>
-
-  <!-- Filters -->
-  <div class="card mb-4">
-    <div class="card-body">
-      <form method="get" class="row g-3 align-items-end">
-        <div class="col-md-3">
-          <label class="form-label">User</label>
-          <select name="user" class="form-select">
-            <option value="">All Users</option>
-            {% for m in members %}
-            <option value="{{ m.user_id }}" {% if current_user_filter == m.user_id|stringformat:"d" %}selected{% endif %}>
-              {{ m.user.get_full_name|default:m.user.username }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Platform</label>
-          <select name="platform" class="form-select">
-            <option value="">All Platforms</option>
-            <option value="microsoft" {% if current_platform_filter == "microsoft" %}selected{% endif %}>Microsoft</option>
-            <option value="slack" {% if current_platform_filter == "slack" %}selected{% endif %}>Slack</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Action</label>
-          <select name="action" class="form-select">
-            <option value="">All Actions</option>
-            {% for value, label in action_choices %}
-            <option value="{{ value }}" {% if current_action_filter == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-3">
-          <button type="submit" class="btn btn-primary"><i data-lucide="filter" class="lucide me-1"></i>Filter</button>
-          <a href="{% url 'companies:activity_log' %}" class="btn btn-outline-secondary ms-1">Clear</a>
-        </div>
-      </form>
+<!-- Header -->
+<div class="hub-header">
+  <div class="d-flex align-items-center gap-3">
+    <div class="hub-icon" style="background:var(--gradient-brand)"><i data-lucide="scroll-text" class="lucide"></i></div>
+    <div>
+      <h1 class="hub-title">Activity Log</h1>
+      <p class="hub-subtitle">Audit trail for your workspace</p>
     </div>
   </div>
-
-  <!-- Log Table -->
-  <div class="card">
-    <div class="card-body p-0">
-      {% if logs %}
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Time</th>
-              <th>User</th>
-              <th>Action</th>
-              <th>Platform</th>
-              <th>Detail</th>
-              <th>IP</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for log in logs %}
-            <tr>
-              <td class="text-nowrap">
-                <small>{{ log.created_at|date:"M d, Y H:i" }}</small>
-              </td>
-              <td>
-                {% if log.user %}
-                  {{ log.user.get_full_name|default:log.user.username }}
-                {% else %}
-                  <span class="text-muted">System</span>
-                {% endif %}
-              </td>
-              <td>
-                <span class="badge
-                  {% if 'connected' in log.action %}bg-success
-                  {% elif 'disconnected' in log.action or 'removed' in log.action or 'revoked' in log.action %}bg-danger
-                  {% elif 'sent' in log.action or 'reply' in log.action %}bg-primary
-                  {% elif 'viewed' in log.action %}bg-info text-dark
-                  {% elif 'ai_' in log.action %}bg-warning text-dark
-                  {% else %}bg-secondary
-                  {% endif %}">
-                  {{ log.get_action_display }}
-                </span>
-              </td>
-              <td>
-                {% if log.platform == "microsoft" %}
-                  <i class="bi bi-microsoft text-primary"></i> Microsoft
-                {% elif log.platform == "slack" %}
-                  <i class="bi bi-slack text-success"></i> Slack
-                {% else %}
-                  <span class="text-muted">—</span>
-                {% endif %}
-              </td>
-              <td><small>{{ log.detail|truncatewords:20 }}</small></td>
-              <td><small class="text-muted">{{ log.ip_address|default:"—" }}</small></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <div class="text-center py-5 text-muted">
-        <i data-lucide="inbox" class="lucide display-4"></i>
-        <p class="mt-2">No activity recorded yet.</p>
-      </div>
-      {% endif %}
-    </div>
+  <div class="d-flex align-items-center gap-2">
+    <a href="{% url 'companies:team' %}" class="hub-btn-secondary"><i data-lucide="users" class="lucide"></i> Team</a>
+    <a href="{% url 'companies:admin_dashboard' %}" class="hub-btn-secondary"><i data-lucide="bar-chart-3" class="lucide"></i> Dashboard</a>
   </div>
 </div>
+
+<!-- Filters -->
+<div class="dash-panel mb-4">
+  <div class="dash-panel-body">
+    <form method="get" class="d-flex align-items-end gap-3 flex-wrap">
+      <div>
+        <label class="hub-label">User</label>
+        <select name="user" class="hub-input" style="min-width:160px">
+          <option value="">All users</option>
+          {% for m in members %}
+          <option value="{{ m.user.id }}" {% if current_user_filter == m.user.id|stringformat:"d" %}selected{% endif %}>
+            {{ m.user.get_full_name|default:m.user.username }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="hub-label">Platform</label>
+        <select name="platform" class="hub-input" style="min-width:140px">
+          <option value="">All platforms</option>
+          <option value="slack" {% if current_platform_filter == "slack" %}selected{% endif %}>Slack</option>
+          <option value="google" {% if current_platform_filter == "google" %}selected{% endif %}>Google</option>
+          <option value="email" {% if current_platform_filter == "email" %}selected{% endif %}>Email</option>
+        </select>
+      </div>
+      <div>
+        <label class="hub-label">Action</label>
+        <select name="action" class="hub-input" style="min-width:160px">
+          <option value="">All actions</option>
+          {% for val, label in action_choices %}
+          <option value="{{ val }}" {% if current_action_filter == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="hub-btn-secondary"><i data-lucide="filter" class="lucide"></i> Filter</button>
+    </form>
+  </div>
+</div>
+
+<!-- Log table -->
+<div class="dash-panel">
+  <div class="dash-panel-header d-flex align-items-center justify-content-between">
+    <span style="font-size:13px;font-weight:600;color:var(--gray-700)">{{ logs|length }} entr{{ logs|length|pluralize:"y,ies" }}</span>
+  </div>
+  <div class="dash-panel-body" style="padding:0">
+    {% if logs %}
+    <table class="hub-table">
+      <thead>
+        <tr><th>Time</th><th>User</th><th>Action</th><th>Platform</th><th>Detail</th></tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td style="font-size:12px;color:var(--gray-500);white-space:nowrap">{{ log.created_at|timesince }} ago</td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="team-member-avatar" style="width:26px;height:26px;font-size:10px">
+                {% if log.user %}{{ log.user.first_name|first|upper }}{% else %}S{% endif %}
+              </div>
+              <span style="font-size:13px;font-weight:500">
+                {% if log.user %}{{ log.user.get_full_name|default:log.user.username }}{% else %}System{% endif %}
+              </span>
+            </div>
+          </td>
+          <td><span class="hub-pill hub-pill--muted">{{ log.get_action_display }}</span></td>
+          <td><span class="hub-pill hub-pill--muted" style="text-transform:capitalize;font-size:11px">{{ log.platform|default:"—" }}</span></td>
+          <td style="font-size:12px;color:var(--gray-600);max-width:300px">{{ log.detail|default:"—"|truncatewords:15 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="ibx-empty">
+      <i data-lucide="scroll-text" class="lucide" style="width:40px;height:40px;color:var(--gray-300)"></i>
+      <h3 style="font-size:15px;font-weight:700;color:var(--gray-800);margin:10px 0 4px">No activity recorded</h3>
+      <p style="font-size:13px;color:var(--gray-500)">Activity will appear here as your team uses WorkHub</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>lucide.createIcons();</script>
 {% endblock %}

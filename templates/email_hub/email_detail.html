@@ -1,92 +1,92 @@
 {% extends "base.html" %}
 {% block title %}{{ email.subject|default:"Email" }} — WorkHub{% endblock %}
-{% block page_title %}Email Detail{% endblock %}
+{% block page_title %}Email{% endblock %}
 
 {% block content %}
-<div class="page-header mb-4">
-  <div class="d-flex align-items-center gap-2">
-    <div style="width:32px;height:32px;border-radius:9px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;">
-      <i data-lucide="mail-open" class="lucide" style="color:var(--primary);"></i>
-    </div>
-    <h5 class="mb-0" style="font-size:.95rem;">Email Detail</h5>
+<div class="ed-wrap">
+
+  <div class="ed-back">
+    <a href="{% url 'email_hub:inbox' %}" class="ed-back-link">
+      <i data-lucide="arrow-left"></i><span>Back to Inbox</span>
+    </a>
   </div>
-  <a href="{% url 'email_hub:inbox' %}" class="btn btn-sm btn-outline-secondary">
-    <i data-lucide="arrow-left" class="lucide me-1"></i>Back to Inbox
-  </a>
-</div>
 
-{% if error %}
-  <div class="alert alert-warning">{{ error }}</div>
-{% elif email %}
+  {% if error %}
+    <div class="dh-error"><i data-lucide="triangle-alert"></i>{{ error }}</div>
+  {% elif email %}
 
-<div class="card mb-4">
-  <div class="card-body p-4">
-    <h5 class="fw-bold mb-3" style="font-size:1.05rem;">{{ email.subject|default:"(no subject)" }}</h5>
-    <div class="d-flex align-items-center gap-3 mb-3 pb-3 flex-wrap" style="border-bottom:1px solid var(--border);">
-      <div class="d-flex align-items-center gap-2">
-        <div class="avatar-circle avatar-circle-sm">
-          {{ email.from.emailAddress.name|first|upper }}
+  <!-- Email card -->
+  <article class="ed-card">
+    <header class="ed-head">
+      <h1 class="ed-subject">{{ email.subject|default:"(no subject)" }}</h1>
+      <div class="ed-meta">
+        <div class="ed-sender">
+          <div class="ed-avatar">{{ email.from.emailAddress.name|first|upper|default:"?" }}</div>
+          <div class="ed-sender-body">
+            <div class="ed-sender-name">{{ email.from.emailAddress.name|default:"Unknown" }}</div>
+            <div class="ed-sender-email">{{ email.from.emailAddress.address }}</div>
+          </div>
         </div>
-        <div>
-          <div class="fw-semibold" style="font-size:.88rem;">{{ email.from.emailAddress.name }}</div>
-          <div class="text-muted" style="font-size:.78rem;">{{ email.from.emailAddress.address }}</div>
+        <div class="ed-date">
+          <i data-lucide="clock"></i>
+          <span>{{ email.receivedDateTime|slice:":16"|cut:"T" }}</span>
         </div>
       </div>
-      <small class="text-muted ms-auto" style="font-size:.78rem;">{{ email.receivedDateTime|slice:":16" }}</small>
-    </div>
-    <div class="email-body" style="max-height:60vh;overflow-y:auto;font-size:.88rem;line-height:1.7;">
+    </header>
+
+    <div class="ed-body">
       {% if email.body.contentType == "html" %}
         {{ email.body.content|safe }}
       {% else %}
-        <pre style="white-space:pre-wrap;font-family:inherit;">{{ email.body.content }}</pre>
+        <pre class="ed-body-pre">{{ email.body.content }}</pre>
       {% endif %}
     </div>
-  </div>
-</div>
+  </article>
 
-<!-- AI Panel -->
-<div class="card">
-  <div class="card-header d-flex align-items-center">
-    <div class="d-flex align-items-center gap-2 flex-grow-1">
-      <div style="width:28px;height:28px;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;">
-        <i data-lucide="sparkles" class="lucide text-white" style="font-size:.75rem;"></i>
+  <!-- AI Panel -->
+  <section class="ai-card ed-ai">
+    <div class="ai-card-head ai-card-head--response" style="margin-bottom:0;">
+      <div class="ai-resp-title">
+        <div class="ai-resp-icon"><i data-lucide="sparkles"></i></div>
+        <span>AI Assistant</span>
       </div>
-      <span class="fw-semibold" style="font-size:.9rem;">AI Assistant</span>
+      <a href="{% url 'email_hub:compose' %}?to={{ email.from.emailAddress.address }}&subject=Re: {{ email.subject|urlencode }}"
+         class="ai-copy" style="text-decoration:none;">
+        <i data-lucide="reply"></i><span>Reply</span>
+      </a>
     </div>
-    <a href="{% url 'email_hub:compose' %}?to={{ email.from.emailAddress.address }}&subject=Re: {{ email.subject|urlencode }}"
-       class="btn btn-sm btn-outline-secondary">
-      <i data-lucide="reply" class="lucide me-1"></i>Reply
-    </a>
-  </div>
-  <div class="card-body p-4">
-    <div class="d-flex gap-2 flex-wrap mb-3">
-      <button id="ai-btn" class="btn btn-primary btn-sm">
-        <i data-lucide="list-checks" class="lucide me-1"></i>Summarize
-      </button>
-      <button class="btn btn-outline-primary btn-sm" id="ai-reply-btn">
-        <i data-lucide="reply" class="lucide me-1"></i>Draft Reply
-      </button>
-    </div>
-    <div id="ai-response-box" class="d-none" style="background:#f8fafc;border-radius:10px;padding:16px;">
-      <div class="d-flex align-items-center mb-2">
-        <i data-lucide="sparkles" class="lucide me-2" style="color:var(--primary);"></i>
-        <span class="fw-semibold" style="font-size:.85rem;">AI Response</span>
-      </div>
-      <p id="ai-content" class="mb-0" style="white-space:pre-wrap;font-size:.85rem;line-height:1.7;"></p>
-    </div>
-  </div>
-</div>
 
-<script id="email-body" type="application/json">{{ email.body.content|escapejs }}</script>
-<script>
-  document.getElementById("ai-btn").onclick = function() {
-    const text = document.getElementById("email-body").textContent;
-    runAI("summarize", text, "{{ csrf_token }}");
-  };
-  document.getElementById("ai-reply-btn").onclick = function() {
-    const text = document.getElementById("email-body").textContent;
-    runAI("reply", text, "{{ csrf_token }}");
-  };
-</script>
-{% endif %}
+    <div class="ed-ai-body">
+      <div class="ai-btn-group">
+        <button id="ai-btn" class="ai-btn ai-btn--primary">
+          <i data-lucide="list-checks"></i>Summarize
+        </button>
+        <button id="ai-reply-btn" class="ai-btn ai-btn--secondary">
+          <i data-lucide="reply"></i>Draft Reply
+        </button>
+      </div>
+
+      <div id="ai-response-box" class="ed-ai-response" style="display:none;">
+        <div class="ed-ai-resp-head">
+          <i data-lucide="sparkles"></i>
+          <span>AI Response</span>
+        </div>
+        <p id="ai-content" class="ai-response-text"></p>
+      </div>
+    </div>
+  </section>
+
+  <script id="email-body" type="application/json">{{ email.body.content|escapejs }}</script>
+  <script>
+    document.getElementById("ai-btn").onclick = function () {
+      const text = document.getElementById("email-body").textContent;
+      runAI("summarize", text, "{{ csrf_token }}");
+    };
+    document.getElementById("ai-reply-btn").onclick = function () {
+      const text = document.getElementById("email-body").textContent;
+      runAI("reply", text, "{{ csrf_token }}");
+    };
+  </script>
+  {% endif %}
+</div>
 {% endblock %}

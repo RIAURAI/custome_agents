@@ -1,52 +1,81 @@
 {% extends "base.html" %}
 {% block title %}Compose Email — WorkHub{% endblock %}
-{% block page_title %}Compose Email{% endblock %}
+{% block page_title %}Compose{% endblock %}
 
 {% block content %}
-<div class="page-header mb-4">
-  <div class="d-flex align-items-center gap-2">
-    <div style="width:32px;height:32px;border-radius:9px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;">
-      <i data-lucide="pencil" class="lucide" style="color:var(--primary);"></i>
-    </div>
-    <h5 class="mb-0" style="font-size:.95rem;">New Email</h5>
-  </div>
-  <a href="{% url 'email_hub:inbox' %}" class="btn btn-sm btn-outline-secondary">
-    <i data-lucide="arrow-left" class="lucide me-1"></i>Back to Inbox
-  </a>
-</div>
+<div class="cmp-wrap">
 
-<div class="row justify-content-center">
-  <div class="col-lg-8">
-    <div class="card">
-      <div class="card-body p-4">
-        <form method="post" novalidate>
-          {% csrf_token %}
-          <div class="mb-3">
-            <label class="form-label fw-semibold" style="font-size:.83rem;color:#374151;">To</label>
-            <input type="email" name="to_email" class="form-control"
-                   value="{{ request.GET.to|default:'' }}"
-                   placeholder="recipient@example.com" required />
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold" style="font-size:.83rem;color:#374151;">Subject</label>
-            <input type="text" name="subject" class="form-control"
-                   value="{{ request.GET.subject|default:'' }}"
-                   placeholder="Email subject" required />
-          </div>
-          <div class="mb-4">
-            <label class="form-label fw-semibold" style="font-size:.83rem;color:#374151;">Message</label>
-            <textarea name="body" class="form-control" rows="12"
-                      placeholder="Write your message here…" required></textarea>
-          </div>
-          <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary px-4">
-              <i data-lucide="send" class="lucide me-2"></i>Send
-            </button>
-            <a href="{% url 'email_hub:inbox' %}" class="btn btn-outline-secondary">Cancel</a>
-          </div>
-        </form>
+  <div class="cmp-back">
+    <a href="{% url 'email_hub:inbox' %}" class="ed-back-link">
+      <i data-lucide="arrow-left"></i><span>Back to Inbox</span>
+    </a>
+  </div>
+
+  <!-- Compose hero -->
+  <div class="cmp-hero">
+    <div class="cmp-hero-glow"></div>
+    <div class="cmp-hero-head">
+      <div class="cmp-hero-icon"><i data-lucide="pencil"></i></div>
+      <div>
+        <h1 class="cmp-hero-title">New Message</h1>
+        <p class="cmp-hero-sub">Draft and send an email through your connected account.</p>
       </div>
     </div>
   </div>
+
+  <!-- Form card -->
+  <form method="post" novalidate class="cmp-card">
+    {% csrf_token %}
+
+    <div class="cmp-field">
+      <label class="cmp-label">To</label>
+      <div class="cmp-input-wrap">
+        <i data-lucide="at-sign" class="cmp-input-icon"></i>
+        <input type="email" name="to_email" class="cmp-input"
+               value="{{ request.GET.to|default:'' }}"
+               placeholder="recipient@example.com" required />
+      </div>
+    </div>
+
+    <div class="cmp-field">
+      <label class="cmp-label">Subject</label>
+      <div class="cmp-input-wrap">
+        <i data-lucide="type" class="cmp-input-icon"></i>
+        <input type="text" name="subject" class="cmp-input"
+               value="{{ request.GET.subject|default:'' }}"
+               placeholder="Email subject" required />
+      </div>
+    </div>
+
+    <div class="cmp-field">
+      <label class="cmp-label">Message</label>
+      <div class="cmp-toolbar">
+        <button type="button" class="cmp-tool" title="Bold"><i data-lucide="bold"></i></button>
+        <button type="button" class="cmp-tool" title="Italic"><i data-lucide="italic"></i></button>
+        <button type="button" class="cmp-tool" title="Underline"><i data-lucide="underline"></i></button>
+        <span class="cmp-tool-sep"></span>
+        <button type="button" class="cmp-tool" title="Bulleted list"><i data-lucide="list"></i></button>
+        <button type="button" class="cmp-tool" title="Numbered list"><i data-lucide="list-ordered"></i></button>
+        <span class="cmp-tool-sep"></span>
+        <button type="button" class="cmp-tool" title="Link"><i data-lucide="link"></i></button>
+        <button type="button" class="cmp-tool" title="Attach"><i data-lucide="paperclip"></i></button>
+      </div>
+      <textarea name="body" class="cmp-textarea" rows="12"
+                placeholder="Write your message here…" required></textarea>
+    </div>
+
+    <div class="cmp-footer">
+      <div class="ai-hint">
+        <i data-lucide="info"></i>
+        <span>Sent from your connected Microsoft account.</span>
+      </div>
+      <div class="ai-btn-group">
+        <a href="{% url 'email_hub:inbox' %}" class="ai-btn ai-btn--secondary" style="text-decoration:none;">Cancel</a>
+        <button type="submit" class="ai-btn ai-btn--primary">
+          <i data-lucide="send"></i>Send
+        </button>
+      </div>
+    </div>
+  </form>
 </div>
 {% endblock %}

@@ -2,74 +2,69 @@
 {% block title %}Join {{ invitation.company.name }} — WorkHub{% endblock %}
 
 {% block content %}
-<div class="auth-bg d-flex align-items-center justify-content-center py-5 px-3" style="min-height:100vh;">
-  <div style="width:100%;max-width:460px;position:relative;z-index:1;">
-
-    <div class="text-center mb-4">
-      <div class="d-inline-flex align-items-center justify-content-center mb-3"
-           style="width:54px;height:54px;border-radius:16px;background:var(--primary);box-shadow:0 8px 24px rgba(255,89,0,.4);">
-        <i data-lucide="users" class="lucide text-white fs-5"></i>
-      </div>
-      <h2 class="text-white fw-bold mb-1">Join {{ invitation.company.name }}</h2>
-      <p class="mb-0" style="color:rgba(255,255,255,.5);font-size:.875rem;">
-        You've been invited as <strong>{{ invitation.get_role_display }}</strong>
-      </p>
-    </div>
-
-    <div class="auth-card p-4 p-md-5">
-      {% if email_mismatch %}
-        <div class="alert alert-warning">
-          <i data-lucide="triangle-alert" class="lucide me-1"></i>
-          This invite was sent to <strong>{{ invitation.email }}</strong>, but you're logged in as
-          <strong>{{ request.user.email }}</strong>. Please log out and use the correct account.
+<div class="auth-split">
+  <div class="auth-left">
+    <div class="auth-card" style="max-width:440px">
+      <div class="text-center mb-4">
+        <div style="width:56px;height:56px;border-radius:16px;background:var(--signature-soft);color:var(--signature);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px">
+          <i data-lucide="user-plus" class="lucide" style="width:24px;height:24px"></i>
         </div>
-        <a href="{% url 'accounts:logout' %}" class="btn btn-outline-primary w-100">Log out &amp; try again</a>
-
-      {% else %}
-        <h4 class="fw-bold mb-1">Create your account</h4>
-        <p class="text-muted mb-4" style="font-size:.875rem;">
-          Joining as <strong>{{ invitation.email }}</strong>
+        <h2 style="font-size:20px;font-weight:700;color:var(--gray-900);margin:0 0 4px">Join {{ invitation.company.name }}</h2>
+        <p style="font-size:13px;color:var(--gray-500)">
+          You've been invited as <strong>{{ invitation.get_role_display }}</strong> by {{ invitation.invited_by.get_full_name|default:invitation.invited_by.username }}
         </p>
+      </div>
 
-        {% if errors %}
-        <div class="alert alert-danger">
-          {% for e in errors %}<div>{{ e }}</div>{% endfor %}
+      {% if email_mismatch %}
+      <div class="hub-alert d-flex align-items-center gap-2 mb-3" style="border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06)">
+        <i data-lucide="alert-circle" class="lucide" style="color:var(--danger)"></i>
+        <span>This invite is for <strong>{{ invitation.email }}</strong>, but you're logged in as <strong>{{ request.user.email }}</strong>. Please log out and try again.</span>
+      </div>
+      {% endif %}
+
+      {% if errors %}
+      {% for err in errors %}
+      <div class="hub-alert d-flex align-items-center gap-2 mb-2" style="border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06)">
+        <i data-lucide="alert-circle" class="lucide" style="color:var(--danger)"></i> {{ err }}
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      {% if not email_mismatch %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="hub-label">Email</label>
+          <input type="email" class="hub-input" value="{{ invitation.email }}" disabled>
         </div>
-        {% endif %}
-
-        <form method="post" novalidate>
-          {% csrf_token %}
-
-          <div class="row g-3 mb-3">
-            <div class="col-6">
-              <label class="form-label fw-semibold small">First Name</label>
-              <input type="text" name="first_name" class="form-control" placeholder="First Name"
-                     value="{{ first_name|default:'' }}">
-            </div>
-            <div class="col-6">
-              <label class="form-label fw-semibold small">Last Name</label>
-              <input type="text" name="last_name" class="form-control" placeholder="Last Name"
-                     value="{{ last_name|default:'' }}">
-            </div>
+        <div class="mb-3">
+          <label class="hub-label">Username</label>
+          <input type="text" name="username" class="hub-input" required value="{{ username|default:'' }}" placeholder="Choose a username">
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="hub-label">First Name</label>
+            <input type="text" name="first_name" class="hub-input" value="{{ first_name|default:'' }}" placeholder="First">
           </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold small">Username</label>
-            <input type="text" name="username" class="form-control" placeholder="Username" required
-                   value="{{ username|default:'' }}">
+          <div class="col-6">
+            <label class="hub-label">Last Name</label>
+            <input type="text" name="last_name" class="hub-input" value="{{ last_name|default:'' }}" placeholder="Last">
           </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold small">Password</label>
-            <input type="password" name="password" class="form-control" placeholder="Password (min 8 chars)" required>
-          </div>
-
-          <button type="submit" class="btn btn-primary w-100 mt-2">
-            <i data-lucide="user-plus" class="lucide me-1"></i>Join {{ invitation.company.name }}
-          </button>
-        </form>
+        </div>
+        <div class="mb-4">
+          <label class="hub-label">Password</label>
+          <input type="password" name="password" class="hub-input" required placeholder="Min 8 characters">
+        </div>
+        <button type="submit" class="hub-btn-create w-100" style="padding:10px">
+          <i data-lucide="check" class="lucide"></i> Join {{ invitation.company.name }}
+        </button>
+      </form>
       {% endif %}
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>lucide.createIcons();</script>
 {% endblock %}

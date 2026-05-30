@@ -2,51 +2,44 @@
 {% block title %}Sign In — WorkHub{% endblock %}
 
 {% block content %}
-<div class="auth-bg d-flex align-items-center justify-content-center py-5 px-3" style="min-height:100vh;">
-  <div style="width:100%;max-width:420px;position:relative;z-index:1;">
+<div class="auth-form-title">Welcome back</div>
+<div class="auth-form-subtitle">Sign in to your account to continue.</div>
 
-    <div class="text-center mb-5">
-      <div class="auth-brand-icon">
-        <i data-lucide="layout-grid" class="lucide"></i>
-      </div>
-      <h2 class="text-white fw-bold mb-1" style="letter-spacing:-.03em;">WorkHub</h2>
-      <p class="mb-0" style="color:rgba(255,255,255,.5);font-size:.875rem;">Your unified business workspace</p>
-    </div>
+{% if form.non_field_errors %}
+<div class="auth-error">{{ form.non_field_errors|join:", " }}</div>
+{% endif %}
 
-    <div class="auth-card p-4 p-md-5">
-      <h4 class="fw-bold mb-1" style="letter-spacing:-.02em;">Welcome back</h4>
-      <p class="text-muted mb-4" style="font-size:.875rem;">Sign in to continue to WorkHub</p>
+<form method="post" novalidate>
+  {% csrf_token %}
 
-      <form method="post" novalidate>
-        {% csrf_token %}
-        <div class="mb-3">
-          <label class="form-label fw-semibold small">Username</label>
-          {{ form.username }}
-          {% if form.username.errors %}
-            <div class="invalid-feedback d-block">{{ form.username.errors|join:", " }}</div>
-          {% endif %}
-        </div>
-        <div class="mb-4">
-          <label class="form-label fw-semibold small">Password</label>
-          {{ form.password }}
-          {% if form.password.errors %}
-            <div class="invalid-feedback d-block">{{ form.password.errors|join:", " }}</div>
-          {% endif %}
-        </div>
-        {% if form.non_field_errors %}
-          <div class="alert alert-danger py-2 small">{{ form.non_field_errors|join:", " }}</div>
-        {% endif %}
-        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
-          <i data-lucide="log-in" class="lucide me-2"></i>Sign In
-        </button>
-      </form>
-
-      <div class="auth-divider my-4">new to WorkHub?</div>
-      <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary w-100 py-2 fw-semibold">
-        Create a free account
-      </a>
-    </div>
-    <p class="text-center mt-4" style="font-size:.75rem;color:rgba(255,255,255,.3);">© 2026 WorkHub · All rights reserved</p>
+  <div class="auth-field">
+    <label class="form-label">Username</label>
+    {{ form.username }}
+    {% if form.username.errors %}
+      <div class="invalid-feedback d-block">{{ form.username.errors|join:", " }}</div>
+    {% endif %}
   </div>
+
+  <div class="auth-field">
+    <label class="form-label">Password</label>
+    {{ form.password }}
+    {% if form.password.errors %}
+      <div class="invalid-feedback d-block">{{ form.password.errors|join:", " }}</div>
+    {% endif %}
+  </div>
+
+  <button type="submit" class="btn-auth-primary" style="margin-top:8px;">
+    Sign In
+  </button>
+</form>
+
+<div class="auth-divider">new to WorkHub?</div>
+
+<a href="{% url 'accounts:register' %}" class="btn-social">
+  Create a free account
+</a>
+
+<div class="auth-form-foot" style="margin-top:24px;">
+  <span style="font-size:11px;color:var(--gray-400);">© 2026 WorkHub</span>
 </div>
 {% endblock %}

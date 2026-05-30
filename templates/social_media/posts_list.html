@@ -1,112 +1,71 @@
 {% extends "base.html" %}
 {% block title %}Posts — Social Media — WorkHub{% endblock %}
 
-{% block extra_head %}
-<style>
-  .posts-hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px; padding: 2rem 2.5rem; color: #fff; margin-bottom: 2rem;
-  }
-  .posts-hero h2 { font-weight: 700; }
-  .posts-hero p { opacity: .85; margin-bottom: 0; }
-
-  .post-card {
-    border: none; border-radius: 16px; overflow: hidden;
-    box-shadow: 0 2px 16px rgba(0,0,0,.06); transition: box-shadow .2s, transform .2s;
-  }
-  .post-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.1); transform: translateY(-2px); }
-
-  .posts-table thead th {
-    background: #f8fafc; border: none; padding: .75rem 1rem;
-    font-weight: 600; font-size: .8rem; color: #64748b; text-transform: uppercase; letter-spacing: .05em;
-  }
-  .posts-table tbody td { padding: .75rem 1rem; vertical-align: middle; border-color: #f1f5f9; }
-  .posts-table a { text-decoration: none; color: #334155; font-weight: 500; }
-  .posts-table a:hover { color: #667eea; }
-
-  .platform-badge {
-    display: inline-flex; align-items: center; gap: .3rem;
-    padding: .25rem .6rem; border-radius: 6px; font-size: .75rem; font-weight: 600; color: #fff;
-  }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: .4rem; }
-
-  .empty-state {
-    text-align: center; padding: 3rem 1rem;
-    background: linear-gradient(135deg, #f8fafc, var(--primary-light)); border-radius: 16px;
-  }
-  .empty-state i { font-size: 3rem; color: #94a3b8; }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="container-fluid py-4">
-
-  <!-- Hero -->
-  <div class="posts-hero d-flex flex-wrap justify-content-between align-items-center">
+<!-- Header -->
+<div class="hub-header">
+  <div class="d-flex align-items-center gap-3">
+    <div class="hub-icon" style="background:var(--gradient-brand)"><i data-lucide="file-text" class="lucide"></i></div>
     <div>
-      <h2 class="mb-1"><i data-lucide="file-text" class="lucide me-2"></i>Posts</h2>
-      <p>Manage and publish content across your social platforms.</p>
+      <h1 class="hub-title">Posts</h1>
+      <p class="hub-subtitle">{{ posts|length }} post{{ posts|length|pluralize }}</p>
     </div>
-    <a href="{% url 'social_media:create_post' %}" class="btn btn-light text-dark fw-semibold" style="border-radius:10px;">
-      <i data-lucide="plus" class="lucide me-1"></i>New Post
-    </a>
   </div>
+  <div class="d-flex align-items-center gap-2">
+    <a href="{% url 'social_media:dashboard' %}" class="hub-btn-secondary"><i data-lucide="arrow-left" class="lucide"></i> Dashboard</a>
+    <a href="{% url 'social_media:create_post' %}" class="hub-btn-create"><i data-lucide="plus" class="lucide"></i> New Post</a>
+  </div>
+</div>
 
-  {% if posts %}
-  <div class="post-card card">
-    <div class="table-responsive">
-      <table class="table table-hover posts-table mb-0">
-        <thead>
-          <tr>
-            <th>Platform</th>
-            <th>Content</th>
-            <th>Status</th>
-            <th>Author</th>
-            <th>Date</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for post in posts %}
-          <tr>
-            <td>
-              <span class="platform-badge" style="background: {% if post.account.platform == 'whatsapp' %}#25D366{% elif post.account.platform == 'linkedin' %}#0A66C2{% elif post.account.platform == 'facebook' %}#1877F2{% elif post.account.platform == 'instagram' %}#E4405F{% else %}#000{% endif %};">
-                <i class="bi bi-{% if post.account.platform == 'whatsapp' %}whatsapp{% elif post.account.platform == 'linkedin' %}linkedin{% elif post.account.platform == 'facebook' %}facebook{% elif post.account.platform == 'instagram' %}instagram{% else %}twitter-x{% endif %}"></i>
-                {{ post.account.get_platform_display }}
-              </span>
-            </td>
-            <td><a href="{% url 'social_media:post_detail' post.pk %}">{{ post.content|truncatewords:15 }}</a></td>
-            <td>
-              <span class="status-dot" style="background: {% if post.status == 'published' %}#22c55e{% elif post.status == 'draft' %}#94a3b8{% elif post.status == 'scheduled' %}#eab308{% else %}#ef4444{% endif %};"></span>
-              <span class="small fw-semibold">{{ post.get_status_display }}</span>
-            </td>
-            <td><span class="small text-muted">{{ post.created_by.get_full_name|default:post.created_by.username }}</span></td>
-            <td><span class="small text-muted">{{ post.created_at|date:"M d, Y" }}</span></td>
-            <td>
-              {% if post.status == "draft" %}
-              <form method="post" action="{% url 'social_media:delete_post' post.pk %}" class="d-inline">
+{% if posts %}
+<div class="dash-panel">
+  <div class="dash-panel-body" style="padding:0">
+    <table class="hub-table">
+      <thead>
+        <tr><th>Platform</th><th>Content</th><th>Status</th><th>Created</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for post in posts %}
+        <tr>
+          <td>
+            <span class="hub-pill hub-pill--muted" style="text-transform:capitalize">{{ post.account.platform }}</span>
+          </td>
+          <td style="font-size:13px;color:var(--gray-700);max-width:320px">{{ post.content|truncatewords:20 }}</td>
+          <td>
+            <span class="hub-pill hub-pill--{% if post.status == 'published' %}success{% elif post.status == 'draft' %}warning{% elif post.status == 'scheduled' %}info{% else %}muted{% endif %}">
+              {{ post.status }}
+            </span>
+          </td>
+          <td style="font-size:12px;color:var(--gray-500);white-space:nowrap">{{ post.created_at|timesince }} ago</td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="{% url 'social_media:post_detail' post.pk %}" class="hub-btn-action" title="View"><i data-lucide="eye" class="lucide"></i></a>
+              {% if post.status == 'draft' %}
+              <form method="post" action="{% url 'social_media:delete_post' post.pk %}" style="display:inline">
                 {% csrf_token %}
-                <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" title="Delete">
-                  <i data-lucide="trash-2" class="lucide"></i>
+                <button type="submit" class="hub-btn-action" title="Delete draft" onclick="return confirm('Delete this draft?')">
+                  <i data-lucide="trash-2" class="lucide" style="color:var(--danger)"></i>
                 </button>
               </form>
               {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-  {% else %}
-  <div class="empty-state">
-    <i data-lucide="file-text" class="lucide"></i>
-    <h5 class="mt-3 fw-bold">No posts yet</h5>
-    <p class="text-muted mb-3">Create your first post to start publishing content.</p>
-    <a href="{% url 'social_media:create_post' %}" class="btn btn-primary" style="border-radius:10px;">
-      <i data-lucide="plus" class="lucide me-1"></i>Create Post
-    </a>
-  </div>
-  {% endif %}
 </div>
+{% else %}
+<div class="ibx-empty">
+  <i data-lucide="file-text" class="lucide" style="width:48px;height:48px;color:var(--gray-300)"></i>
+  <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:12px 0 4px">No posts yet</h3>
+  <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px">Create your first social media post</p>
+  <a href="{% url 'social_media:create_post' %}" class="ibx-connect-btn">Create Post</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>lucide.createIcons();</script>
 {% endblock %}

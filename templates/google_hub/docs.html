@@ -3,71 +3,60 @@
 {% block page_title %}Google Docs{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center gap-3 mb-4">
-  <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#4285F4,#1a73e8);display:flex;align-items:center;justify-content:center;">
-    <i data-lucide="file-text" class="lucide text-white" style="font-size:1.1rem;"></i>
-  </div>
+<div class="hub-header">
+  <div class="hub-icon hub-icon--docs"><i data-lucide="file-text" class="lucide"></i></div>
   <div>
-    <h4 class="mb-0 fw-bold" style="color:var(--ink-dark);letter-spacing:-.02em;">Google Docs</h4>
-    <p class="mb-0" style="color:#64748b;font-size:.85rem;">Create, view, and manage your Google Documents</p>
+    <h4 class="hub-title">Google Docs</h4>
+    <p class="hub-sub">Create, browse, and manage documents</p>
   </div>
 </div>
 
 {% if not google_connected or not has_access %}
 <div class="dash-connect-banner mb-4">
-  <div class="dash-connect-icon"><i class="bi bi-google"></i></div>
+  <div class="dash-connect-icon"><svg viewBox="0 0 24 24" width="20" height="20" style="vertical-align:middle"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div>
   <div class="flex-grow-1">
     <div class="dash-connect-title">Connect Google Workspace</div>
-    <div class="dash-connect-sub">Enable Google Docs to create and edit documents.</div>
+    <div class="dash-connect-sub">Enable Google Docs to view and manage documents.</div>
   </div>
   <a href="{% url 'integrations:connect' %}" class="btn dash-connect-btn"><i data-lucide="plug" class="lucide me-2"></i>Connect</a>
 </div>
 {% else %}
 
 <!-- Workspace nav -->
-<div class="d-flex gap-2 mb-4 flex-wrap">
-  <a href="{% url 'google_hub:inbox' %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:20px;font-size:.78rem;"><i data-lucide="mail" class="lucide"></i>Gmail</a>
-  <a href="{% url 'google_hub:drive' %}" class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:20px;font-size:.78rem;"><i data-lucide="cloud" class="lucide"></i>Drive</a>
-  <span class="btn btn-sm" style="background:linear-gradient(135deg,#4285F4,#1a73e8);color:#fff;border:none;border-radius:20px;font-size:.78rem;"><i data-lucide="file-text" class="lucide"></i>Docs</span>
-  <a href="{% url 'google_hub:sheets' %}" class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:20px;font-size:.78rem;"><i data-lucide="table" class="lucide"></i>Sheets</a>
-  <a href="{% url 'google_hub:forms' %}" class="btn btn-sm" style="background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff;border-radius:20px;font-size:.78rem;"><i data-lucide="clipboard-list" class="lucide"></i>Forms</a>
-  <a href="{% url 'google_hub:calendar' %}" class="btn btn-sm" style="background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-pale);border-radius:20px;font-size:.78rem;"><i data-lucide="calendar" class="lucide"></i>Calendar</a>
+<div class="hub-nav">
+  <a href="{% url 'google_hub:inbox' %}" class="hub-pill"><i data-lucide="mail" class="lucide"></i>Gmail</a>
+  <a href="{% url 'google_hub:drive' %}" class="hub-pill"><i data-lucide="cloud" class="lucide"></i>Drive</a>
+  <span class="hub-pill hub-pill--active"><i data-lucide="file-text" class="lucide"></i>Docs</span>
+  <a href="{% url 'google_hub:sheets' %}" class="hub-pill"><i data-lucide="table" class="lucide"></i>Sheets</a>
+  <a href="{% url 'google_hub:forms' %}" class="hub-pill"><i data-lucide="clipboard-list" class="lucide"></i>Forms</a>
+  <a href="{% url 'google_hub:calendar' %}" class="hub-pill"><i data-lucide="calendar" class="lucide"></i>Calendar</a>
 </div>
 
 <!-- Toolbar -->
 <div class="dash-panel mb-4">
   <div class="d-flex flex-wrap align-items-center gap-2 p-3">
-    <div class="flex-grow-1">
-      <div class="input-group" style="max-width:320px;">
-        <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search documents…" style="border-radius:8px 0 0 8px;font-size:.8rem;">
-        <button class="btn btn-sm" id="searchBtn" style="background:var(--primary-light);color:#4285F4;border:1px solid #bfdbfe;border-radius:0 8px 8px 0;">
-          <i data-lucide="search" class="lucide"></i>
-        </button>
-      </div>
+    <div class="flex-grow-1 fw-semibold" style="font-size:14px;color:var(--ink);">
+      <i data-lucide="file-text" class="lucide me-1" style="color:#4285F4;"></i> Your Documents
     </div>
-    <button class="btn btn-sm" id="newDocBtn"
-            style="background:linear-gradient(135deg,#4285F4,#1a73e8);color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;">
-      <i data-lucide="circle-plus" class="lucide"></i>New Document
+    <div class="input-group hub-search-group" style="width:220px;">
+      <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search docs…">
+      <button class="btn btn-sm" id="searchBtn"><i data-lucide="search" class="lucide"></i></button>
+    </div>
+    <button class="btn btn-sm hub-btn-create" data-bs-toggle="modal" data-bs-target="#newDocModal">
+      <i data-lucide="circle-plus" class="lucide me-1"></i>New Doc
     </button>
   </div>
 </div>
 
-<div id="createMsg"></div>
-
-<!-- Doc list -->
+<!-- Docs table -->
 <div class="dash-panel">
   <div class="dash-panel-body p-0">
-    <table class="table table-hover mb-0" style="font-size:.84rem;">
-      <thead style="background:#f8fafc;">
-        <tr>
-          <th style="padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Title</th>
-          <th style="padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Last Modified</th>
-          <th style="padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Owner</th>
-          <th style="width:80px;padding:10px 16px;border-bottom:2px solid #e2e8f0;font-weight:600;color:#64748b;font-size:.75rem;">Open</th>
-        </tr>
+    <table class="table table-hover hub-table">
+      <thead>
+        <tr><th>Name</th><th>Last Modified</th><th style="width:90px;">Actions</th></tr>
       </thead>
-      <tbody id="docTable">
-        <tr><td colspan="4" class="text-center py-5 text-muted">
+      <tbody id="docsTable">
+        <tr><td colspan="3" class="text-center py-5 text-muted">
           <div class="spinner-border spinner-border-sm me-2"></div>Loading documents…
         </td></tr>
       </tbody>
@@ -77,106 +66,80 @@
 
 <!-- New Doc modal -->
 <div class="modal fade" id="newDocModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border-radius:16px;border:none;box-shadow:0 20px 60px rgba(0,0,0,.15);">
-      <div class="modal-header border-0 px-4 pt-4">
-        <h6 class="modal-title fw-bold">New Google Document</h6>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-bold"><i data-lucide="file-plus" class="lucide me-2" style="color:#4285F4;"></i>New Document</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body px-4">
-        <label class="form-label fw-semibold mb-1" style="font-size:.84rem;">Document title</label>
-        <input type="text" id="newDocTitle" class="form-control" placeholder="Untitled Document" style="border-radius:10px;">
+      <div class="modal-body">
+        <label class="form-label">Document Title</label>
+        <input type="text" id="newDocTitle" class="form-control" placeholder="Untitled Document">
         <div id="newDocMsg" class="mt-2"></div>
       </div>
-      <div class="modal-footer border-0 px-4 pb-4">
-        <button class="btn btn-sm" data-bs-dismiss="modal" style="border-radius:8px;">Cancel</button>
-        <button class="btn btn-sm" id="createDocBtn"
-                style="background:linear-gradient(135deg,#4285F4,#1a73e8);color:#fff;border:none;border-radius:8px;font-weight:600;">
-          <i data-lucide="plus" class="lucide"></i>Create
-        </button>
+      <div class="modal-footer">
+        <button class="btn hub-btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-sm hub-btn-create" id="createDocBtn">Create</button>
       </div>
     </div>
   </div>
 </div>
-
 {% endif %}
 
 <script>
 const CSRF = '{{ csrf_token }}';
 
-function loadDocs(q) {
-  const tbody = document.getElementById('docTable');
-  tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</td></tr>';
+function formatDate(dt) {
+  return dt ? new Date(dt).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '—';
+}
+
+function loadDocs(query) {
+  const tbody = document.getElementById('docsTable');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</td></tr>';
+
   let url = '{% url "google_hub:docs_list" %}';
-  if (q) url += `?q=${encodeURIComponent(q)}`;
+  if (query) url += '?q=' + encodeURIComponent(query);
+
   fetch(url)
     .then(r => r.json())
     .then(data => {
-      if (data.error) { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-danger">${data.error}</td></tr>`; return; }
-      const docs = data.docs || [];
-      if (!docs.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-5 text-muted"><i data-lucide="file" class="lucide me-2"></i>No documents found</td></tr>'; return; }
-      tbody.innerHTML = docs.map(d => {
-        const owner = (d.owners && d.owners[0]) ? d.owners[0].displayName || d.owners[0].emailAddress : '—';
-        return `<tr>
-          <td style="padding:10px 16px;">
-            <div class="d-flex align-items-center gap-2">
-              <i data-lucide="file-text" class="lucide" style="color:#4285F4;font-size:1rem;"></i>
-              <span class="fw-semibold" style="color:#1e293b;">${d.name}</span>
-            </div>
-          </td>
-          <td style="padding:10px 16px;color:#64748b;">${new Date(d.modifiedTime).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
-          <td style="padding:10px 16px;color:#64748b;">${owner}</td>
-          <td style="padding:10px 16px;">
-            <a href="${d.webViewLink}" target="_blank" rel="noopener" class="btn btn-sm"
-               style="background:var(--primary-light);color:#4285F4;border:none;border-radius:6px;font-size:.78rem;">
-              <i data-lucide="external-link" class="lucide"></i>
-            </a>
-          </td>
-        </tr>`;
-      }).join('');
+      if (data.error) { tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-danger">${data.error}</td></tr>`; return; }
+      const docs = data.files || [];
+      if (!docs.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-5 text-muted">No documents found.</td></tr>'; return; }
+      tbody.innerHTML = docs.map(d => `<tr>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <i data-lucide="file-text" style="color:#4285F4;flex-shrink:0;"></i>
+            <a href="${d.webViewLink||'#'}" target="_blank" rel="noopener" class="hub-file-link">${d.name}</a>
+          </div>
+        </td>
+        <td>${formatDate(d.modifiedTime)}</td>
+        <td><a href="${d.webViewLink||'#'}" target="_blank" rel="noopener" class="hub-btn-action" title="Open"><i data-lucide="external-link" class="lucide"></i></a></td>
+      </tr>`).join('');
     })
-    .catch(() => { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-danger">Failed to load.</td></tr>'; });
+    .catch(() => { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-danger">Failed to load.</td></tr>'; });
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
   loadDocs();
-
-  document.getElementById('searchBtn').addEventListener('click', () => {
-    loadDocs(document.getElementById('searchInput').value.trim());
-  });
-  document.getElementById('searchInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('searchBtn').click();
-  });
-
-  document.getElementById('newDocBtn').addEventListener('click', () => {
-    document.getElementById('newDocTitle').value = '';
-    document.getElementById('newDocMsg').innerHTML = '';
-    new bootstrap.Modal(document.getElementById('newDocModal')).show();
-  });
-
-  document.getElementById('createDocBtn').addEventListener('click', function () {
+  document.getElementById('searchBtn')?.addEventListener('click', () => loadDocs(document.getElementById('searchInput').value.trim()));
+  document.getElementById('searchInput')?.addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('searchBtn').click(); });
+  document.getElementById('createDocBtn')?.addEventListener('click', function() {
     const title = document.getElementById('newDocTitle').value.trim() || 'Untitled Document';
     this.disabled = true;
-    this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Creating…';
     fetch('{% url "google_hub:docs_create" %}', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF},
-      body: JSON.stringify({title}),
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+      body:JSON.stringify({title})
     })
-    .then(r => r.json())
+    .then(r=>r.json())
     .then(data => {
-      if (data.ok) {
-        document.getElementById('newDocMsg').innerHTML = '<div class="alert alert-success py-1" style="font-size:.8rem;">Created! Opening…</div>';
-        setTimeout(() => {
-          bootstrap.Modal.getInstance(document.getElementById('newDocModal')).hide();
-          window.open(data.doc.spreadsheetUrl || `https://docs.google.com/document/d/${data.doc.documentId}/edit`, '_blank');
-          loadDocs();
-        }, 800);
-      } else {
-        document.getElementById('newDocMsg').innerHTML = `<div class="alert alert-danger py-1" style="font-size:.8rem;">${data.error}</div>`;
-      }
+      if(data.webViewLink) window.open(data.webViewLink,'_blank');
+      bootstrap.Modal.getInstance(document.getElementById('newDocModal')).hide();
+      this.disabled = false;
+      loadDocs();
     })
-    .finally(() => { this.disabled = false; this.innerHTML = '<i data-lucide="plus" class="lucide"></i>Create'; });
+    .catch(() => { document.getElementById('newDocMsg').innerHTML = '<div class="hub-alert">Failed.</div>'; this.disabled = false; });
   });
 });
 </script>
