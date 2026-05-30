@@ -50,6 +50,20 @@ def ask(request):
             "Keep it under 150 words."
         )
         user_msg = f"Email to reply to:\n\n{text}"
+    elif action_type == "rewrite":
+        system_msg = (
+            "You are a professional writing assistant. "
+            "Rewrite the following text to improve clarity, tone, and grammar "
+            "while preserving the original meaning. Keep a professional tone."
+        )
+        user_msg = f"Text to rewrite:\n\n{text}"
+    elif action_type == "extract":
+        system_msg = (
+            "You are a productivity assistant. "
+            "Extract all action items and tasks from the text below. "
+            "Return them as a clear numbered list. If no tasks found, say so."
+        )
+        user_msg = f"Extract tasks from:\n\n{text}"
     else:
         system_msg = (
             "You are a business productivity assistant. "
@@ -69,7 +83,7 @@ def ask(request):
             temperature=0.4,
         )
         result = response.choices[0].message.content.strip()
-        log_activity(request, "ai_summarize" if action_type == "summarize" else "ai_reply", "microsoft", f"{action_type}: {text[:100]}")
+        log_activity(request, f"ai_{action_type}", "microsoft", f"{action_type}: {text[:100]}")
         return JsonResponse({"result": result})
     except openai.AuthenticationError:
         return JsonResponse({"error": "Invalid OpenAI API key."}, status=401)

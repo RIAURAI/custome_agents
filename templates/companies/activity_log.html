@@ -2,102 +2,158 @@
 {% block title %}Activity Log — WorkHub{% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="hub-header">
-  <div class="d-flex align-items-center gap-3">
-    <div class="hub-icon" style="background:var(--gradient-brand)"><i data-lucide="scroll-text" class="lucide"></i></div>
-    <div>
-      <h1 class="hub-title">Activity Log</h1>
-      <p class="hub-subtitle">Audit trail for your workspace</p>
+<!-- ── Header ─────────────────────────────────────────────────────── -->
+<div style="margin-bottom:24px">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:44px;height:44px;border-radius:12px;background:var(--gradient-brand);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i data-lucide="scroll-text" class="lucide" style="width:22px;height:22px;color:#fff"></i>
+      </div>
+      <div>
+        <h1 style="font-size:20px;font-weight:700;color:var(--gray-900);margin:0;letter-spacing:-0.02em">Activity Log</h1>
+        <p style="font-size:13px;color:var(--gray-500);margin:2px 0 0">Audit trail for your workspace</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <a href="{% url 'companies:team' %}" class="adm-header-btn"><i data-lucide="users" class="lucide" style="width:14px;height:14px"></i> Team</a>
+      <a href="{% url 'companies:admin_dashboard' %}" class="adm-header-btn"><i data-lucide="bar-chart-3" class="lucide" style="width:14px;height:14px"></i> Dashboard</a>
     </div>
   </div>
-  <div class="d-flex align-items-center gap-2">
-    <a href="{% url 'companies:team' %}" class="hub-btn-secondary"><i data-lucide="users" class="lucide"></i> Team</a>
-    <a href="{% url 'companies:admin_dashboard' %}" class="hub-btn-secondary"><i data-lucide="bar-chart-3" class="lucide"></i> Dashboard</a>
-  </div>
 </div>
 
-<!-- Filters -->
-<div class="dash-panel mb-4">
-  <div class="dash-panel-body">
-    <form method="get" class="d-flex align-items-end gap-3 flex-wrap">
-      <div>
-        <label class="hub-label">User</label>
-        <select name="user" class="hub-input" style="min-width:160px">
-          <option value="">All users</option>
-          {% for m in members %}
-          <option value="{{ m.user.id }}" {% if current_user_filter == m.user.id|stringformat:"d" %}selected{% endif %}>
-            {{ m.user.get_full_name|default:m.user.username }}
-          </option>
-          {% endfor %}
-        </select>
-      </div>
-      <div>
-        <label class="hub-label">Platform</label>
-        <select name="platform" class="hub-input" style="min-width:140px">
-          <option value="">All platforms</option>
-          <option value="slack" {% if current_platform_filter == "slack" %}selected{% endif %}>Slack</option>
-          <option value="google" {% if current_platform_filter == "google" %}selected{% endif %}>Google</option>
-          <option value="email" {% if current_platform_filter == "email" %}selected{% endif %}>Email</option>
-        </select>
-      </div>
-      <div>
-        <label class="hub-label">Action</label>
-        <select name="action" class="hub-input" style="min-width:160px">
-          <option value="">All actions</option>
-          {% for val, label in action_choices %}
-          <option value="{{ val }}" {% if current_action_filter == val %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <button type="submit" class="hub-btn-secondary"><i data-lucide="filter" class="lucide"></i> Filter</button>
-    </form>
-  </div>
+<!-- ── Filters ────────────────────────────────────────────────────── -->
+<div style="background:var(--surface);border:1px solid var(--gray-200);border-radius:14px;padding:16px 20px;margin-bottom:20px">
+  <form method="get" style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+    <div style="flex:1;min-width:140px">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--gray-500);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">User</label>
+      <select name="user" class="adm-select">
+        <option value="">All users</option>
+        {% for m in members %}
+        <option value="{{ m.user.id }}" {% if current_user_filter == m.user.id|stringformat:"d" %}selected{% endif %}>
+          {{ m.user.get_full_name|default:m.user.username }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div style="flex:1;min-width:140px">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--gray-500);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Platform</label>
+      <select name="platform" class="adm-select">
+        <option value="">All platforms</option>
+        <option value="microsoft" {% if current_platform_filter == "microsoft" %}selected{% endif %}>Microsoft</option>
+        <option value="google" {% if current_platform_filter == "google" %}selected{% endif %}>Google</option>
+        <option value="slack" {% if current_platform_filter == "slack" %}selected{% endif %}>Slack</option>
+        <option value="email" {% if current_platform_filter == "email" %}selected{% endif %}>Email</option>
+      </select>
+    </div>
+    <div style="flex:1;min-width:160px">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--gray-500);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Action</label>
+      <select name="action" class="adm-select">
+        <option value="">All actions</option>
+        {% for val, label in action_choices %}
+        <option value="{{ val }}" {% if current_action_filter == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="adm-header-btn" style="padding:9px 18px;background:var(--signature);color:#fff;border-color:var(--signature)">
+      <i data-lucide="filter" class="lucide" style="width:14px;height:14px"></i> Filter
+    </button>
+  </form>
 </div>
 
-<!-- Log table -->
-<div class="dash-panel">
-  <div class="dash-panel-header d-flex align-items-center justify-content-between">
+<!-- ── Log Table ──────────────────────────────────────────────────── -->
+<div style="background:var(--surface);border:1px solid var(--gray-200);border-radius:14px;overflow:hidden">
+  <div style="padding:14px 20px;border-bottom:1px solid var(--gray-100)">
     <span style="font-size:13px;font-weight:600;color:var(--gray-700)">{{ logs|length }} entr{{ logs|length|pluralize:"y,ies" }}</span>
   </div>
-  <div class="dash-panel-body" style="padding:0">
-    {% if logs %}
-    <table class="hub-table">
+  {% if logs %}
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
-        <tr><th>Time</th><th>User</th><th>Action</th><th>Platform</th><th>Detail</th></tr>
+        <tr style="border-bottom:1px solid var(--gray-100)">
+          <th class="adm-th">Time</th>
+          <th class="adm-th">User</th>
+          <th class="adm-th">Action</th>
+          <th class="adm-th">Platform</th>
+          <th class="adm-th">Detail</th>
+        </tr>
       </thead>
       <tbody>
         {% for log in logs %}
-        <tr>
-          <td style="font-size:12px;color:var(--gray-500);white-space:nowrap">{{ log.created_at|timesince }} ago</td>
-          <td>
-            <div class="d-flex align-items-center gap-2">
-              <div class="team-member-avatar" style="width:26px;height:26px;font-size:10px">
+        <tr class="adm-row">
+          <td style="padding:12px 16px;font-size:12px;color:var(--gray-400);white-space:nowrap">{{ log.created_at|timesince }} ago</td>
+          <td style="padding:12px 16px;white-space:nowrap">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:28px;height:28px;border-radius:8px;background:var(--gradient-brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">
                 {% if log.user %}{{ log.user.first_name|first|upper }}{% else %}S{% endif %}
               </div>
-              <span style="font-size:13px;font-weight:500">
+              <span style="font-weight:500;color:var(--gray-800)">
                 {% if log.user %}{{ log.user.get_full_name|default:log.user.username }}{% else %}System{% endif %}
               </span>
             </div>
           </td>
-          <td><span class="hub-pill hub-pill--muted">{{ log.get_action_display }}</span></td>
-          <td><span class="hub-pill hub-pill--muted" style="text-transform:capitalize;font-size:11px">{{ log.platform|default:"—" }}</span></td>
-          <td style="font-size:12px;color:var(--gray-600);max-width:300px">{{ log.detail|default:"—"|truncatewords:15 }}</td>
+          <td style="padding:12px 16px">
+            <span class="adm-pill">{{ log.get_action_display }}</span>
+          </td>
+          <td style="padding:12px 16px">
+            {% if log.platform %}
+            <span class="adm-pill adm-pill--platform">{{ log.platform|title }}</span>
+            {% else %}
+            <span style="color:var(--gray-300)">—</span>
+            {% endif %}
+          </td>
+          <td style="padding:12px 16px;font-size:12px;color:var(--gray-500);max-width:300px">{{ log.detail|default:"—"|truncatewords:15 }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-    {% else %}
-    <div class="ibx-empty">
-      <i data-lucide="scroll-text" class="lucide" style="width:40px;height:40px;color:var(--gray-300)"></i>
-      <h3 style="font-size:15px;font-weight:700;color:var(--gray-800);margin:10px 0 4px">No activity recorded</h3>
-      <p style="font-size:13px;color:var(--gray-500)">Activity will appear here as your team uses WorkHub</p>
-    </div>
-    {% endif %}
   </div>
+  {% else %}
+  <div style="text-align:center;padding:60px 20px">
+    <i data-lucide="scroll-text" class="lucide" style="width:44px;height:44px;color:var(--gray-300)"></i>
+    <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:14px 0 6px">No activity recorded</h3>
+    <p style="font-size:13px;color:var(--gray-500);margin:0">Activity will appear here as your team uses WorkHub</p>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>lucide.createIcons();</script>
+<style>
+.adm-header-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; border: 1px solid var(--gray-200);
+  background: var(--surface); color: var(--gray-700);
+  text-decoration: none; cursor: pointer; transition: all .15s;
+}
+.adm-header-btn:hover { border-color: var(--signature); color: var(--signature); }
+
+.adm-select {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--gray-200);
+  border-radius: 8px; font-size: 13px; background: var(--surface);
+  color: var(--gray-800); outline: none; cursor: pointer;
+  transition: border-color .15s; appearance: auto;
+}
+.adm-select:focus { border-color: var(--signature); }
+
+.adm-th {
+  text-align: left; padding: 10px 16px; font-size: 11px;
+  font-weight: 600; color: var(--gray-500);
+  text-transform: uppercase; letter-spacing: .05em;
+}
+
+.adm-row { border-bottom: 1px solid var(--gray-100); transition: background .1s; }
+.adm-row:last-child { border-bottom: none; }
+.adm-row:hover { background: var(--gray-50); }
+
+.adm-pill {
+  font-size: 11px; font-weight: 600; padding: 3px 10px;
+  border-radius: 20px; background: var(--gray-100);
+  color: var(--gray-600); display: inline-flex; align-items: center;
+}
+.adm-pill--platform {
+  background: var(--signature-50); color: var(--signature);
+}
+</style>
 {% endblock %}

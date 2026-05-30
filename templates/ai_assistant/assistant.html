@@ -3,122 +3,535 @@
 {% block page_title %}AI Assistant{% endblock %}
 
 {% block content %}
-<div class="ai-wrap">
+<div class="aia-root">
 
-  <!-- Hero -->
-  <section class="ai-hero">
-    <div class="ai-hero-glow"></div>
-    <div class="ai-hero-head">
-      <div class="ai-hero-icon"><i data-lucide="bot"></i></div>
-      <div>
-        <h1 class="ai-hero-title">AI Assistant</h1>
-        <p class="ai-hero-sub">Powered by GPT-4o-mini · Summarize &amp; draft professional replies instantly</p>
+  <!-- Animated gradient blobs background -->
+  <div class="aia-bg">
+    <div class="aia-blob aia-blob--1"></div>
+    <div class="aia-blob aia-blob--2"></div>
+    <div class="aia-blob aia-blob--3"></div>
+  </div>
+
+  <!-- ── Chat scroll ──────────────────────────────── -->
+  <div class="aia-scroll" id="aia-scroll">
+    <div class="aia-inner">
+
+      <!-- Welcome -->
+      <div class="aia-welcome" id="aia-welcome">
+
+        <div class="aia-avatar-ring">
+          <div class="aia-avatar-glow"></div>
+          <div class="aia-avatar-core">
+            <i data-lucide="sparkles" style="width:26px;height:26px;color:#fff"></i>
+          </div>
+        </div>
+
+        <h2 class="aia-hero-text">
+          Hi there, <span class="aia-gradient-text">how can I help?</span>
+        </h2>
+        <p class="aia-hero-sub">Your AI-powered writing assistant — paste any text and let's go.</p>
+
+        <div class="aia-pills">
+          <button class="aia-pill" onclick="quickStart('summarize')">
+            <i data-lucide="file-text" style="width:14px;height:14px"></i> Summarize
+          </button>
+          <button class="aia-pill" onclick="quickStart('reply')">
+            <i data-lucide="reply" style="width:14px;height:14px"></i> Draft Reply
+          </button>
+          <button class="aia-pill" onclick="quickStart('rewrite')">
+            <i data-lucide="pencil-line" style="width:14px;height:14px"></i> Rewrite
+          </button>
+          <button class="aia-pill" onclick="quickStart('extract')">
+            <i data-lucide="list-checks" style="width:14px;height:14px"></i> Extract Tasks
+          </button>
+        </div>
       </div>
-    </div>
-    <div class="ai-chips">
-      <span class="ai-chip"><i data-lucide="zap"></i> Instant Results</span>
-      <span class="ai-chip"><i data-lucide="lock"></i> Private &amp; Secure</span>
-      <span class="ai-chip"><i data-lucide="lightbulb"></i> Context-Aware</span>
-    </div>
-  </section>
 
-  <!-- Input card -->
-  <section class="ai-card">
-    <div class="ai-card-head">
-      <i data-lucide="mail-open"></i>
-      <span>Paste email content</span>
+      <!-- Messages -->
+      <div class="aia-messages" id="aia-messages"></div>
     </div>
-    <textarea id="email-input" class="ai-textarea" rows="9"
-      placeholder="Paste the email you want to summarize or reply to…"></textarea>
-    <div class="ai-card-foot">
-      <div class="ai-btn-group">
-        <button id="ai-btn-summarize" class="ai-btn ai-btn--primary" onclick="triggerAI('summarize')">
-          <i data-lucide="file-text"></i> Summarize
+  </div>
+
+  <!-- ── Floating glass input ─────────────────────── -->
+  <div class="aia-bar-zone">
+    <div class="aia-glass-bar" id="aia-bar">
+      <textarea id="aia-input" class="aia-glass-input" rows="1"
+        placeholder="Paste email or message…"
+        onkeydown="handleKey(event)"></textarea>
+      <div class="aia-bar-actions">
+        <div class="aia-mode-toggle" id="aia-mode-toggle">
+          <button class="aia-mt aia-mt--active" data-mode="summarize" onclick="setMode('summarize')" title="Summarize">
+            <i data-lucide="file-text" style="width:14px;height:14px"></i>
+          </button>
+          <button class="aia-mt" data-mode="reply" onclick="setMode('reply')" title="Reply">
+            <i data-lucide="reply" style="width:14px;height:14px"></i>
+          </button>
+          <button class="aia-mt" data-mode="rewrite" onclick="setMode('rewrite')" title="Rewrite">
+            <i data-lucide="pencil-line" style="width:14px;height:14px"></i>
+          </button>
+          <button class="aia-mt" data-mode="extract" onclick="setMode('extract')" title="Extract">
+            <i data-lucide="list-checks" style="width:14px;height:14px"></i>
+          </button>
+        </div>
+        <button class="aia-send" id="aia-send" onclick="sendMessage()" disabled>
+          <i data-lucide="arrow-up" style="width:16px;height:16px"></i>
         </button>
-        <button id="ai-btn-reply" class="ai-btn ai-btn--secondary" onclick="triggerAI('reply')">
-          <i data-lucide="send"></i> Generate Reply
-        </button>
       </div>
-      <span class="ai-hint">
-        <i data-lucide="arrow-down-circle"></i> Result appears below
-      </span>
     </div>
-  </section>
-
-  <!-- Response card -->
-  <section id="ai-response-box" class="ai-card ai-card--response" hidden>
-    <div class="ai-card-head ai-card-head--response">
-      <div class="ai-resp-title">
-        <div class="ai-resp-icon"><i data-lucide="bot"></i></div>
-        <span>AI Response</span>
-      </div>
-      <button class="ai-copy" onclick="copyResult()">
-        <i data-lucide="clipboard"></i> Copy
-      </button>
+    <div class="aia-bar-meta">
+      <span>GPT-4o-mini</span>
+      <span>·</span>
+      <span><kbd>Ctrl</kbd>+<kbd>Enter</kbd></span>
+      <span>·</span>
+      <button class="aia-reset-link" onclick="clearChat()">Clear</button>
     </div>
-    <div class="ai-response-body">
-      <p id="ai-content" class="ai-response-text"></p>
-    </div>
-  </section>
+  </div>
 
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Helper for AI triggers — uses runAI() in main.js
-function triggerAI(type) {
-  const ta = document.getElementById("email-input");
-  const text = ta.value.trim();
-  if (!text) {
-    ta.classList.add("ai-textarea--shake");
-    setTimeout(() => ta.classList.remove("ai-textarea--shake"), 600);
-    ta.focus();
-    return;
+lucide.createIcons();
+
+let currentMode = 'summarize';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.aia-mt').forEach(b =>
+    b.classList.toggle('aia-mt--active', b.dataset.mode === mode));
+}
+function quickStart(mode) { setMode(mode); document.getElementById('aia-input').focus(); }
+function handleKey(e) { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); sendMessage(); } }
+
+const ta = document.getElementById('aia-input');
+const sendBtn = document.getElementById('aia-send');
+ta.addEventListener('input', () => {
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 180) + 'px';
+  sendBtn.disabled = !ta.value.trim();
+});
+
+function hideWelcome() {
+  const w = document.getElementById('aia-welcome');
+  if (w && w.style.display !== 'none') {
+    w.style.opacity = '0'; w.style.transform = 'scale(.96) translateY(10px)';
+    setTimeout(() => { w.style.display = 'none'; }, 250);
   }
-  // Show response box and update button to use the right one
-  const btn = document.getElementById(type === "summarize" ? "ai-btn-summarize" : "ai-btn-reply");
-  const box = document.getElementById("ai-response-box");
-  const content = document.getElementById("ai-content");
-
-  btn.disabled = true;
-  const original = btn.innerHTML;
-  btn.innerHTML = '<span class="ai-spinner"></span> Thinking…';
-
-  fetch("/ai/ask/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" },
-    body: JSON.stringify({ type, text }),
-  })
-    .then(r => r.json())
-    .then(data => {
-      content.textContent = data.result || data.error || "No response";
-      box.hidden = false;
-      box.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    })
-    .catch(() => {
-      content.textContent = "Something went wrong. Please try again.";
-      box.hidden = false;
-    })
-    .finally(() => {
-      btn.disabled = false;
-      btn.innerHTML = original;
-      if (typeof lucide !== "undefined") lucide.createIcons();
-    });
+}
+function scrollBottom() {
+  const s = document.getElementById('aia-scroll');
+  requestAnimationFrame(() => s.scrollTop = s.scrollHeight);
 }
 
-function copyResult() {
-  const text = document.getElementById("ai-content").textContent;
+function addUserMsg(text) {
+  hideWelcome();
+  const c = document.getElementById('aia-messages');
+  const el = document.createElement('div');
+  el.className = 'aia-msg aia-msg--user aia-fi';
+  el.innerHTML = `<div class="aia-bubble aia-bubble--user">${escapeHtml(text)}</div>`;
+  c.appendChild(el);
+  scrollBottom();
+}
+
+function addAIMsg(html) {
+  const c = document.getElementById('aia-messages');
+  const el = document.createElement('div');
+  el.className = 'aia-msg aia-msg--ai aia-fi';
+  el.innerHTML = `
+    <div class="aia-ai-icon"><i data-lucide="sparkles" style="width:14px;height:14px;color:#818cf8"></i></div>
+    <div class="aia-ai-body">
+      <div class="aia-ai-text">${html}</div>
+      <div class="aia-ai-tools">
+        <button class="aia-copy-btn" onclick="copyMsg(this)"><i data-lucide="clipboard" style="width:12px;height:12px"></i> Copy</button>
+      </div>
+    </div>`;
+  c.appendChild(el);
+  lucide.createIcons();
+  scrollBottom();
+}
+
+function addTyping() {
+  hideWelcome();
+  const c = document.getElementById('aia-messages');
+  const el = document.createElement('div');
+  el.className = 'aia-msg aia-msg--ai aia-fi';
+  el.id = 'aia-typing';
+  el.innerHTML = `
+    <div class="aia-ai-icon"><i data-lucide="sparkles" style="width:14px;height:14px;color:#818cf8"></i></div>
+    <div class="aia-ai-body"><div class="aia-dots"><span></span><span></span><span></span></div></div>`;
+  c.appendChild(el);
+  lucide.createIcons();
+  scrollBottom();
+}
+function removeTyping() { const el = document.getElementById('aia-typing'); if (el) el.remove(); }
+
+function sendMessage() {
+  const text = ta.value.trim();
+  if (!text) { ta.classList.add('aia-shake'); setTimeout(() => ta.classList.remove('aia-shake'), 400); return; }
+  sendBtn.disabled = true;
+  addUserMsg(text);
+  ta.value = ''; ta.style.height = 'auto';
+  addTyping();
+
+  fetch('/ai/ask/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+    body: JSON.stringify({ type: currentMode, text }),
+  })
+  .then(r => r.json())
+  .then(data => { removeTyping(); addAIMsg(formatResult(data.result || data.error || 'No response.')); })
+  .catch(() => { removeTyping(); addAIMsg('<span style="color:#ef4444">Something went wrong. Try again.</span>'); })
+  .finally(() => { sendBtn.disabled = !ta.value.trim(); });
+}
+
+function clearChat() {
+  document.getElementById('aia-messages').innerHTML = '';
+  const w = document.getElementById('aia-welcome');
+  if (w) { w.style.display = ''; w.style.opacity = '1'; w.style.transform = ''; }
+}
+function copyMsg(btn) {
+  const text = btn.closest('.aia-ai-body').querySelector('.aia-ai-text').textContent;
   navigator.clipboard.writeText(text).then(() => {
-    const btn = event.target.closest("button");
-    const original = btn.innerHTML;
-    btn.innerHTML = '<i data-lucide="check"></i> Copied!';
-    if (typeof lucide !== "undefined") lucide.createIcons();
-    setTimeout(() => {
-      btn.innerHTML = original;
-      if (typeof lucide !== "undefined") lucide.createIcons();
-    }, 1500);
+    btn.innerHTML = '<i data-lucide="check" style="width:12px;height:12px;color:#10b981"></i> Copied';
+    lucide.createIcons();
+    setTimeout(() => { btn.innerHTML = '<i data-lucide="clipboard" style="width:12px;height:12px"></i> Copy'; lucide.createIcons(); }, 1200);
   });
 }
+function formatResult(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^\s*[-•]\s+(.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>[\s\S]*<\/li>)/,'<ul>$1</ul>')
+    .replace(/\n/g,'<br>');
+}
+function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 </script>
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   AI ASSISTANT — Glassmorphism + Claude-inspired
+   ═══════════════════════════════════════════════════════════════ */
+
+.aia-root {
+  display: flex; flex-direction: column;
+  height: calc(100vh - 64px);
+  margin: -24px -28px;
+  overflow: hidden;
+  position: relative;
+  background: #f0f0f5;
+}
+
+/* ── Animated blobs ───────────────────────────── */
+.aia-bg {
+  position: absolute; inset: 0; overflow: hidden;
+  pointer-events: none; z-index: 0;
+}
+.aia-blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); opacity: .45;
+}
+.aia-blob--1 {
+  width: 420px; height: 420px;
+  background: linear-gradient(135deg, #818cf8, #6366f1);
+  top: -10%; right: 10%;
+  animation: aia-drift1 18s ease-in-out infinite alternate;
+}
+.aia-blob--2 {
+  width: 350px; height: 350px;
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  bottom: -5%; left: -5%;
+  animation: aia-drift2 22s ease-in-out infinite alternate;
+}
+.aia-blob--3 {
+  width: 260px; height: 260px;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  top: 40%; left: 50%;
+  animation: aia-drift3 15s ease-in-out infinite alternate;
+}
+@keyframes aia-drift1 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-60px, 40px) scale(1.1); }
+}
+@keyframes aia-drift2 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(50px, -30px) scale(1.15); }
+}
+@keyframes aia-drift3 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-40px, -50px) scale(.9); }
+}
+
+/* ── Scroll ───────────────────────────────────── */
+.aia-scroll {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  position: relative; z-index: 1;
+  scroll-behavior: smooth;
+}
+.aia-inner {
+  max-width: 680px; margin: 0 auto;
+  padding: 48px 20px 20px;
+  min-height: 100%;
+  display: flex; flex-direction: column;
+}
+
+/* ═══ Welcome ═════════════════════════════════════ */
+.aia-welcome {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  transition: all .25s ease;
+}
+
+/* AI avatar with glow ring */
+.aia-avatar-ring {
+  position: relative; width: 72px; height: 72px;
+  margin-bottom: 24px;
+}
+.aia-avatar-glow {
+  position: absolute; inset: -6px; border-radius: 50%;
+  background: conic-gradient(from 0deg, #818cf8, #a78bfa, #c084fc, #818cf8);
+  animation: aia-glow-spin 4s linear infinite;
+  opacity: .5;
+}
+@keyframes aia-glow-spin { to { transform: rotate(360deg); } }
+.aia-avatar-core {
+  position: absolute; inset: 3px; border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 32px rgba(99,102,241,.35);
+}
+
+.aia-hero-text {
+  font-size: 28px; font-weight: 700;
+  color: var(--gray-900); margin: 0 0 8px;
+  letter-spacing: -.5px;
+}
+.aia-gradient-text {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.aia-hero-sub {
+  font-size: 15px; color: var(--gray-500);
+  margin: 0 0 32px; max-width: 380px; line-height: 1.5;
+}
+
+/* Glass suggestion pills */
+.aia-pills {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center; max-width: 440px;
+}
+.aia-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px;
+  background: rgba(255,255,255,.55);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 999px;
+  font-size: 13px; font-weight: 500;
+  color: var(--gray-700); cursor: pointer;
+  transition: all .2s; font-family: inherit;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+.aia-pill:hover {
+  background: rgba(255,255,255,.8);
+  border-color: rgba(99,102,241,.3);
+  box-shadow: 0 4px 16px rgba(99,102,241,.12);
+  transform: translateY(-2px);
+}
+.aia-pill i[data-lucide], .aia-pill svg.lucide { color: var(--signature); }
+
+/* ═══ Messages ════════════════════════════════════ */
+.aia-messages { display: flex; flex-direction: column; gap: 16px; }
+
+.aia-msg { display: flex; gap: 10px; }
+.aia-msg--user { justify-content: flex-end; }
+.aia-msg--ai { justify-content: flex-start; }
+
+.aia-fi { animation: aia-fi .35s ease both; }
+@keyframes aia-fi {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* User bubble — gradient */
+.aia-bubble--user {
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: #fff;
+  border-radius: 20px 20px 4px 20px;
+  font-size: 13.5px; line-height: 1.55;
+  white-space: pre-wrap; word-break: break-word;
+  max-width: 500px;
+  box-shadow: 0 4px 16px rgba(99,102,241,.25);
+}
+
+/* AI avatar */
+.aia-ai-icon {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,.7);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.8);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+/* AI message body — glass card */
+.aia-ai-body {
+  max-width: 560px;
+  background: rgba(255,255,255,.6);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 4px 20px 20px 20px;
+  padding: 14px 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.05);
+}
+.aia-ai-text {
+  font-size: 13.5px; line-height: 1.7;
+  color: var(--gray-800);
+  white-space: pre-wrap; word-break: break-word;
+}
+.aia-ai-text ul { margin: 6px 0; padding-left: 18px; }
+.aia-ai-text li { margin-bottom: 2px; }
+.aia-ai-text strong { font-weight: 600; }
+
+.aia-ai-tools {
+  margin-top: 8px; display: flex; gap: 6px;
+  opacity: 0; transition: opacity .15s;
+}
+.aia-msg--ai:hover .aia-ai-tools { opacity: 1; }
+
+.aia-copy-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 6px;
+  border: none; background: rgba(0,0,0,.04);
+  font-size: 11px; font-weight: 500; font-family: inherit;
+  color: var(--gray-500); cursor: pointer;
+  transition: all .15s;
+}
+.aia-copy-btn:hover { background: rgba(0,0,0,.08); color: var(--gray-700); }
+
+/* Typing dots */
+.aia-dots { display: flex; gap: 5px; padding: 6px 0; }
+.aia-dots span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: linear-gradient(135deg, #818cf8, #a78bfa);
+  animation: aia-dot-pulse .7s ease-in-out infinite alternate;
+}
+.aia-dots span:nth-child(2) { animation-delay: .15s; }
+.aia-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes aia-dot-pulse {
+  from { opacity: .3; transform: scale(.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ═══ Input Bar ═══════════════════════════════════ */
+.aia-bar-zone {
+  position: relative; z-index: 1;
+  padding: 0 20px 16px;
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.aia-glass-bar {
+  max-width: 680px; width: 100%;
+  background: rgba(255,255,255,.65);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.75);
+  border-radius: 20px;
+  padding: 12px 14px 8px 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  transition: border-color .2s, box-shadow .2s;
+}
+.aia-glass-bar:focus-within {
+  border-color: rgba(99,102,241,.35);
+  box-shadow: 0 8px 40px rgba(99,102,241,.12), 0 1px 2px rgba(0,0,0,.04);
+}
+
+.aia-glass-input {
+  width: 100%; border: none; outline: none; resize: none;
+  font-size: 14px; font-family: inherit;
+  color: var(--gray-800); background: transparent;
+  line-height: 1.5; max-height: 180px;
+  padding: 0; margin-bottom: 8px;
+}
+.aia-glass-input::placeholder { color: var(--gray-400); }
+
+.aia-bar-actions {
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.aia-mode-toggle {
+  display: flex; gap: 2px;
+  background: rgba(0,0,0,.04);
+  border-radius: 10px; padding: 2px;
+}
+.aia-mt {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: none; background: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--gray-400);
+  transition: all .15s;
+}
+.aia-mt:hover { color: var(--gray-600); }
+.aia-mt--active {
+  background: rgba(255,255,255,.85);
+  color: var(--signature);
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+.aia-send {
+  width: 36px; height: 36px; border-radius: 12px;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: #fff; transition: all .2s;
+  box-shadow: 0 2px 10px rgba(99,102,241,.3);
+}
+.aia-send:hover:not(:disabled) { transform: scale(1.06); box-shadow: 0 4px 16px rgba(99,102,241,.35); }
+.aia-send:disabled {
+  background: var(--gray-200); color: var(--gray-400);
+  cursor: default; box-shadow: none;
+}
+
+.aia-bar-meta {
+  margin-top: 8px;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--gray-400);
+}
+.aia-bar-meta kbd {
+  display: inline-block; padding: 0 4px; border-radius: 3px;
+  background: rgba(255,255,255,.5); border: 1px solid rgba(0,0,0,.06);
+  font-size: 10px; font-family: inherit; color: var(--gray-500);
+}
+.aia-reset-link {
+  border: none; background: none; cursor: pointer;
+  font-size: 11px; font-family: inherit; color: var(--gray-400);
+  transition: color .15s;
+}
+.aia-reset-link:hover { color: var(--signature); }
+
+/* ── Shake ────────────────────────────────────── */
+.aia-shake { animation: aia-sk .3s ease; }
+@keyframes aia-sk {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+/* ═══ Responsive ══════════════════════════════════ */
+@media (max-width: 640px) {
+  .aia-inner { padding: 24px 12px 16px; }
+  .aia-hero-text { font-size: 22px; }
+  .aia-pills { max-width: 300px; }
+  .aia-pill { padding: 7px 12px; font-size: 12px; }
+  .aia-bar-zone { padding: 0 10px 12px; }
+  .aia-bubble--user,
+  .aia-ai-body { max-width: 85vw; }
+  .aia-blob--1 { width: 250px; height: 250px; }
+  .aia-blob--2 { width: 200px; height: 200px; }
+  .aia-blob--3 { width: 160px; height: 160px; }
+}
+</style>
 {% endblock %}

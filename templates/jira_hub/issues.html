@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Jira Issues — WorkHub{% endblock %}
+{% block page_title %}Jira Issues{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <h4 class="fw-bold mb-0" style="font-size:1.15rem;">
+    <i data-lucide="list-checks" class="lucide me-2" style="color:#2684FF;"></i>Issues
+  </h4>
+  <button type="button" class="btn btn-primary" style="border-radius:10px;font-size:.85rem;padding:.55rem 1.5rem;" data-bs-toggle="modal" data-bs-target="#createIssueModal">
+    <i data-lucide="plus" class="lucide me-1" style="width:16px;height:16px;"></i>Create Issue
+  </button>
+</div>
+
+<!-- Filters -->
+<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.4rem;margin-bottom:1rem;">
+  <form method="get" class="d-flex gap-2 flex-wrap align-items-end">
+    <div>
+      <label class="form-label mb-1" style="font-size:.72rem;font-weight:600;color:#64748b;">Search</label>
+      <input type="text" name="q" value="{{ search_q }}" class="form-control form-control-sm" placeholder="Key or summary..." style="font-size:.82rem;border-radius:8px;min-width:200px;">
+    </div>
+    <div>
+      <label class="form-label mb-1" style="font-size:.72rem;font-weight:600;color:#64748b;">Status</label>
+      <select name="status" class="form-select form-select-sm" style="font-size:.82rem;border-radius:8px;">
+        <option value="">All</option>
+        <option value="new" {% if status_filter == "new" %}selected{% endif %}>To Do</option>
+        <option value="indeterminate" {% if status_filter == "indeterminate" %}selected{% endif %}>In Progress</option>
+        <option value="done" {% if status_filter == "done" %}selected{% endif %}>Done</option>
+      </select>
+    </div>
+    <div>
+      <label class="form-label mb-1" style="font-size:.72rem;font-weight:600;color:#64748b;">Project</label>
+      <select name="project" class="form-select form-select-sm" style="font-size:.82rem;border-radius:8px;">
+        <option value="">All</option>
+        {% for p in projects %}
+        <option value="{{ p.key }}" {% if project_filter == p.key %}selected{% endif %}>{{ p.key }} — {{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="form-label mb-1" style="font-size:.72rem;font-weight:600;color:#64748b;">Priority</label>
+      <select name="priority" class="form-select form-select-sm" style="font-size:.82rem;border-radius:8px;">
+        <option value="">All</option>
+        {% for pri in priorities %}
+        <option value="{{ pri }}" {% if priority_filter == pri %}selected{% endif %}>{{ pri }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:.82rem;padding:.4rem 1rem;">
+      <i data-lucide="search" class="lucide me-1" style="width:13px;height:13px;"></i>Filter
+    </button>
+    {% if search_q or status_filter or priority_filter or project_filter %}
+    <a href="{% url 'jira_hub:issues' %}" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;font-size:.82rem;padding:.4rem 1rem;">Clear</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Issue table -->
+{% if issues %}
+<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+  <div class="table-responsive">
+    <table class="table table-sm table-hover mb-0" style="font-size:.82rem;">
+      <thead>
+        <tr style="color:#64748b;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;">
+          <th style="border:0;padding:.6rem;">Key</th>
+          <th style="border:0;padding:.6rem;">Type</th>
+          <th style="border:0;padding:.6rem;">Summary</th>
+          <th style="border:0;padding:.6rem;">Status</th>
+          <th style="border:0;padding:.6rem;">Priority</th>
+          <th style="border:0;padding:.6rem;">Assignee</th>
+          <th style="border:0;padding:.6rem;">Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for issue in issues %}
+        <tr style="cursor:pointer;" onclick="window.location='{% url 'jira_hub:issue_detail' key=issue.issue_key %}'">
+          <td style="padding:.6rem;font-weight:600;color:#2684FF;white-space:nowrap;">{{ issue.issue_key }}</td>
+          <td style="padding:.6rem;color:#64748b;">{{ issue.issue_type }}</td>
+          <td style="padding:.6rem;max-width:350px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ issue.summary }}</td>
+          <td style="padding:.6rem;">
+            <span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:600;background:{{ issue.status_color }}14;color:{{ issue.status_color }};">{{ issue.status }}</span>
+          </td>
+          <td style="padding:.6rem;color:#64748b;">{{ issue.priority|default:"—" }}</td>
+          <td style="padding:.6rem;color:#64748b;">{{ issue.assignee_display_name|default:"Unassigned" }}</td>
+          <td style="padding:.6rem;color:#94a3b8;font-size:.75rem;white-space:nowrap;">{{ issue.updated_at_jira|date:"M j, H:i"|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="text-center py-5">
+  <i data-lucide="inbox" style="width:48px;height:48px;color:#cbd5e1;"></i>
+  <p class="text-muted mt-3">No issues found{% if search_q or status_filter %} matching your filters{% endif %}.</p>
+</div>
+{% endif %}
+
+<!-- Create Issue Modal -->
+<div class="modal fade" id="createIssueModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:var(--radius);">
+      <div class="modal-header" style="border:none;padding:1.5rem 1.8rem 1rem;">
+        <h5 class="modal-title fw-bold"><i data-lucide="plus-circle" class="lucide me-2" style="color:#2684FF;"></i>Create Issue</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'jira_hub:create_issue' %}">
+        {% csrf_token %}
+        <div class="modal-body" style="padding:0 1.8rem 1.5rem;">
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:.82rem;">Project <span class="text-danger">*</span></label>
+            <select name="project_key" class="form-select" required style="font-size:.85rem;border-radius:8px;">
+              {% for p in projects %}
+              <option value="{{ p.key }}">{{ p.key }} — {{ p.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:.82rem;">Issue Type</label>
+            <select name="issue_type" class="form-select" style="font-size:.85rem;border-radius:8px;">
+              <option value="Task">Task</option>
+              <option value="Bug">Bug</option>
+              <option value="Story">Story</option>
+              <option value="Epic">Epic</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:.82rem;">Summary <span class="text-danger">*</span></label>
+            <input type="text" name="summary" class="form-control" required placeholder="Brief description..." style="font-size:.85rem;border-radius:8px;">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:.82rem;">Description</label>
+            <textarea name="description" class="form-control" rows="4" placeholder="Detailed description..." style="font-size:.85rem;border-radius:8px;"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer" style="border:none;padding:0 1.8rem 1.5rem;justify-content:flex-end;">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius:8px;">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="border-radius:8px;">
+            <i data-lucide="plus" class="lucide me-1" style="width:14px;height:14px;"></i>Create
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

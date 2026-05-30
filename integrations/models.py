@@ -123,6 +123,11 @@ class CompanyIntegration(models.Model):
     jira_project_key = models.CharField(max_length=50, blank=True)
     jira_user_email = models.CharField(max_length=255, blank=True)
     jira_api_token_enc = models.BinaryField(null=True, blank=True)
+    jira_account_id = models.CharField(max_length=128, blank=True, help_text="Atlassian accountId from /rest/api/3/myself")
+    jira_display_name = models.CharField(max_length=255, blank=True)
+    jira_avatar_url = models.URLField(max_length=500, blank=True)
+    jira_webhook_id = models.CharField(max_length=100, blank=True, help_text="Jira webhook ID for deletion")
+    jira_webhook_secret = models.CharField(max_length=64, blank=True, help_text="Shared secret for webhook validation")
 
 
 
