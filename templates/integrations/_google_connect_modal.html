@@ -4,10 +4,10 @@
     <div class="modal-content">
 
       <!-- Header -->
-      <div class="modal-header">
+      <div class="modal-header border-0 pb-0 px-4 pt-4">
         <div class="d-flex align-items-center gap-3">
-          <div style="background:var(--gray-100,#f4f4f5);border-radius:12px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg viewBox="0 0 24 24" width="20" height="20" style="vertical-align:middle"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          <div style="background:linear-gradient(135deg,#4285F4,#34A853);border-radius:12px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg viewBox="0 0 24 24" width="20" height="20" style="vertical-align:middle"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#fff"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#fff"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#fff"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#fff"/></svg>
           </div>
           <div>
             <h5 class="modal-title fw-bold mb-0" id="googleConnectModalLabel" style="color:var(--ink-dark);letter-spacing:-.02em;">
@@ -30,7 +30,7 @@
               <button class="accordion-button collapsed py-2 px-3" type="button"
                       data-bs-toggle="collapse" data-bs-target="#step1"
                       style="font-size:.82rem;font-weight:600;color:#1e293b;background:#f8fafc;border-radius:12px!important;">
-                <span class="step-num">1</span>
+                <span style="background:#4285F4;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">1</span>
                 Create or Select a Google Cloud Project
               </button>
             </h2>
@@ -53,7 +53,7 @@
               <button class="accordion-button collapsed py-2 px-3" type="button"
                       data-bs-toggle="collapse" data-bs-target="#step2"
                       style="font-size:.82rem;font-weight:600;color:#1e293b;background:#f8fafc;border-radius:12px!important;">
-                <span class="step-num">2</span>
+                <span style="background:#EA4335;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">2</span>
                 Enable Required Google APIs (7 APIs)
               </button>
             </h2>
@@ -70,7 +70,7 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;transition:box-shadow .15s;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i data-lucide="mail" class="lucide" style="color:var(--gray-500,#71717a);font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="mail" class="lucide" style="color:#EA4335;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Gmail API</div>
                         <div class="text-muted" style="font-size:.7rem;">Read · Send · Modify labels · Drafts</div>
@@ -83,7 +83,7 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i data-lucide="calendar" class="lucide" style="color:var(--gray-500,#71717a);font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="calendar" class="lucide" style="color:#4285F4;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Calendar API</div>
                         <div class="text-muted" style="font-size:.7rem;">Read · Create · Update · Delete events</div>
@@ -96,7 +96,7 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i data-lucide="video" class="lucide" style="color:var(--gray-500,#71717a);font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="video" class="lucide" style="color:#34A853;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Meet REST API</div>
                         <div class="text-muted" style="font-size:.7rem;">Create meeting spaces · Get links</div>
@@ -109,7 +109,7 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i data-lucide="cloud" class="lucide" style="color:var(--gray-500,#71717a);font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="cloud" class="lucide" style="color:var(--primary-deeper);font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Drive API</div>
                         <div class="text-muted" style="font-size:.7rem;">Browse · Upload · Download · Delete files</div>
@@ -122,7 +122,7 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i data-lucide="file-text" class="lucide" style="color:var(--gray-500,#71717a);font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="file-text" class="lucide" style="color:#4285F4;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Docs API</div>
                         <div class="text-muted" style="font-size:.7rem;">Create · Read · Update documents</div>
@@ -135,7 +135,7 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i data-lucide="table" class="lucide" style="color:var(--gray-500,#71717a);font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="table" class="lucide" style="color:#34A853;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Sheets API</div>
                         <div class="text-muted" style="font-size:.7rem;">Read · Write cells · Create spreadsheets</div>
@@ -148,7 +148,7 @@
                        class="d-flex align-items-center gap-2 p-2 text-decoration-none"
                        style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"
                        onmouseenter="this.style.boxShadow='0 2px 8px rgba(66,133,244,.15)'" onmouseleave="this.style.boxShadow=''">
-                      <i data-lucide="clipboard-list" class="lucide" style="color:var(--gray-500,#71717a);font-size:.9rem;flex-shrink:0;"></i>
+                      <i data-lucide="clipboard-list" class="lucide" style="color:#7c3aed;font-size:.9rem;flex-shrink:0;"></i>
                       <div>
                         <div class="fw-semibold" style="font-size:.78rem;">Google Forms API</div>
                         <div class="text-muted" style="font-size:.7rem;">Create · Read · Manage forms</div>
@@ -170,7 +170,7 @@
               <button class="accordion-button collapsed py-2 px-3" type="button"
                       data-bs-toggle="collapse" data-bs-target="#step3"
                       style="font-size:.82rem;font-weight:600;color:#1e293b;background:#f8fafc;border-radius:12px!important;">
-                <span class="step-num">3</span>
+                <span style="background:#FBBC05;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">3</span>
                 Configure OAuth Consent Screen
               </button>
             </h2>
@@ -201,7 +201,7 @@
               <button class="accordion-button collapsed py-2 px-3" type="button"
                       data-bs-toggle="collapse" data-bs-target="#step4"
                       style="font-size:.82rem;font-weight:600;color:#1e293b;background:#f8fafc;border-radius:12px!important;">
-                <span class="step-num">4</span>
+                <span style="background:#34A853;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">4</span>
                 Create OAuth 2.0 Client ID &amp; Secret
               </button>
             </h2>
@@ -237,7 +237,7 @@
               <button class="accordion-button collapsed py-2 px-3" type="button"
                       data-bs-toggle="collapse" data-bs-target="#step5"
                       style="font-size:.82rem;font-weight:600;color:#1e293b;background:#f8fafc;border-radius:12px!important;">
-                <span class="step-num">5</span>
+                <span style="background:var(--primary);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">5</span>
                 OAuth Scopes &amp; Permissions Reference
               </button>
             </h2>
@@ -245,11 +245,11 @@
               <div class="accordion-body px-3 py-3" style="background:#fafafa;font-size:.79rem;color:var(--text-secondary);">
                 <p class="mb-2 text-muted" style="font-size:.77rem;">These scopes are automatically requested when the user authorizes via Google. No manual configuration needed — for reference only.</p>
                 <table class="table table-sm table-bordered mb-0" style="font-size:.76rem;">
-                  <thead style="background:var(--gray-50,#fafafb);">
+                  <thead style="background:var(--primary-light);">
                     <tr>
-                      <th style="padding:6px 10px;font-weight:600;color:var(--gray-700,#3f3f46);">Scope</th>
-                      <th style="padding:6px 10px;font-weight:600;color:var(--gray-700,#3f3f46);">Service</th>
-                      <th style="padding:6px 10px;font-weight:600;color:var(--gray-700,#3f3f46);">What it allows</th>
+                      <th style="padding:6px 10px;font-weight:600;color:var(--primary);">Scope</th>
+                      <th style="padding:6px 10px;font-weight:600;color:var(--primary);">Service</th>
+                      <th style="padding:6px 10px;font-weight:600;color:var(--primary);">What it allows</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -272,25 +272,25 @@
           </div>
 
           <!-- STEP 6 — Enter credentials (always expanded) -->
-          <div class="accordion-item mb-2" style="border:2px solid var(--signature,#4F46E5);border-radius:12px!important;overflow:hidden;">
+          <div class="accordion-item mb-2" style="border:2px solid #4285F4;border-radius:12px!important;overflow:hidden;">
             <h2 class="accordion-header">
               <button class="accordion-button py-2 px-3" type="button"
                       data-bs-toggle="collapse" data-bs-target="#step6"
-                      style="font-size:.82rem;font-weight:700;color:#1e293b;background:var(--gray-50,#fafafb);border-radius:12px!important;">
-                <span class="step-num">6</span>
+                      style="font-size:.82rem;font-weight:700;color:#1e293b;background:var(--primary-light);border-radius:12px!important;">
+                <span style="background:#4285F4;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-right:10px;">6</span>
                 Enter Your Client ID &amp; Secret — Then Connect
               </button>
             </h2>
             <div id="step6" class="accordion-collapse collapse show">
               <div class="accordion-body px-3 py-3" style="background:#fff;">
-                <form id="googleCredentialsForm" method="post" novalidate>
+                <form id="googleCredentialsForm" method="post" action="{% url 'integrations:google_save_credentials' %}" novalidate>
                   {% csrf_token %}
                   <div class="row g-3">
 
                     <!-- Client ID -->
                     <div class="col-12">
                       <label for="googleClientId" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:var(--text-secondary);">
-                        <i data-lucide="key" class="lucide me-1" style="color:var(--gray-500,#71717a);"></i>Client ID <span class="text-danger">*</span>
+                        <i data-lucide="key" class="lucide me-1" style="color:#4285F4;"></i>Client ID <span class="text-danger">*</span>
                       </label>
                       <div class="input-group">
                         <input type="text" class="form-control" id="googleClientId" name="client_id"
@@ -309,7 +309,7 @@
                     <!-- Client Secret -->
                     <div class="col-12">
                       <label for="googleClientSecret" class="form-label fw-semibold mb-1" style="font-size:.84rem;color:var(--text-secondary);">
-                        <i data-lucide="shield" class="lucide me-1" style="color:var(--gray-500,#71717a);"></i>Client Secret <span class="text-danger">*</span>
+                        <i data-lucide="shield" class="lucide me-1" style="color:#34A853;"></i>Client Secret <span class="text-danger">*</span>
                       </label>
                       <div class="input-group">
                         <input type="password" class="form-control" id="googleClientSecret" name="client_secret"
@@ -327,18 +327,18 @@
                   </div><!-- /row -->
 
                   <!-- What gets enabled -->
-                  <div class="mt-4 p-3" style="background:var(--gray-50,#fafafb);border-radius:10px;border:1px solid var(--gray-200,#e4e4e7);">
-                    <div class="fw-semibold mb-2" style="font-size:.78rem;color:var(--gray-600,#52525b);">
+                  <div class="mt-4 p-3" style="background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
+                    <div class="fw-semibold mb-2" style="font-size:.78rem;color:#166534;">
                       <i data-lucide="check-check" class="lucide me-1"></i>After connecting, you will have access to:
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                      <span class="scope-chip"><i data-lucide="mail" class="lucide me-1"></i>Gmail (Read · Send · Drafts · Labels)</span>
-                      <span class="scope-chip"><i data-lucide="cloud" class="lucide me-1"></i>Google Drive (Browse · Upload · Download)</span>
-                      <span class="scope-chip"><i data-lucide="file-text" class="lucide me-1"></i>Google Docs (Create · Read · Edit)</span>
-                      <span class="scope-chip"><i data-lucide="table" class="lucide me-1"></i>Google Sheets (Create · Read · Write)</span>
-                      <span class="scope-chip"><i data-lucide="clipboard-list" class="lucide me-1"></i>Google Forms (Create · Manage)</span>
-                      <span class="scope-chip"><i data-lucide="calendar" class="lucide me-1"></i>Calendar (Read · Create · Delete events)</span>
-                      <span class="scope-chip"><i data-lucide="video" class="lucide me-1"></i>Google Meet (Create meeting links)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="mail" class="lucide me-1"></i>Gmail (Read · Send · Drafts · Labels)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="cloud" class="lucide me-1"></i>Google Drive (Browse · Upload · Download)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="file-text" class="lucide me-1"></i>Google Docs (Create · Read · Edit)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="table" class="lucide me-1"></i>Google Sheets (Create · Read · Write)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="clipboard-list" class="lucide me-1"></i>Google Forms (Create · Manage)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="calendar" class="lucide me-1"></i>Calendar (Read · Create · Delete events)</span>
+                      <span style="font-size:.72rem;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;"><i data-lucide="video" class="lucide me-1"></i>Google Meet (Create meeting links)</span>
                     </div>
                   </div>
 
@@ -347,7 +347,7 @@
 
                   <div class="d-flex gap-2 mt-3 pb-2">
                     <button type="submit" class="btn flex-grow-1 fw-semibold" id="googleConnectBtn"
-                            style="background:var(--signature,#4F46E5);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-size:.88rem;">
+                            style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-size:.88rem;">
                       <span id="googleBtnText"><i data-lucide="plug" class="lucide me-2"></i>Save &amp; Connect Google Workspace</span>
                       <span id="googleBtnSpinner" class="d-none">
                         <span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving credentials…
@@ -431,8 +431,8 @@
     const clientId     = document.getElementById("googleClientId").value.trim();
     const clientSecret = document.getElementById("googleClientSecret").value.trim();
 
-    if (!clientId) { showAlert('warning', '<i data-lucide="triangle-alert" class="lucide me-1"></i>Client ID is required.'); return; }
-    if (!clientSecret) { showAlert('warning', '<i data-lucide="triangle-alert" class="lucide me-1"></i>Client Secret is required.'); return; }
+    if (!clientId) { showAlert("warning", '<i data-lucide="triangle-alert" class="lucide me-1"></i>Client ID is required.'); return; }
+    if (!clientSecret) { showAlert("warning", '<i data-lucide="triangle-alert" class="lucide me-1"></i>Client Secret is required.'); return; }
 
     btn.disabled = true;
     btnText.classList.add("d-none");
@@ -448,18 +448,18 @@
       const data = await resp.json();
 
       if (data.ok) {
-        showAlert('success', '<i data-lucide="check-circle" class="lucide me-1"></i>' + data.message);
+        showAlert("success", '<i data-lucide="check-circle" class="lucide me-1"></i>' + data.message);
         const toast = new bootstrap.Toast(document.getElementById("googleSuccessToast"));
         toast.show();
         setTimeout(() => { window.location.href = data.redirect_url; }, 1200);
       } else {
-        showAlert('danger', '<i data-lucide="x-circle" class="lucide me-1"></i>' + (data.error || 'Unknown error'));
+        showAlert("danger", '<i data-lucide="x-circle" class="lucide me-1"></i>' + (data.error || "Unknown error"));
         btn.disabled = false;
         btnText.classList.remove("d-none");
         spinner.classList.add("d-none");
       }
     } catch (err) {
-      showAlert('danger', '<i data-lucide="x-circle" class="lucide me-1"></i>Network error — please try again.');
+      showAlert("danger", '<i data-lucide="x-circle" class="lucide me-1"></i>Network error — please try again.');
       btn.disabled = false;
       btnText.classList.remove("d-none");
       spinner.classList.add("d-none");

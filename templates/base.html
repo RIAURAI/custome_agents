@@ -202,6 +202,24 @@
       </div>
       {% endif %}
 
+      {% if has_calendly_access %}
+      <!-- Calendly -->
+      <div class="sb-group {% if request.resolver_match.app_name == 'meetings' and request.resolver_match.url_name == 'calendly_bot' %}expanded{% endif %}">
+        <button type="button" class="sb-item sb-group-toggle" data-tooltip="Calendly">
+          <i data-lucide="calendar-check" style="color:#006bff;"></i>
+          <span class="sb-item-text">Calendly</span>
+          <i data-lucide="chevron-down" class="sb-chevron"></i>
+        </button>
+        <div class="sb-group-items">
+          <a href="{% url 'meetings:calendly_bot' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.url_name == 'calendly_bot' %}active{% endif %}">
+            <i data-lucide="bot"></i>
+            <span class="sb-item-text">Scheduling Bot</span>
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
       <!-- Social Media -->
       <div class="sb-group {% if request.resolver_match.app_name == 'social_media' %}expanded{% endif %}">
         <button type="button" class="sb-item sb-group-toggle" data-tooltip="Social Media">

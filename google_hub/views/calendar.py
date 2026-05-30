@@ -92,27 +92,37 @@ def calendar_event_create(request):
     if not summary or not start or not end:
         return JsonResponse({"error": "summary, start, and end are required."}, status=400)
 
+    # Ensure dateTime has seconds (datetime-local gives "2026-06-30T17:56")
+    if start and len(start) == 16:
+        start += ":00"
+    if end and len(end) == 16:
+        end += ":00"
+
+    tz = body.get("timeZone", "Asia/Kolkata")
     event_body = {
         "summary": summary,
         "description": body.get("description", ""),
         "location": body.get("location", ""),
-        "start": {"dateTime": start, "timeZone": body.get("timeZone", "UTC")},
-        "end": {"dateTime": end, "timeZone": body.get("timeZone", "UTC")},
+        "start": {"dateTime": start, "timeZone": tz},
+        "end": {"dateTime": end, "timeZone": tz},
     }
 
     # Optionally create a Google Meet link
-    if body.get("add_meet"):
+    add_meet = body.get("add_meet") or body.get("addMeet")
+    if add_meet:
         event_body["conferenceData"] = {
             "createRequest": {"requestId": f"meet-{summary[:20]}", "conferenceSolutionKey": {"type": "hangoutsMeet"}}
         }
 
-    # Attendees
+    # Attendees — accept list or comma-separated string
     attendees = body.get("attendees", [])
+    if isinstance(attendees, str):
+        attendees = [e.strip() for e in attendees.split(",") if e.strip()]
     if attendees:
         event_body["attendees"] = [{"email": e} for e in attendees if e]
 
     try:
-        params = {"conferenceDataVersion": 1} if body.get("add_meet") else {}
+        params = {"conferenceDataVersion": 1} if add_meet else {}
         from integrations.google_utils import CALENDAR_API_BASE
         import requests as http_req
         resp = http_req.post(
