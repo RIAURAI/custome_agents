@@ -1,177 +1,187 @@
 {% extends "base.html" %}
 {% block title %}#{{ channel_name }} — Slack — WorkHub{% endblock %}
-{% block page_title %}#{{ channel_name }}{% endblock %}
 
 {% block content %}
-<div class="row">
-  <div class="col-lg-10">
-
-    <!-- Channel header -->
-    <div class="d-flex align-items-center mb-4">
-      <a href="{% url 'slack_hub:channels' %}" class="btn btn-sm btn-outline-secondary me-3">
-        <i data-lucide="arrow-left" class="lucide"></i>
-      </a>
-      <h5 class="mb-0 fw-bold"><i data-lucide="hash" class="lucide me-1"></i>{{ channel_name }}</h5>
-      <button class="btn btn-sm btn-outline-primary ms-auto" onclick="summarizeChannel()">
-        <i data-lucide="sparkles" class="lucide me-1"></i>AI Summarize Channel
-      </button>
+<!-- Header -->
+<div class="hub-header">
+  <div class="d-flex align-items-center gap-3">
+    <div class="hub-icon hub-icon--slack"><i data-lucide="hash" class="lucide"></i></div>
+    <div>
+      <h1 class="hub-title">#{{ channel_name }}</h1>
+      <p class="hub-subtitle">{{ messages|length }} message{{ messages|length|pluralize }}</p>
     </div>
-
-    <!-- AI Summary box (hidden by default) -->
-    <div id="channel-summary-box" class="card mb-4 d-none border-primary">
-      <div class="card-body p-3">
-        <div class="d-flex align-items-center mb-2">
-          <i data-lucide="sparkles" class="lucide text-primary me-2"></i>
-          <span class="fw-semibold" style="font-size:.9rem;">Channel Summary</span>
-        </div>
-        <p id="channel-summary-content" class="mb-0" style="white-space:pre-wrap;font-size:.88rem;"></p>
-      </div>
-    </div>
-
-    {% if error %}
-    <div class="alert alert-danger"><i data-lucide="x-circle" class="lucide me-2"></i>{{ error }}</div>
-    {% endif %}
-
-    <!-- Messages -->
-    <div class="card">
-      <div class="card-header">
-        <h6 class="mb-0 fw-semibold">Recent Messages ({{ messages|length }})</h6>
-      </div>
-      <div class="list-group list-group-flush" id="message-list">
-        {% for msg in messages %}
-        <div class="list-group-item py-3" data-ts="{{ msg.ts }}" data-text="{{ msg.text }}"
-             data-sender="{{ msg.sender_name }}" data-sender-id="{{ msg.user }}">
-          <div class="d-flex align-items-start">
-            <div class="avatar-circle me-3" style="width:36px;height:36px;font-size:.75rem;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;border-radius:50%;">
-              {{ msg.sender_name|make_list|first|upper }}
-            </div>
-            <div class="flex-grow-1">
-              <div class="d-flex align-items-center gap-2 mb-1">
-                <strong style="font-size:.88rem;">{{ msg.sender_name }}</strong>
-                <small class="text-muted">{{ msg.ts_display }}</small>
-              </div>
-              <p class="mb-2" style="font-size:.88rem;">{{ msg.text }}</p>
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary" onclick="analyzeMsg(this)">
-                  <i data-lucide="cpu" class="lucide me-1"></i>AI Analyze
-                </button>
-                <button class="btn btn-sm btn-outline-primary" onclick="generateReply(this)">
-                  <i data-lucide="reply" class="lucide me-1"></i>AI Reply
-                </button>
-                <button class="btn btn-sm btn-success d-none send-btn" onclick="sendReply(this)">
-                  <i data-lucide="send" class="lucide me-1"></i>Send to Slack
-                </button>
-              </div>
-              <!-- AI result area -->
-              <div class="ai-result mt-2 d-none p-2 rounded" style="background:#f8f9fa;font-size:.85rem;"></div>
-            </div>
-          </div>
-        </div>
-        {% empty %}
-        <div class="list-group-item text-muted text-center py-4">No messages in this channel.</div>
-        {% endfor %}
-      </div>
-    </div>
-
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <a href="{% url 'slack_hub:channels' %}" class="hub-btn-secondary"><i data-lucide="arrow-left" class="lucide"></i> Channels</a>
   </div>
 </div>
+
+{% if error %}
+<div class="hub-alert d-flex align-items-center gap-2 mb-4">
+  <i data-lucide="alert-triangle" class="lucide"></i> {{ error }}
+</div>
+{% endif %}
+
+{% if messages %}
+<div class="slack-msg-card">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Recent Messages</span>
+  </div>
+  <div>
+    {% for msg in messages %}
+    <div class="slack-msg-item" id="msg-{{ forloop.counter }}">
+      <div class="d-flex align-items-start gap-3">
+        <div class="slack-avatar">{{ msg.sender_name|first|upper }}</div>
+        <div style="flex:1;min-width:0">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span style="font-size:13px;font-weight:600;color:var(--gray-900)">{{ msg.sender_name }}</span>
+            <span style="font-size:11px;color:var(--gray-400)">{{ msg.ts_display }}</span>
+          </div>
+          <p style="font-size:13px;color:var(--gray-700);line-height:1.5;margin:0">{{ msg.text }}</p>
+          <!-- AI result container -->
+          <div id="ai-result-{{ forloop.counter }}" style="display:none"></div>
+        </div>
+        <div class="d-flex align-items-center gap-1">
+          <button class="hub-btn-action" title="AI Analyze"
+                  onclick="aiAnalyze({{ forloop.counter }}, this)"
+                  data-text="{{ msg.text|escapejs }}"
+                  data-channel="{{ channel_id }}"
+                  data-channel-name="{{ channel_name }}"
+                  data-sender-id="{{ msg.user }}"
+                  data-sender-name="{{ msg.sender_name }}"
+                  data-ts="{{ msg.ts }}">
+            <i data-lucide="sparkles" class="lucide"></i>
+          </button>
+          <button class="hub-btn-action" title="AI Reply"
+                  onclick="aiReply({{ forloop.counter }}, this)"
+                  data-text="{{ msg.text|escapejs }}"
+                  data-channel="{{ channel_id }}"
+                  data-ts="{{ msg.ts }}">
+            <i data-lucide="reply" class="lucide"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="ibx-empty">
+  <i data-lucide="message-square" class="lucide" style="width:48px;height:48px;color:var(--gray-300)"></i>
+  <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:12px 0 4px">No messages</h3>
+  <p style="font-size:13px;color:var(--gray-500)">This channel has no recent messages</p>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
-const CHANNEL_ID = "{{ channel_id }}";
-const CHANNEL_NAME = "{{ channel_name }}";
-const CSRF = "{{ csrf_token }}";
+lucide.createIcons();
 
-function apiPost(url, body) {
-  return fetch(url, {
-    method: "POST",
-    headers: {"Content-Type": "application/json", "X-CSRFToken": CSRF},
-    body: JSON.stringify(body),
-  }).then(r => r.json());
-}
-
-function analyzeMsg(btn) {
-  const item = btn.closest("[data-ts]");
-  const resultDiv = item.querySelector(".ai-result");
-  resultDiv.classList.remove("d-none");
-  resultDiv.innerHTML = '<i data-lucide="hourglass" class="lucide"></i> Analyzing...';
-
-  apiPost("{% url 'slack_hub:ai_analyze' %}", {
-    text: item.dataset.text,
-    channel_id: CHANNEL_ID,
-    channel_name: CHANNEL_NAME,
-    sender_id: item.dataset.senderId,
-    sender_name: item.dataset.sender,
-    ts: item.dataset.ts,
-  }).then(data => {
-    if (data.error) {
-      resultDiv.innerHTML = `<span class="text-danger">${data.error}</span>`;
-    } else {
-      resultDiv.innerHTML = `<span class="badge bg-info me-2">${data.classification}</span>${data.summary}`;
-    }
-  });
-}
-
-function generateReply(btn) {
-  const item = btn.closest("[data-ts]");
-  const resultDiv = item.querySelector(".ai-result");
-  const sendBtn = item.querySelector(".send-btn");
-  resultDiv.classList.remove("d-none");
-  resultDiv.innerHTML = '<i data-lucide="hourglass" class="lucide"></i> Generating reply...';
-
-  apiPost("{% url 'slack_hub:ai_reply' %}", {
-    text: item.dataset.text,
-    channel_id: CHANNEL_ID,
-    ts: item.dataset.ts,
-    send: false,
-  }).then(data => {
-    if (data.error) {
-      resultDiv.innerHTML = `<span class="text-danger">${data.error}</span>`;
-    } else {
-      resultDiv.innerHTML = `<strong>AI Reply:</strong><br>${data.reply}`;
-      resultDiv.dataset.reply = data.reply;
-      sendBtn.classList.remove("d-none");
-    }
-  });
-}
-
-function sendReply(btn) {
-  const item = btn.closest("[data-ts]");
-  const resultDiv = item.querySelector(".ai-result");
+function aiAnalyze(idx, btn) {
   btn.disabled = true;
-  btn.innerHTML = '<i data-lucide="hourglass" class="lucide"></i> Sending...';
+  const container = document.getElementById('ai-result-' + idx);
+  container.style.display = 'block';
+  container.innerHTML = '<div class="slack-ai-result"><i data-lucide="loader" class="lucide" style="width:14px;height:14px;animation:spin 1s linear infinite"></i> Analyzing…</div>';
+  lucide.createIcons();
 
-  apiPost("{% url 'slack_hub:ai_reply' %}", {
-    text: item.dataset.text,
-    channel_id: CHANNEL_ID,
-    ts: item.dataset.ts,
-    send: true,
-  }).then(data => {
-    if (data.sent) {
-      btn.classList.add("d-none");
-      resultDiv.innerHTML += '<br><span class="badge bg-success mt-1">✓ Sent to Slack</span>';
+  fetch("{% url 'slack_hub:ai_analyze' %}", {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','X-CSRFToken':'{{ csrf_token }}'},
+    body: JSON.stringify({
+      text: btn.dataset.text,
+      channel_id: btn.dataset.channel,
+      channel_name: btn.dataset.channelName,
+      sender_id: btn.dataset.senderId,
+      sender_name: btn.dataset.senderName,
+      ts: btn.dataset.ts
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) {
+      container.innerHTML = `<div class="slack-ai-result" style="border-left:3px solid var(--danger);color:var(--danger)">${data.error}</div>`;
     } else {
-      btn.disabled = false;
-      btn.innerHTML = '<i data-lucide="send" class="lucide me-1"></i>Send to Slack';
-      resultDiv.innerHTML += `<br><span class="text-danger">${data.error || "Failed"}</span>`;
+      container.innerHTML = `
+        <div class="slack-ai-result">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="hub-pill hub-pill--info">${data.classification}</span>
+            <span style="font-size:11px;color:var(--gray-400)">AI Analysis</span>
+          </div>
+          <p style="margin:0;font-size:12px;color:var(--gray-600)">${data.summary}</p>
+        </div>`;
     }
+    btn.disabled = false;
+  })
+  .catch(() => {
+    container.innerHTML = '<div class="slack-ai-result" style="color:var(--danger)">Analysis failed</div>';
+    btn.disabled = false;
   });
 }
 
-function summarizeChannel() {
-  const box = document.getElementById("channel-summary-box");
-  const content = document.getElementById("channel-summary-content");
-  box.classList.remove("d-none");
-  content.textContent = "Summarizing...";
+function aiReply(idx, btn) {
+  btn.disabled = true;
+  const container = document.getElementById('ai-result-' + idx);
+  container.style.display = 'block';
+  container.innerHTML = '<div class="slack-ai-result"><i data-lucide="loader" class="lucide" style="width:14px;height:14px;animation:spin 1s linear infinite"></i> Generating reply…</div>';
+  lucide.createIcons();
 
-  apiPost("{% url 'slack_hub:ai_summarize' %}", {channel_id: CHANNEL_ID}).then(data => {
+  fetch("{% url 'slack_hub:ai_reply' %}", {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','X-CSRFToken':'{{ csrf_token }}'},
+    body: JSON.stringify({
+      text: btn.dataset.text,
+      channel_id: btn.dataset.channel,
+      ts: btn.dataset.ts,
+      send: false
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
     if (data.error) {
-      content.innerHTML = `<span class="text-danger">${data.error}</span>`;
+      container.innerHTML = `<div class="slack-ai-result" style="border-left:3px solid var(--danger);color:var(--danger)">${data.error}</div>`;
     } else {
-      content.textContent = data.summary;
+      container.innerHTML = `
+        <div class="reply-bubble mt-2">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i data-lucide="bot" class="lucide" style="width:12px;height:12px;color:var(--emerald)"></i>
+            <span style="font-size:11px;font-weight:600;color:#166534">AI Draft Reply</span>
+          </div>
+          <p style="margin:0;font-size:13px">${data.reply}</p>
+          ${data.sent ? '<span class="hub-pill hub-pill--success mt-1">Sent</span>' : '<button class="hub-btn-create mt-2" style="font-size:11px;padding:4px 12px" onclick="sendReply(this,\''+btn.dataset.channel+'\',\''+btn.dataset.ts+'\')">Send to Slack</button>'}
+        </div>`;
+      lucide.createIcons();
     }
+    btn.disabled = false;
+  })
+  .catch(() => {
+    container.innerHTML = '<div class="slack-ai-result" style="color:var(--danger)">Reply generation failed</div>';
+    btn.disabled = false;
   });
+}
+
+function sendReply(sendBtn, channelId, ts) {
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Sending…';
+  const parentBubble = sendBtn.closest('.reply-bubble');
+  const replyText = parentBubble.querySelector('p').textContent;
+
+  fetch("{% url 'slack_hub:ai_reply' %}", {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','X-CSRFToken':'{{ csrf_token }}'},
+    body: JSON.stringify({ text: replyText, channel_id: channelId, ts: ts, send: true })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.sent) {
+      sendBtn.outerHTML = '<span class="hub-pill hub-pill--success mt-1">Sent ✓</span>';
+    } else {
+      sendBtn.textContent = 'Failed – retry';
+      sendBtn.disabled = false;
+    }
+  })
+  .catch(() => { sendBtn.textContent = 'Failed'; sendBtn.disabled = false; });
 }
 </script>
+<style>@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}</style>
 {% endblock %}

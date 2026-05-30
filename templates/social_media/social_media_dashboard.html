@@ -1,810 +1,254 @@
 {% extends "base.html" %}
 {% block title %}Social Media — WorkHub{% endblock %}
 
-{% block extra_head %}
-<style>
-  /* ─── Hero Section ───────────────────────────────────────────────────────── */
-  .sm-hero {
-    background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 50%, #9333ea 100%);
-    border-radius: var(--radius);
-    padding: 2.5rem 2.8rem;
-    color: #fff;
-    position: relative;
-    overflow: hidden;
-  }
-  .sm-hero::before {
-    content: '';
-    position: absolute;
-    top: -50%; right: -20%;
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(255,255,255,.08) 0%, transparent 70%);
-    border-radius: 50%;
-  }
-  .sm-hero::after {
-    content: '';
-    position: absolute;
-    bottom: -30%; left: 10%;
-    width: 250px; height: 250px;
-    background: radial-gradient(circle, rgba(255,255,255,.05) 0%, transparent 70%);
-    border-radius: 50%;
-  }
-  .sm-hero h2 { font-weight: 800; font-size: 1.75rem; letter-spacing: -0.5px; position: relative; z-index: 1; }
-  .sm-hero p { opacity: .8; font-size: .95rem; position: relative; z-index: 1; }
-  .sm-hero .action-bar { position: relative; z-index: 1; }
-  .sm-hero .btn {
-    border-radius: var(--radius-btn);
-    font-weight: 600;
-    padding: .55rem 1.3rem;
-    font-size: .82rem;
-    backdrop-filter: blur(4px);
-    transition: transform .15s, box-shadow .15s;
-  }
-  .sm-hero .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
-
-  /* ─── Stats Row ──────────────────────────────────────────────────────────── */
-  .stats-row { margin: -1.8rem 1.5rem 0; position: relative; z-index: 2; }
-  .stat-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.5rem;
-    box-shadow: var(--shadow-card);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: transform .2s, box-shadow .2s;
-  }
-  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-  .stat-card .stat-icon {
-    width: 52px; height: 52px; border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.35rem; flex-shrink: 0;
-  }
-  .stat-card .stat-value { font-size: 1.5rem; font-weight: 800; line-height: 1.2; color: var(--text-base); }
-  .stat-card .stat-label { font-size: .78rem; font-weight: 500; color: var(--text-muted); margin-top: 2px; }
-
-  /* ─── Section Headers ────────────────────────────────────────────────────── */
-  .section-header {
-    font-size: 1rem; font-weight: 700; color: var(--text-base);
-    display: flex; align-items: center; gap: .5rem;
-    margin-bottom: 1.25rem;
-    letter-spacing: -0.02em;
-  }
-  .section-header i { color: var(--primary); font-size: 1.1rem; }
-
-  /* ─── Platform Cards ─────────────────────────────────────────────────────── */
-  .platform-card {
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-card);
-    box-shadow: var(--shadow-card);
-    transition: transform .2s ease, box-shadow .2s ease;
-    overflow: hidden;
-    cursor: pointer;
-    position: relative;
-  }
-  .platform-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 4px;
-    background: var(--platform-color);
-    opacity: 0;
-    transition: opacity .2s;
-  }
-  .platform-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-  }
-  .platform-card:hover::before { opacity: 1; }
-
-  .platform-card .card-inner {
-    padding: 1.75rem 1.25rem 1.5rem;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 220px;
-  }
-  .platform-icon-wrap {
-    width: 60px; height: 60px; border-radius: 16px;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 1.6rem; margin-bottom: 1rem;
-    transition: transform .2s;
-  }
-  .platform-card:hover .platform-icon-wrap { transform: scale(1.08); }
-
-  .platform-name { font-size: .9rem; font-weight: 700; color: var(--text-base); margin-bottom: .5rem; }
-
-  .status-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: .72rem; font-weight: 600;
-    padding: .25rem .65rem; border-radius: 20px;
-    margin-bottom: .75rem;
-  }
-  .status-badge.connected { background: #dcfce7; color: #166534; }
-  .status-badge.disconnected { background: #f1f5f9; color: #64748b; }
-  .status-badge.error { background: #fef2f2; color: #991b1b; }
-  .status-badge .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: currentColor;
-  }
-
-  .perm-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-bottom: .75rem; }
-  .perm-tag {
-    font-size: .62rem; padding: .2rem .5rem;
-    border-radius: 5px; font-weight: 600;
-    background: #f8fafc; color: #94a3b8;
-    border: 1px solid #e2e8f0;
-  }
-  .perm-tag.on { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
-
-  .btn-connect-card {
-    width: 100%; border-radius: 10px; font-weight: 600; font-size: .82rem;
-    padding: .55rem 0; border: none; transition: all .15s;
-    margin-top: auto;
-  }
-  .btn-connect-card:hover { filter: brightness(1.1); transform: translateY(-1px); }
-
-  .btn-action-sm {
-    font-size: .7rem; border-radius: 7px; padding: .35rem .6rem;
-    font-weight: 600; border: 1.5px solid;
-  }
-
-  .test-result { font-size: .68rem; margin-top: .3rem; min-height: 1rem; }
-
-  /* ─── Recent Posts Card ──────────────────────────────────────────────────── */
-  .posts-card {
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-card);
-    box-shadow: var(--shadow-card);
-    overflow: hidden;
-  }
-  .posts-card .card-head {
-    padding: 1.2rem 1.8rem;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .posts-card .card-head h5 { font-size: .95rem; font-weight: 700; margin: 0; }
-  .posts-table th {
-    font-weight: 600; font-size: .72rem; text-transform: uppercase;
-    letter-spacing: .6px; color: var(--text-muted); padding: .85rem 1.2rem;
-    border-bottom: 1px solid var(--border); background: #fafbfc;
-  }
-  .posts-table td { padding: .85rem 1.2rem; font-size: .88rem; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
-  .posts-table tr:last-child td { border-bottom: none; }
-  .posts-table tr:hover { background: #f8fafc; }
-
-  .platform-pill {
-    font-size: .68rem; font-weight: 600; padding: .25rem .65rem;
-    border-radius: 20px; color: #fff;
-  }
-
-  .empty-state { padding: 4.5rem 2rem; text-align: center; }
-  .empty-state .icon-wrap {
-    width: 80px; height: 80px; border-radius: 50%;
-    background: #f1f5f9; display: inline-flex;
-    align-items: center; justify-content: center;
-    margin-bottom: 1.2rem;
-  }
-  .empty-state .icon-wrap i { font-size: 2rem; color: #94a3b8; }
-  .empty-state p { color: var(--text-muted); font-size: .95rem; margin-top: .5rem; }
-
-  /* ─── Modal ──────────────────────────────────────────────────────────────── */
-  .connect-modal .modal-content {
-    border: none; border-radius: 20px; overflow: hidden;
-    box-shadow: 0 25px 60px rgba(0,0,0,.25);
-  }
-  .connect-modal .modal-header {
-    border: none; padding: 1.8rem 2.2rem 1.2rem;
-    background: linear-gradient(135deg, #f8fafc 0%, var(--primary-light) 100%);
-  }
-  .connect-modal .modal-header .platform-badge {
-    width: 52px; height: 52px; border-radius: 14px;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 1.5rem;
-  }
-  .connect-modal .modal-body { padding: 1.2rem 2.2rem 2rem; }
-  .connect-modal .modal-footer { border: none; padding: 0 2.2rem 1.8rem; }
-
-  .step-accordion .accordion-item {
-    border: 1px solid var(--border); border-radius: 12px !important;
-    margin-bottom: .5rem; overflow: hidden;
-  }
-  .step-accordion .accordion-button {
-    font-weight: 600; font-size: .85rem; padding: .75rem 1.1rem;
-    background: #fafbfc; border-radius: 12px !important;
-    color: var(--text-base);
-  }
-  .step-accordion .accordion-button:not(.collapsed) {
-    background: var(--primary-light); color: var(--primary-dark); box-shadow: none;
-  }
-  .step-accordion .accordion-body {
-    font-size: .82rem; color: #475569; line-height: 1.7; padding: .8rem 1.2rem 1rem;
-  }
-  .step-accordion .step-num {
-    width: 22px; height: 22px; border-radius: 50%;
-    background: var(--primary); color: #fff;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: .65rem; font-weight: 700; margin-right: .6rem; flex-shrink: 0;
-  }
-
-  .form-section {
-    background: #f8fafc; border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 1.5rem; margin-top: 1.2rem;
-  }
-  .form-section h6 { font-size: .85rem; font-weight: 700; margin-bottom: 1rem; }
-  .form-section label { font-weight: 600; font-size: .78rem; color: #334155; margin-bottom: .25rem; }
-  .form-section .form-control, .form-section .form-select {
-    border-radius: var(--radius-btn); border: 1.5px solid var(--border);
-    font-size: .85rem; padding: .6rem .9rem; transition: border-color .2s, box-shadow .2s;
-  }
-  .form-section .form-control:focus, .form-section .form-select:focus {
-    border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,89,0,.1);
-  }
-  .form-section .form-text { font-size: .7rem; color: #94a3b8; margin-top: .2rem; }
-
-  .perm-switch {
-    display: flex; align-items: center; gap: .7rem;
-    padding: .5rem .75rem; border-radius: 10px;
-    background: #fff; border: 1px solid var(--border);
-    transition: border-color .15s;
-  }
-  .perm-switch:hover { border-color: var(--primary); }
-  .perm-switch .form-check-input { width: 2.4rem; height: 1.2rem; cursor: pointer; flex-shrink: 0; }
-  .perm-switch .form-check-input:checked { background-color: var(--primary); border-color: var(--primary); }
-  .perm-switch label { font-size: .8rem; font-weight: 600; cursor: pointer; margin: 0; }
-  .perm-switch small { font-size: .68rem; color: #94a3b8; display: block; }
-
-  .btn-connect-submit {
-    border-radius: 10px; font-weight: 700; padding: .7rem 2.2rem;
-    font-size: .88rem; border: none; transition: all .2s;
-    letter-spacing: -.01em;
-  }
-  .btn-connect-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.18); }
-
-  .platform-fields { display: none; }
-  .platform-fields.show { display: block; }
-
-  /* ─── Toast ──────────────────────────────────────────────────────────────── */
-  .toast-container { z-index: 9999; }
-
-  /* ─── Responsive ─────────────────────────────────────────────────────────── */
-  @media (max-width: 992px) {
-    .sm-hero { padding: 2rem 1.8rem; }
-    .stats-row { margin: -1.5rem .5rem 0; }
-    .platform-card .card-inner { padding: 1.5rem 1rem 1.2rem; min-height: auto; }
-  }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="container-fluid px-4 py-4">
-
-  <!-- ═══ Hero Section ═══ -->
-  <div class="sm-hero mb-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center">
-      <div>
-        <h2 class="mb-1"><i data-lucide="share-2" class="lucide me-2"></i>Social Media Hub</h2>
-        <p class="mb-0">Manage all your business social channels from one place.</p>
-      </div>
-      <div class="action-bar d-flex flex-wrap gap-2 mt-3 mt-lg-0">
-        <a href="{% url 'social_media:setup_guide' %}" class="btn btn-outline-light btn-sm"><i data-lucide="book-open" class="lucide me-1"></i>Setup Guide</a>
-        <a href="{% url 'social_media:bot_settings' %}" class="btn btn-light text-dark btn-sm"><i data-lucide="bot" class="lucide me-1"></i>AI Bot</a>
-        <a href="{% url 'social_media:posts_list' %}" class="btn btn-outline-light btn-sm"><i data-lucide="file-text" class="lucide me-1"></i>Posts</a>
-        <a href="{% url 'social_media:messages_inbox' %}" class="btn btn-outline-light btn-sm"><i data-lucide="message-circle-more" class="lucide me-1"></i>Messages</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ Stats Cards (overlapping hero) ═══ -->
-  <div class="stats-row mb-4">
-    <div class="row g-3">
-      <div class="col-6 col-lg-3">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(255,89,0,.1); color: var(--primary);">
-            <i data-lucide="radio-tower" class="lucide"></i>
-          </div>
-          <div>
-            <div class="stat-value">{{ accounts|length }}</div>
-            <div class="stat-label">Connected</div>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-lg-3">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(16,185,129,.1); color: var(--success);">
-            <i data-lucide="file-text" class="lucide"></i>
-          </div>
-          <div>
-            <div class="stat-value">{{ recent_posts|length }}</div>
-            <div class="stat-label">Recent Posts</div>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-lg-3">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(14,165,233,.1); color: var(--info);">
-            <i data-lucide="users" class="lucide"></i>
-          </div>
-          <div>
-            <div class="stat-value">{{ platform_info|length }}</div>
-            <div class="stat-label">Platforms</div>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-lg-3">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(245,158,11,.1); color: var(--warning);">
-            <i data-lucide="bot" class="lucide"></i>
-          </div>
-          <div>
-            <div class="stat-value">AI</div>
-            <div class="stat-label">Bot Ready</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ Platforms Section ═══ -->
-  <div class="section-header mt-4">
-    <i data-lucide="grid-3x3" class="lucide"></i>
-    <span>Platforms</span>
-  </div>
-  <div class="row g-3 mb-4">
-    {% for info in platform_info %}
-    <div class="col-6 col-md-4 col-xl">
-      <div class="platform-card" style="--platform-color: {{ info.color }};"
-           {% if is_admin %}onclick="openConnectModal('{{ info.key }}', '{{ info.name }}', '{{ info.color }}')"{% endif %}>
-        <div class="card-inner">
-          <div class="platform-icon-wrap" style="background: {{ info.color }}12;">
-            <i class="bi {{ info.icon }}" style="color: {{ info.color }};"></i>
-          </div>
-          <div class="platform-name">{{ info.name }}</div>
-
-          {% if info.account %}
-            <span class="status-badge {% if info.account.status == 'active' %}connected{% elif info.account.status == 'error' %}error{% else %}disconnected{% endif %}">
-              <span class="dot"></span>
-              {{ info.account.get_status_display }}
-            </span>
-
-            <div class="perm-row">
-              <span class="perm-tag {% if info.account.can_read_messages %}on{% endif %}">Read</span>
-              <span class="perm-tag {% if info.account.can_send_messages %}on{% endif %}">Write</span>
-              <span class="perm-tag {% if info.account.can_auto_reply %}on{% endif %}">Bot</span>
-              <span class="perm-tag {% if info.account.can_post_content %}on{% endif %}">Post</span>
-            </div>
-
-            {% if is_admin %}
-            <button class="btn btn-outline-secondary btn-action-sm w-100 mb-2"
-              onclick="event.stopPropagation(); testConnection({{ info.account.pk }}, this)">
-              <i data-lucide="wifi" class="lucide me-1"></i>Test
-            </button>
-            <div class="test-result text-center" id="test-result-{{ info.account.pk }}">
-              {% if info.account.last_tested_at %}
-              <span class="text-muted" style="font-size:.65rem;">Tested {{ info.account.last_tested_at|timesince }} ago</span>
-              {% endif %}
-            </div>
-            <div class="d-flex gap-2 mt-2 w-100">
-              <button class="btn btn-action-sm btn-outline-primary flex-fill"
-                onclick="event.stopPropagation(); openConnectModal('{{ info.key }}', '{{ info.name }}', '{{ info.color }}')">
-                <i data-lucide="pencil" class="lucide"></i> Edit
-              </button>
-              <form method="post" action="{% url 'social_media:disconnect_account' info.account.pk %}" class="flex-fill" onclick="event.stopPropagation();">
-                {% csrf_token %}
-                <button class="btn btn-action-sm btn-outline-danger w-100" onclick="return confirm('Disconnect {{ info.name }}?')">
-                  <i data-lucide="x" class="lucide"></i>
-                </button>
-              </form>
-            </div>
-            {% endif %}
-
-          {% else %}
-            <span class="status-badge disconnected">
-              <span class="dot"></span>
-              Not Connected
-            </span>
-
-            {% if is_admin %}
-            <button class="btn-connect-card" style="background: {{ info.color }}; color: #fff;"
-              onclick="event.stopPropagation(); openConnectModal('{{ info.key }}', '{{ info.name }}', '{{ info.color }}')">
-              <i data-lucide="plug" class="lucide me-1"></i>Connect
-            </button>
-            {% else %}
-            <small class="text-muted mt-auto">Admin required</small>
-            {% endif %}
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-
-  <!-- ═══ Recent Posts ═══ -->
-  <div class="section-header mt-4">
-    <i data-lucide="history" class="lucide"></i>
-    <span>Recent Posts</span>
-  </div>
-  <div class="posts-card">
-    <div class="card-head">
-      <h5><i data-lucide="megaphone" class="lucide me-2 text-primary"></i>Activity</h5>
-      <a href="{% url 'social_media:create_post' %}" class="btn btn-primary btn-sm" style="border-radius:var(--radius-btn); font-weight:600; font-size:.8rem;">
-        <i data-lucide="plus" class="lucide me-1"></i>New Post
-      </a>
-    </div>
-    {% if recent_posts %}
-    <div class="table-responsive">
-      <table class="table posts-table mb-0">
-        <thead>
-          <tr>
-            <th style="padding-left:1.8rem;">Platform</th>
-            <th>Content</th>
-            <th>Status</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for post in recent_posts %}
-          <tr>
-            <td style="padding-left:1.8rem;">
-              <span class="platform-pill" style="background: {% if post.account.platform == 'whatsapp' %}#25D366{% elif post.account.platform == 'linkedin' %}#0A66C2{% elif post.account.platform == 'facebook' %}#1877F2{% elif post.account.platform == 'instagram' %}#E4405F{% else %}#000{% endif %};">
-                {{ post.account.get_platform_display }}
-              </span>
-            </td>
-            <td>
-              <a href="{% url 'social_media:post_detail' post.pk %}" class="text-decoration-none fw-medium text-dark">
-                {{ post.content|truncatewords:10 }}
-              </a>
-            </td>
-            <td>
-              <span class="badge rounded-pill bg-{% if post.status == 'published' %}success{% elif post.status == 'draft' %}secondary{% elif post.status == 'scheduled' %}warning text-dark{% else %}danger{% endif %}" style="font-size:.7rem;">
-                {{ post.get_status_display }}
-              </span>
-            </td>
-            <td class="text-muted" style="font-size:.82rem;">{{ post.created_at|date:"M d, Y" }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <div class="icon-wrap">
-        <i data-lucide="megaphone" class="lucide"></i>
-      </div>
-      <p>No posts yet. Connect an account and start publishing!</p>
-      <a href="{% url 'social_media:create_post' %}" class="btn btn-primary btn-sm mt-2" style="border-radius:var(--radius-btn); font-weight:600;">
-        <i data-lucide="plus" class="lucide me-1"></i>Create First Post
-      </a>
-    </div>
+<!-- Hero -->
+<div class="sm-hero mb-4">
+  <h2>Social Media Hub</h2>
+  <p class="mb-3">Manage all your social channels, posts, and messages in one place</p>
+  <div class="action-bar d-flex gap-2">
+    <a href="{% url 'social_media:posts_list' %}" class="hub-btn-secondary" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff">
+      <i data-lucide="file-text" class="lucide"></i> Posts
+    </a>
+    <a href="{% url 'social_media:messages_inbox' %}" class="hub-btn-secondary" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff">
+      <i data-lucide="inbox" class="lucide"></i> Inbox
+    </a>
+    <a href="{% url 'social_media:bot_settings' %}" class="hub-btn-secondary" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff">
+      <i data-lucide="bot" class="lucide"></i> Bot
+    </a>
+    {% if is_admin %}
+    <a href="{% url 'social_media:setup_guide' %}" class="hub-btn-create" style="background:#fff;color:var(--signature);border:none">
+      <i data-lucide="book-open" class="lucide"></i> Setup Guide
+    </a>
     {% endif %}
   </div>
 </div>
 
-<!-- ═════════════════════════════════════════════════════════════════════════════ -->
-<!-- CONNECT PLATFORM MODAL                                                      -->
-<!-- ═════════════════════════════════════════════════════════════════════════════ -->
-<div class="modal fade connect-modal" id="connectModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header align-items-center gap-3">
-        <div class="platform-badge" id="modalPlatformBadge"><i data-lucide="plug" class="lucide"></i></div>
-        <div>
-          <h5 class="modal-title fw-bold mb-0" id="modalTitle">Connect Platform</h5>
-          <p class="text-muted small mb-0" id="modalSubtitle">Follow the steps below to connect</p>
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="sm-stat-card">
+      <div class="sm-stat-icon" style="background:var(--signature-soft);color:var(--signature)">
+        <i data-lucide="plug-zap" class="lucide"></i>
+      </div>
+      <div>
+        <div class="sm-stat-value">{{ accounts|length }}</div>
+        <div class="sm-stat-label">Connected</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="sm-stat-card">
+      <div class="sm-stat-icon" style="background:rgba(16,185,129,0.1);color:var(--emerald)">
+        <i data-lucide="file-text" class="lucide"></i>
+      </div>
+      <div>
+        <div class="sm-stat-value">{{ recent_posts|length }}</div>
+        <div class="sm-stat-label">Recent Posts</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="sm-stat-card">
+      <div class="sm-stat-icon" style="background:rgba(59,130,246,0.1);color:var(--info)">
+        <i data-lucide="message-circle" class="lucide"></i>
+      </div>
+      <div>
+        <div class="sm-stat-value">—</div>
+        <div class="sm-stat-label">Messages</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="sm-stat-card">
+      <div class="sm-stat-icon" style="background:var(--signature-50);color:var(--signature)">
+        <i data-lucide="bot" class="lucide"></i>
+      </div>
+      <div>
+        <div class="sm-stat-value">—</div>
+        <div class="sm-stat-label">Bot Replies</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Platforms -->
+<div class="sm-section-header">
+  <i data-lucide="share-2" class="lucide"></i> Connected Platforms
+</div>
+<div class="row g-3 mb-4">
+  {% for info in platform_info %}
+  <div class="col-md-4 col-lg">
+    <div class="platform-card platform-{{ info.key }}">
+      <div class="platform-card-body">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="platform-icon" style="background:{{ info.color }}15;color:{{ info.color }}">
+            <i data-lucide="{% if info.key == 'whatsapp' %}message-circle{% elif info.key == 'linkedin' %}linkedin{% elif info.key == 'facebook' %}facebook{% elif info.key == 'instagram' %}instagram{% elif info.key == 'telegram' %}send{% else %}share-2{% endif %}" class="lucide"></i>
+          </div>
+          <div>
+            <div class="platform-name">{{ info.name }}</div>
+            {% if info.account %}
+            <div class="platform-meta">{{ info.account.account_name }}</div>
+            {% else %}
+            <div class="platform-meta">Not connected</div>
+            {% endif %}
+          </div>
         </div>
-        <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-
-        <!-- Step-by-step guide -->
-        <div class="accordion step-accordion mb-3" id="stepsAccordion"></div>
-
-        <!-- Connection Form -->
-        <form id="connectForm" method="post" action="">
-          {% csrf_token %}
-          <div class="form-section">
-            <h6><i data-lucide="key" class="lucide me-2" style="color:var(--primary);"></i>Credentials & Details</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label for="cf_account_name">Account Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="account_name" id="cf_account_name" required placeholder="e.g. My Business Account">
-                <div class="form-text">Display name for this connection</div>
-              </div>
-              <div class="col-md-6">
-                <label for="cf_account_id">Account / Page ID</label>
-                <input type="text" class="form-control" name="account_id" id="cf_account_id" placeholder="Unique identifier from platform">
-              </div>
-              <div class="col-12">
-                <label for="cf_access_token">Access Token / Bearer Token <span class="text-danger">*</span></label>
-                <div class="input-group">
-                  <input type="password" class="form-control" name="access_token" id="cf_access_token" placeholder="Paste your token here">
-                  <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this, 'cf_access_token')" style="border-radius:0 var(--radius-btn) var(--radius-btn) 0;">
-                    <i data-lucide="eye" class="lucide"></i>
-                  </button>
-                </div>
-                <div class="form-text"><i data-lucide="lock" class="lucide me-1"></i>Encrypted before storing</div>
-              </div>
-              <div class="col-md-6">
-                <label for="cf_api_key">API Key / App Secret</label>
-                <div class="input-group">
-                  <input type="password" class="form-control" name="api_key" id="cf_api_key" placeholder="Optional">
-                  <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this, 'cf_api_key')" style="border-radius:0 var(--radius-btn) var(--radius-btn) 0;">
-                    <i data-lucide="eye" class="lucide"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <label for="cf_webhook_secret">Webhook Verify Token</label>
-                <input type="text" class="form-control" name="webhook_secret" id="cf_webhook_secret" placeholder="For webhook verification">
-              </div>
-
-              <!-- WhatsApp fields -->
-              <div class="col-md-6 platform-fields pf-whatsapp">
-                <label for="cf_phone_number_id"><i data-lucide="phone" class="lucide me-1"></i>Phone Number ID</label>
-                <input type="text" class="form-control" name="phone_number_id" id="cf_phone_number_id" placeholder="e.g. 115632XXXXXXX">
-                <div class="form-text">Meta Dashboard → WhatsApp → Getting Started</div>
-              </div>
-              <div class="col-md-6 platform-fields pf-whatsapp">
-                <label for="cf_waba_id"><i data-lucide="building-2" class="lucide me-1"></i>WABA ID</label>
-                <input type="text" class="form-control" name="waba_id" id="cf_waba_id" placeholder="Business Account ID">
-                <div class="form-text">WhatsApp Business Manager</div>
-              </div>
-
-              <!-- Facebook/Instagram fields -->
-              <div class="col-md-6 platform-fields pf-facebook pf-instagram">
-                <label for="cf_page_id"><i data-lucide="file" class="lucide me-1"></i>Page ID</label>
-                <input type="text" class="form-control" name="page_id" id="cf_page_id" placeholder="Numeric Page ID">
-                <div class="form-text">Page Settings → About</div>
-              </div>
-
-              <!-- Telegram fields -->
-              <div class="col-md-6 platform-fields pf-telegram">
-                <label for="cf_telegram_chat_id"><i data-lucide="message-square-dot" class="lucide me-1"></i>Chat / Group ID</label>
-                <input type="text" class="form-control" name="telegram_chat_id" id="cf_telegram_chat_id" placeholder="e.g. -1001234567890">
-                <div class="form-text">Optional — for sending proactive messages to a group/channel</div>
-              </div>
-
-              <div class="col-md-6">
-                <label for="cf_profile_url">Profile URL</label>
-                <input type="url" class="form-control" name="profile_url" id="cf_profile_url" placeholder="https://...">
-              </div>
-            </div>
+        <div class="d-flex align-items-center justify-content-between">
+          {% if info.account %}
+          <span class="hub-pill hub-pill--success">Active</span>
+          <div class="d-flex gap-1">
+            {% if info.key == 'whatsapp' %}
+            <a href="{% url 'social_media:messages_inbox' %}" class="hub-btn-action" title="Messages">
+              <i data-lucide="message-circle" class="lucide"></i>
+            </a>
+            {% endif %}
+            {% if is_admin %}
+            <form method="post" action="{% url 'social_media:test_connection' info.account.pk %}" style="display:inline">
+              {% csrf_token %}
+              <button type="submit" class="hub-btn-action" title="Test connection"><i data-lucide="wifi" class="lucide"></i></button>
+            </form>
+            <button class="hub-btn-action" title="Connect / update" data-bs-toggle="modal" data-bs-target="#connectModal-{{ info.key }}">
+              <i data-lucide="settings" class="lucide"></i>
+            </button>
+            {% endif %}
           </div>
-
-          <!-- Permissions -->
-          <div class="form-section">
-            <h6><i data-lucide="shield" class="lucide me-2" style="color:var(--success);"></i>Permissions</h6>
-            <div class="row g-2">
-              <div class="col-md-6">
-                <div class="perm-switch">
-                  <input class="form-check-input" type="checkbox" name="can_read_messages" id="perm_read" checked>
-                  <div><label for="perm_read">Read Messages</label><small>Receive incoming messages</small></div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="perm-switch">
-                  <input class="form-check-input" type="checkbox" name="can_send_messages" id="perm_write">
-                  <div><label for="perm_write">Send Messages</label><small>Reply to conversations</small></div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="perm-switch">
-                  <input class="form-check-input" type="checkbox" name="can_auto_reply" id="perm_auto">
-                  <div><label for="perm_auto">AI Auto-Reply</label><small>Bot responds automatically</small></div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="perm-switch">
-                  <input class="form-check-input" type="checkbox" name="can_post_content" id="perm_post">
-                  <div><label for="perm_post">Publish Posts</label><small>Create & schedule content</small></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer justify-content-between">
-        <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal" style="border-radius:10px; padding:.55rem 1.5rem;">Cancel</button>
-        <button type="button" class="btn btn-connect-submit text-white" id="btnSubmitConnect" onclick="submitConnect()">
-          <i data-lucide="plug" class="lucide me-2"></i>Connect & Save
-        </button>
+          {% else %}
+          <span class="hub-pill hub-pill--muted">Disconnected</span>
+          {% if is_admin %}
+          <button class="hub-btn-create" style="font-size:11px;padding:5px 12px" data-bs-toggle="modal" data-bs-target="#connectModal-{{ info.key }}">
+            <i data-lucide="plug-zap" class="lucide"></i> Connect
+          </button>
+          {% endif %}
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
+  {% endfor %}
 </div>
 
-<!-- Toast -->
-<div class="toast-container position-fixed top-0 end-0 p-3">
-  <div class="toast align-items-center border-0" id="toastNotify" role="alert">
-    <div class="d-flex">
-      <div class="toast-body fw-semibold" id="toastBody"></div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+<!-- Recent posts -->
+{% if recent_posts %}
+<div class="sm-section-header">
+  <i data-lucide="file-text" class="lucide"></i> Recent Posts
+</div>
+<div class="dash-panel mb-4">
+  <div class="dash-panel-body" style="padding:0">
+    <table class="hub-table">
+      <thead>
+        <tr><th>Platform</th><th>Content</th><th>Status</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for post in recent_posts %}
+        <tr>
+          <td>
+            <span class="hub-pill hub-pill--muted" style="text-transform:capitalize">{{ post.account.platform }}</span>
+          </td>
+          <td style="font-size:13px;color:var(--gray-700);max-width:300px">{{ post.content|truncatewords:15 }}</td>
+          <td>
+            <span class="hub-pill hub-pill--{% if post.status == 'published' %}success{% elif post.status == 'draft' %}warning{% else %}muted{% endif %}">
+              {{ post.status }}
+            </span>
+          </td>
+          <td style="font-size:12px;color:var(--gray-500)">{{ post.created_at|timesince }} ago</td>
+          <td>
+            <a href="{% url 'social_media:post_detail' post.pk %}" class="hub-btn-action" title="View">
+              <i data-lucide="eye" class="lucide"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Connect Modals -->
+{% for info in platform_info %}
+<div class="modal fade" id="connectModal-{{ info.key }}" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" style="border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-lg)">
+      <div class="modal-header" style="border-bottom:1px solid var(--gray-100);padding:16px 20px">
+        <h5 style="font-size:15px;font-weight:700;margin:0">Connect {{ info.name }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'social_media:connect_account' info.key %}">
+        {% csrf_token %}
+        <div class="modal-body" style="padding:20px">
+          <div class="mb-3">
+            <label class="hub-label">Account Name</label>
+            <input type="text" name="account_name" class="hub-input" required placeholder="My {{ info.name }} Account" {% if info.account %}value="{{ info.account.account_name }}"{% endif %}>
+          </div>
+          <div class="mb-3">
+            <label class="hub-label">Account ID</label>
+            <input type="text" name="account_id" class="hub-input" placeholder="Platform-specific ID" {% if info.account %}value="{{ info.account.account_id }}"{% endif %}>
+          </div>
+          <div class="mb-3">
+            <label class="hub-label">Access Token</label>
+            <input type="password" name="access_token" class="hub-input" placeholder="Paste your access token">
+          </div>
+          {% if info.key == 'whatsapp' %}
+          <div class="mb-3">
+            <label class="hub-label">Phone Number ID</label>
+            <input type="text" name="phone_number_id" class="hub-input" placeholder="WhatsApp phone number ID" {% if info.account %}value="{{ info.account.phone_number_id }}"{% endif %}>
+          </div>
+          <div class="mb-3">
+            <label class="hub-label">WABA ID</label>
+            <input type="text" name="waba_id" class="hub-input" placeholder="WhatsApp Business Account ID" {% if info.account %}value="{{ info.account.waba_id }}"{% endif %}>
+          </div>
+          {% endif %}
+          {% if info.key == 'facebook' %}
+          <div class="mb-3">
+            <label class="hub-label">Page ID</label>
+            <input type="text" name="page_id" class="hub-input" placeholder="Facebook Page ID" {% if info.account %}value="{{ info.account.page_id }}"{% endif %}>
+          </div>
+          {% endif %}
+          {% if info.key == 'telegram' %}
+          <div class="mb-3">
+            <label class="hub-label">Bot API Key</label>
+            <input type="password" name="api_key" class="hub-input" placeholder="Telegram Bot API key">
+          </div>
+          <div class="mb-3">
+            <label class="hub-label">Chat ID</label>
+            <input type="text" name="telegram_chat_id" class="hub-input" placeholder="Target chat or group ID" {% if info.account %}value="{{ info.account.telegram_chat_id }}"{% endif %}>
+          </div>
+          {% endif %}
+          <div class="mb-3">
+            <label class="hub-label">Webhook Secret (optional)</label>
+            <input type="text" name="webhook_secret" class="hub-input" placeholder="Verify token for webhooks">
+          </div>
+          <div class="d-flex flex-wrap gap-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input cursor-pointer" type="checkbox" name="can_read_messages" id="read-{{ info.key }}" checked>
+              <label class="form-check-label cursor-pointer" for="read-{{ info.key }}" style="font-size:13px">Read Messages</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input cursor-pointer" type="checkbox" name="can_send_messages" id="send-{{ info.key }}" checked>
+              <label class="form-check-label cursor-pointer" for="send-{{ info.key }}" style="font-size:13px">Send Messages</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input cursor-pointer" type="checkbox" name="can_auto_reply" id="auto-{{ info.key }}">
+              <label class="form-check-label cursor-pointer" for="auto-{{ info.key }}" style="font-size:13px">Auto-Reply</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input cursor-pointer" type="checkbox" name="can_post_content" id="post-{{ info.key }}">
+              <label class="form-check-label cursor-pointer" for="post-{{ info.key }}" style="font-size:13px">Post Content</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid var(--gray-100);padding:12px 20px">
+          <button type="button" class="hub-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="hub-btn-create"><i data-lucide="check" class="lucide"></i> Save</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
+{% endfor %}
+{% endblock %}
 
-<script>
-// ─── Platform Steps Data ─────────────────────────────────────────────────────
-const platformSteps = {
-  whatsapp: [
-    { title: "Create Meta Business Account", body: `Go to <a href="https://business.facebook.com" target="_blank" class="fw-semibold text-primary">business.facebook.com</a> and create/verify your Business account.` },
-    { title: "Set up WhatsApp Business API", body: `Meta Business Suite → All Tools → <strong>WhatsApp</strong>. Link your WhatsApp Business account. Note your <strong>WABA ID</strong>.` },
-    { title: "Add Phone Number", body: `Add your business phone. Meta assigns a <strong>Phone Number ID</strong>. Find it under WhatsApp → Getting Started → API Setup.` },
-    { title: "Generate Access Token", body: `<a href="https://developers.facebook.com" target="_blank" class="fw-semibold text-primary">developers.facebook.com</a> → Your App → WhatsApp → API Setup. Generate a <strong>System User Token</strong> (permanent, production-ready).` },
-    { title: "Configure Webhook", body: `Set Webhook URL to:<br><code class="d-inline-block bg-dark text-white px-2 py-1 rounded mt-1">YOUR_DOMAIN/social/webhooks/whatsapp/</code><br>Set a Verify Token (same value below). Subscribe to <code>messages</code>.` },
-    { title: "Enter Credentials", body: `Fill in Access Token, Phone Number ID, WABA ID, and Webhook Token below. Click <strong>Connect & Save</strong>.` }
-  ],
-  linkedin: [
-    { title: "Create LinkedIn App", body: `<a href="https://www.linkedin.com/developers/apps" target="_blank" class="fw-semibold text-primary">LinkedIn Developers</a> → Create App. Associate with your Company Page.` },
-    { title: "Request API Products", body: `Products tab → request:<br>• <strong>Share on LinkedIn</strong><br>• <strong>Sign In with LinkedIn (OpenID)</strong><br>• <strong>Marketing Developer Platform</strong> (optional)` },
-    { title: "Generate OAuth Token", body: `Auth tab → get <strong>Client ID</strong> + <strong>Client Secret</strong>. Generate token via OAuth 2.0 flow.<br>Scopes: <code>w_member_social</code>, <code>r_liteprofile</code>` },
-    { title: "Get Organization ID", body: `Company admin URL: <code>linkedin.com/company/<strong>ID</strong>/admin/</code>. Use this numeric ID as Account ID.` },
-    { title: "Webhook (Optional)", body: `Requires partner access. Not needed for basic posting. Callback:<br><code class="d-inline-block bg-dark text-white px-2 py-1 rounded mt-1">YOUR_DOMAIN/social/webhooks/linkedin/</code>` },
-    { title: "Enter Credentials", body: `Fill in Organization ID, Access Token, Client Secret (API Key). Click <strong>Connect & Save</strong>.` }
-  ],
-  facebook: [
-    { title: "Create Facebook App", body: `<a href="https://developers.facebook.com/apps/" target="_blank" class="fw-semibold text-primary">Meta for Developers</a> → Create App → Business type.` },
-    { title: "Add Permissions", body: `Add <strong>Messenger</strong> product. Request:<br>• <code>pages_messaging</code><br>• <code>pages_manage_posts</code><br>• <code>pages_read_engagement</code>` },
-    { title: "Get Page Access Token", body: `Graph API Explorer → select Page → Generate <strong>Page Access Token</strong>. Exchange for long-lived token for production.` },
-    { title: "Find Page ID", body: `Facebook Page → About → <strong>Page ID</strong> (numeric). Or API: <code>GET /me/accounts</code>` },
-    { title: "Configure Webhooks", body: `Webhooks → Page. Callback URL:<br><code class="d-inline-block bg-dark text-white px-2 py-1 rounded mt-1">YOUR_DOMAIN/social/webhooks/facebook/</code><br>Subscribe: <code>messages</code>, <code>feed</code>.` },
-    { title: "Enter Credentials", body: `Fill in Page Name, Page ID, Access Token, App Secret, Verify Token. Click <strong>Connect & Save</strong>.` }
-  ],
-  instagram: [
-    { title: "Link to Facebook Page", body: `Instagram must be <strong>Business/Creator</strong> type and linked to a Facebook Page. Instagram Settings → Accounts Center.` },
-    { title: "Set up Facebook App", body: `Same FB App or new one at <a href="https://developers.facebook.com" target="_blank" class="fw-semibold text-primary">developers.facebook.com</a>. Add <strong>Instagram Graph API</strong>.` },
-    { title: "Get Instagram Business ID", body: `API: <code>GET /{page-id}?fields=instagram_business_account</code>. Use returned ID as <strong>Page ID</strong>.` },
-    { title: "Generate Token", body: `Page Access Token with: <code>instagram_basic</code>, <code>instagram_manage_messages</code>, <code>instagram_content_publish</code>` },
-    { title: "Webhooks", body: `Instagram subscriptions. Callback:<br><code class="d-inline-block bg-dark text-white px-2 py-1 rounded mt-1">YOUR_DOMAIN/social/webhooks/instagram/</code><br>Subscribe: <code>messages</code>, <code>comments</code>.` },
-    { title: "Enter Credentials", body: `Fill in Account Name, IG Business ID (Page ID), Access Token, App Secret. Click <strong>Connect & Save</strong>.` }
-  ],
-  telegram: [
-    { title: "Open BotFather on Telegram", body: `Open Telegram and search for <a href="https://t.me/BotFather" target="_blank" class="fw-semibold text-primary">@BotFather</a>. Start a chat and send <code>/newbot</code>.` },
-    { title: "Create Your Bot", body: `BotFather will ask for:<br>• <strong>Bot name</strong> (display name, e.g. "My Business Bot")<br>• <strong>Bot username</strong> (must end in "bot", e.g. <code>mybusiness_bot</code>)<br>After creation, you'll receive a <strong>Bot Token</strong> like: <code>7123456789:AAF...</code>` },
-    { title: "Copy Bot Token", body: `The Bot Token is your <strong>Access Token</strong>. Keep it secret! If compromised, use <code>/revoke</code> with @BotFather to regenerate.` },
-    { title: "Set Bot Permissions", body: `Send these commands to @BotFather:<br>• <code>/setprivacy</code> → <strong>Disable</strong> (to read all group messages)<br>• <code>/setjoingroups</code> → <strong>Enable</strong> (allow adding to groups)<br>• <code>/setcommands</code> → add commands like <code>start - Start the bot</code>` },
-    { title: "Get Chat ID (Optional)", body: `Add bot to your group/channel. Send a message, then call:<br><code class="d-inline-block bg-dark text-white px-2 py-1 rounded mt-1">https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code><br>Find <code>chat.id</code> in the response. Use this as <strong>Chat ID</strong> for sending messages.` },
-    { title: "Set Webhook", body: `Set webhook so Telegram sends updates to your server:<br><code class="d-inline-block bg-dark text-white px-2 py-1 rounded mt-1">YOUR_DOMAIN/social/webhooks/telegram/</code><br>Or use API: <code>https://api.telegram.org/bot&lt;TOKEN&gt;/setWebhook?url=YOUR_URL</code>` },
-    { title: "Enter Credentials Below", body: `Paste the <strong>Bot Token</strong> as Access Token. Add Chat ID if you want to send proactive messages. Click <strong>Connect & Save</strong> — we'll verify the token instantly.` }
-  ]
-};
-
-const platformIcons = {
-  whatsapp: 'bi-whatsapp', linkedin: 'bi-linkedin', facebook: 'bi-facebook',
-  instagram: 'bi-instagram', telegram: 'bi-telegram'
-};
-
-let currentPlatform = '';
-
-function openConnectModal(platform, name, color) {
-  currentPlatform = platform;
-  const modal = document.getElementById('connectModal');
-  const badge = document.getElementById('modalPlatformBadge');
-  const title = document.getElementById('modalTitle');
-  const subtitle = document.getElementById('modalSubtitle');
-  const btn = document.getElementById('btnSubmitConnect');
-  const form = document.getElementById('connectForm');
-
-  title.textContent = `Connect ${name}`;
-  subtitle.textContent = `Set up ${name} integration step by step`;
-  badge.style.background = color + '12';
-  badge.innerHTML = `<i class="bi ${platformIcons[platform]}" style="color:${color}; font-size:1.5rem;"></i>`;
-  btn.style.background = color;
-  form.action = `/social/connect/${platform}/`;
-
-  // Platform-specific fields
-  document.querySelectorAll('.platform-fields').forEach(el => el.classList.remove('show'));
-  document.querySelectorAll(`.pf-${platform}`).forEach(el => el.classList.add('show'));
-
-  // Build steps
-  const steps = platformSteps[platform] || [];
-  document.getElementById('stepsAccordion').innerHTML = steps.map((step, i) => `
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button ${i > 0 ? 'collapsed' : ''}" type="button"
-          data-bs-toggle="collapse" data-bs-target="#step${i}">
-          <span class="step-num">${i + 1}</span>${step.title}
-        </button>
-      </h2>
-      <div id="step${i}" class="accordion-collapse collapse ${i === 0 ? 'show' : ''}" data-bs-parent="#stepsAccordion">
-        <div class="accordion-body">${step.body}</div>
-      </div>
-    </div>
-  `).join('');
-
-  // Reset form
-  form.querySelectorAll('input[type=text], input[type=password], input[type=url]').forEach(el => el.value = '');
-  document.getElementById('perm_read').checked = true;
-  document.getElementById('perm_write').checked = false;
-  document.getElementById('perm_auto').checked = false;
-  document.getElementById('perm_post').checked = false;
-
-  new bootstrap.Modal(modal).show();
-}
-
-function submitConnect() {
-  const form = document.getElementById('connectForm');
-  const btn = document.getElementById('btnSubmitConnect');
-  const formData = new FormData(form);
-
-  if (!formData.get('account_name')) {
-    showToast('Account name is required', 'danger');
-    document.getElementById('cf_account_name').focus();
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Connecting...';
-
-  fetch(form.action, {
-    method: 'POST',
-    body: formData,
-    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.success) {
-      showToast(data.message, 'success');
-      bootstrap.Modal.getInstance(document.getElementById('connectModal')).hide();
-      setTimeout(() => location.reload(), 800);
-    } else {
-      showToast(data.error || 'Connection failed', 'danger');
-      btn.disabled = false;
-      btn.innerHTML = '<i data-lucide="plug" class="lucide me-2"></i>Connect & Save';
-    }
-  })
-  .catch(() => {
-    showToast('Network error. Try again.', 'danger');
-    btn.disabled = false;
-    btn.innerHTML = '<i data-lucide="plug" class="lucide me-2"></i>Connect & Save';
-  });
-}
-
-function testConnection(accountId, btn) {
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-  const resultEl = document.getElementById('test-result-' + accountId);
-  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-                    document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
-
-  fetch(`/social/test-connection/${accountId}/`, {
-    method: 'POST',
-    headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' }
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.success) {
-      btn.innerHTML = '<i data-lucide="check-circle" class="lucide text-success"></i> OK';
-      resultEl.innerHTML = `<span class="text-success" style="font-size:.65rem;"><i data-lucide="check-circle" class="lucide me-1"></i>${data.message}</span>`;
-    } else {
-      btn.innerHTML = '<i data-lucide="x-circle" class="lucide text-danger"></i> Fail';
-      resultEl.innerHTML = `<span class="text-danger" style="font-size:.65rem;"><i data-lucide="circle-alert" class="lucide me-1"></i>${data.error || data.message}</span>`;
-    }
-    btn.disabled = false;
-    setTimeout(() => { btn.innerHTML = '<i data-lucide="wifi" class="lucide me-1"></i>Test'; }, 4000);
-  })
-  .catch(() => {
-    btn.innerHTML = '<i data-lucide="wifi" class="lucide me-1"></i>Test';
-    btn.disabled = false;
-    resultEl.innerHTML = '<span class="text-danger" style="font-size:.65rem;">Network error</span>';
-  });
-}
-
-function togglePassword(btn, inputId) {
-  const inp = document.getElementById(inputId);
-  const icon = btn.querySelector('i');
-  if (inp.type === 'password') { inp.type = 'text'; icon.classList.replace('bi-eye', 'bi-eye-slash'); }
-  else { inp.type = 'password'; icon.classList.replace('bi-eye-slash', 'bi-eye'); }
-}
-
-function showToast(message, type) {
-  const toast = document.getElementById('toastNotify');
-  toast.className = `toast align-items-center border-0 text-bg-${type}`;
-  document.getElementById('toastBody').textContent = message;
-  new bootstrap.Toast(toast, { delay: 4000 }).show();
-}
-</script>
+{% block extra_js %}
+<script>lucide.createIcons();</script>
 {% endblock %}

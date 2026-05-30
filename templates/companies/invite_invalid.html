@@ -1,23 +1,33 @@
 {% extends "base_public.html" %}
-{% block title %}Invitation Invalid — WorkHub{% endblock %}
+{% block title %}Invalid Invitation — WorkHub{% endblock %}
 
 {% block content %}
-<div class="auth-bg d-flex align-items-center justify-content-center py-5 px-3" style="min-height:100vh;">
-  <div style="width:100%;max-width:460px;position:relative;z-index:1;">
-    <div class="auth-card p-4 p-md-5 text-center">
-      <i data-lucide="circle-alert" class="lucide text-danger" style="font-size:3rem;"></i>
-      <h4 class="fw-bold mt-3 mb-2">Invitation Invalid</h4>
-      {% if reason == "expired" %}
-        <p class="text-muted">This invitation has expired. Please ask the admin to send a new one.</p>
-      {% elif reason == "revoked" %}
-        <p class="text-muted">This invitation has been revoked by the admin.</p>
-      {% elif reason == "accepted" %}
-        <p class="text-muted">This invitation has already been used.</p>
-      {% else %}
-        <p class="text-muted">This invitation is no longer valid.</p>
-      {% endif %}
-      <a href="{% url 'accounts:login' %}" class="btn btn-primary mt-3">Go to Login</a>
+<div class="auth-split">
+  <div class="auth-left">
+    <div class="auth-card text-center" style="max-width:400px">
+      <div style="width:56px;height:56px;border-radius:16px;background:rgba(239,68,68,0.08);color:var(--danger);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px">
+        <i data-lucide="link-2-off" class="lucide" style="width:24px;height:24px"></i>
+      </div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--gray-900);margin:0 0 8px">Invitation Invalid</h2>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:20px">
+        {% if reason == "expired" %}
+        This invitation has expired. Please ask your team admin to send a new one.
+        {% elif reason == "revoked" %}
+        This invitation has been revoked by the team admin.
+        {% elif reason == "accepted" %}
+        This invitation has already been used.
+        {% else %}
+        This invitation link is no longer valid.
+        {% endif %}
+      </p>
+      <a href="{% url 'accounts:login' %}" class="hub-btn-create" style="padding:10px 24px">
+        <i data-lucide="log-in" class="lucide"></i> Go to Login
+      </a>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>lucide.createIcons();</script>
 {% endblock %}

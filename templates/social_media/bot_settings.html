@@ -1,145 +1,88 @@
 {% extends "base.html" %}
-{% block title %}AI Bot Settings — Social Media — WorkHub{% endblock %}
-
-{% block extra_head %}
-<style>
-  .bot-hero {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    border-radius: 16px; padding: 2rem 2.5rem; color: #fff; margin-bottom: 2rem;
-  }
-  .bot-hero h2 { font-weight: 700; }
-  .bot-hero p { opacity: .85; margin-bottom: 0; }
-
-  .rule-card {
-    border: none; border-radius: 16px; overflow: hidden;
-    box-shadow: 0 2px 16px rgba(0,0,0,.06); margin-bottom: 1rem;
-    transition: box-shadow .2s, transform .2s;
-  }
-  .rule-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.1); transform: translateY(-2px); }
-  .rule-card .card-body { padding: 1.25rem 1.5rem; }
-
-  .platform-pill {
-    display: inline-flex; align-items: center; gap: .4rem;
-    padding: .35rem .75rem; border-radius: 20px; font-size: .8rem; font-weight: 600; color: #fff;
-  }
-  .scope-tag { background: #f1f5f9; color: #475569; border-radius: 6px; padding: .2rem .5rem; font-size: .75rem; font-weight: 500; }
-
-  .webhook-row {
-    display: flex; align-items: center; gap: 1rem;
-    padding: .75rem 1rem; border-radius: 10px; background: #f8fafc;
-    margin-bottom: .5rem; font-family: 'Fira Code', monospace; font-size: .85rem;
-  }
-  .webhook-row .platform-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-
-  .empty-state {
-    text-align: center; padding: 3rem 1rem;
-    background: linear-gradient(135deg, #f8fafc, var(--primary-light)); border-radius: 16px;
-  }
-  .empty-state i { font-size: 3rem; color: #94a3b8; }
-</style>
-{% endblock %}
+{% block title %}Bot Settings — Social Media — WorkHub{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-
-  <!-- Hero -->
-  <div class="bot-hero d-flex flex-wrap justify-content-between align-items-center">
+<!-- Header -->
+<div class="hub-header">
+  <div class="d-flex align-items-center gap-3">
+    <div class="hub-icon" style="background:var(--gradient-brand)"><i data-lucide="bot" class="lucide"></i></div>
     <div>
-      <h2 class="mb-1"><i data-lucide="bot" class="lucide me-2"></i>AI Bot Settings</h2>
-      <p>Configure auto-reply rules for your social media accounts.</p>
-    </div>
-    <div class="d-flex gap-2 mt-2 mt-md-0">
-      <a href="{% url 'social_media:bot_analytics' %}" class="btn btn-outline-light" style="border-radius:10px;">
-        <i data-lucide="trending-up" class="lucide me-1"></i>Analytics
-      </a>
-      <a href="{% url 'social_media:create_bot_rule' %}" class="btn btn-light text-dark fw-semibold" style="border-radius:10px;">
-        <i data-lucide="plus" class="lucide me-1"></i>New Rule
-      </a>
+      <h1 class="hub-title">AI Bot Settings</h1>
+      <p class="hub-subtitle">{{ rules|length }} auto-reply rule{{ rules|length|pluralize }}</p>
     </div>
   </div>
+  <div class="d-flex align-items-center gap-2">
+    <a href="{% url 'social_media:dashboard' %}" class="hub-btn-secondary"><i data-lucide="arrow-left" class="lucide"></i> Dashboard</a>
+    <a href="{% url 'social_media:bot_analytics' %}" class="hub-btn-secondary"><i data-lucide="bar-chart-3" class="lucide"></i> Analytics</a>
+    <a href="{% url 'social_media:create_bot_rule' %}" class="hub-btn-create"><i data-lucide="plus" class="lucide"></i> New Rule</a>
+  </div>
+</div>
 
-  {% if rules %}
-  <!-- Rules as Cards -->
+{% if rules %}
+<div class="d-flex flex-column gap-3">
   {% for rule in rules %}
-  <div class="rule-card card">
-    <div class="card-body d-flex flex-wrap align-items-center gap-3">
-      <!-- Platform Badge -->
-      <div class="platform-pill" style="background: {% if rule.platform == 'whatsapp' %}#25D366{% elif rule.platform == 'linkedin' %}#0A66C2{% elif rule.platform == 'facebook' %}#1877F2{% elif rule.platform == 'instagram' %}#E4405F{% else %}#000{% endif %};">
-        <i class="bi bi-{% if rule.platform == 'whatsapp' %}whatsapp{% elif rule.platform == 'linkedin' %}linkedin{% elif rule.platform == 'facebook' %}facebook{% elif rule.platform == 'instagram' %}instagram{% else %}twitter-x{% endif %}"></i>
-        {{ rule.get_platform_display }}
+  <div class="bot-rule-card">
+    <div class="d-flex align-items-start justify-content-between">
+      <div style="flex:1;min-width:0">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="hub-pill hub-pill--muted" style="text-transform:capitalize">{{ rule.platform }}</span>
+          {% if rule.is_enabled %}
+          <span class="hub-pill hub-pill--success">Active</span>
+          {% else %}
+          <span class="hub-pill hub-pill--muted">Disabled</span>
+          {% endif %}
+          {% if rule.auto_send %}
+          <span class="hub-pill hub-pill--info">Auto-Send</span>
+          {% endif %}
+        </div>
+        {% if rule.account %}
+        <div style="font-size:13px;color:var(--gray-700);margin-bottom:4px">
+          Account: <strong>{{ rule.account.account_name }}</strong>
+        </div>
+        {% endif %}
+        {% if rule.persona_name %}
+        <div style="font-size:12px;color:var(--gray-500)">Persona: {{ rule.persona_name }}</div>
+        {% endif %}
+        {% if rule.keywords %}
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px">Keywords: {{ rule.keywords|truncatewords:10 }}</div>
+        {% endif %}
+        <div class="d-flex gap-2 mt-1" style="font-size:11px;color:var(--gray-400)">
+          {% if rule.reply_to_dms %}<span>DMs</span>{% endif %}
+          {% if rule.reply_to_comments %}<span>Comments</span>{% endif %}
+          {% if rule.reply_to_groups %}<span>Groups</span>{% endif %}
+        </div>
       </div>
-
-      <!-- Info -->
-      <div class="flex-grow-1">
-        <div class="fw-bold">{{ rule.persona_name|default:"Default Bot" }}</div>
-        <small class="text-muted">{{ rule.account.account_name|default:"All accounts" }}</small>
-      </div>
-
-      <!-- Scope Tags -->
-      <div class="d-flex gap-1 flex-wrap">
-        {% if rule.reply_to_dms %}<span class="scope-tag"><i data-lucide="mail" class="lucide me-1"></i>DMs</span>{% endif %}
-        {% if rule.reply_to_comments %}<span class="scope-tag"><i data-lucide="message-circle" class="lucide me-1"></i>Comments</span>{% endif %}
-        {% if rule.reply_to_groups %}<span class="scope-tag"><i data-lucide="users" class="lucide me-1"></i>Groups</span>{% endif %}
-      </div>
-
-      <!-- Auto Send -->
-      {% if rule.auto_send %}
-      <span class="badge bg-warning bg-opacity-10 text-warning fw-semibold" style="border-radius:8px; padding:.4rem .7rem;">
-        <i data-lucide="zap" class="lucide me-1"></i>Auto
-      </span>
-      {% else %}
-      <span class="badge bg-secondary bg-opacity-10 text-secondary fw-semibold" style="border-radius:8px; padding:.4rem .7rem;">Manual</span>
-      {% endif %}
-
-      <!-- Toggle Status -->
-      <form method="post" action="{% url 'social_media:toggle_bot_rule' rule.pk %}" class="d-inline">
-        {% csrf_token %}
-        <button class="btn btn-sm {% if rule.is_enabled %}btn-success{% else %}btn-outline-secondary{% endif %}" style="border-radius:8px; min-width:80px;">
-          <i class="bi bi-{% if rule.is_enabled %}check-circle-fill{% else %}pause-circle{% endif %} me-1"></i>
-          {{ rule.is_enabled|yesno:"Active,Off" }}
-        </button>
-      </form>
-
-      <!-- Actions -->
       <div class="d-flex gap-1">
-        <a href="{% url 'social_media:edit_bot_rule' rule.pk %}" class="btn btn-sm btn-outline-primary" style="border-radius:8px;" title="Edit">
-          <i data-lucide="pencil" class="lucide"></i>
-        </a>
-        <form method="post" action="{% url 'social_media:delete_bot_rule' rule.pk %}" class="d-inline">
+        <form method="post" action="{% url 'social_media:toggle_bot_rule' rule.pk %}" style="display:inline">
           {% csrf_token %}
-          <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" title="Delete">
-            <i data-lucide="trash-2" class="lucide"></i>
+          <button type="submit" class="hub-btn-action" title="{% if rule.is_enabled %}Disable{% else %}Enable{% endif %}">
+            <i data-lucide="{% if rule.is_enabled %}pause{% else %}play{% endif %}" class="lucide"></i>
+          </button>
+        </form>
+        <a href="{% url 'social_media:edit_bot_rule' rule.pk %}" class="hub-btn-action" title="Edit">
+          <i data-lucide="edit-3" class="lucide"></i>
+        </a>
+        <form method="post" action="{% url 'social_media:delete_bot_rule' rule.pk %}" style="display:inline">
+          {% csrf_token %}
+          <button type="submit" class="hub-btn-action" title="Delete" onclick="return confirm('Delete this rule?')">
+            <i data-lucide="trash-2" class="lucide" style="color:var(--danger)"></i>
           </button>
         </form>
       </div>
     </div>
   </div>
   {% endfor %}
-
-  {% else %}
-  <div class="empty-state">
-    <i data-lucide="bot" class="lucide"></i>
-    <h5 class="mt-3 fw-bold">No auto-reply rules configured</h5>
-    <p class="text-muted mb-3">Create your first rule to let AI handle incoming messages.</p>
-    <a href="{% url 'social_media:create_bot_rule' %}" class="btn btn-primary" style="border-radius:10px;">
-      <i data-lucide="plus" class="lucide me-1"></i>Create First Rule
-    </a>
-  </div>
-  {% endif %}
-
-  <!-- Webhook Info -->
-  <div class="card border-0 shadow-sm mt-4" style="border-radius:16px; overflow:hidden;">
-    <div class="card-header bg-white py-3 px-4" style="border-bottom: 2px solid #f1f5f9;">
-      <h5 class="mb-0 fw-bold"><i data-lucide="link" class="lucide me-2 text-muted"></i>Webhook Endpoints</h5>
-    </div>
-    <div class="card-body p-4">
-      <p class="text-muted small mb-3">Configure these URLs in each platform's developer settings.</p>
-      <div class="webhook-row"><div class="platform-icon" style="background:#25D36615;"><i class="bi bi-whatsapp" style="color:#25D366;"></i></div><code>/social/webhooks/whatsapp/</code></div>
-      <div class="webhook-row"><div class="platform-icon" style="background:#1877F215;"><i class="bi bi-facebook" style="color:#1877F2;"></i></div><code>/social/webhooks/facebook/</code></div>
-      <div class="webhook-row"><div class="platform-icon" style="background:#E4405F15;"><i class="bi bi-instagram" style="color:#E4405F;"></i></div><code>/social/webhooks/instagram/</code></div>
-      <div class="webhook-row"><div class="platform-icon" style="background:#0A66C215;"><i class="bi bi-linkedin" style="color:#0A66C2;"></i></div><code>/social/webhooks/linkedin/</code></div>
-      <div class="webhook-row"><div class="platform-icon" style="background:#00000010;"><i class="bi bi-twitter-x"></i></div><code>/social/webhooks/twitter/</code></div>
-    </div>
-  </div>
 </div>
+{% else %}
+<div class="ibx-empty">
+  <i data-lucide="bot" class="lucide" style="width:48px;height:48px;color:var(--gray-300)"></i>
+  <h3 style="font-size:16px;font-weight:700;color:var(--gray-800);margin:12px 0 4px">No bot rules yet</h3>
+  <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px">Create auto-reply rules for your social media accounts</p>
+  <a href="{% url 'social_media:create_bot_rule' %}" class="ibx-connect-btn">Create Rule</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>lucide.createIcons();</script>
 {% endblock %}

@@ -162,11 +162,12 @@
       const ico = document.getElementById(iconId);
       if (inp.type === "password") {
         inp.type = "text";
-        ico.className = "bi bi-eye-slash";
+        ico.outerHTML = '<i data-lucide="eye-off" class="lucide" id="' + iconId + '"></i>';
       } else {
         inp.type = "password";
-        ico.className = "bi bi-eye";
+        ico.outerHTML = '<i data-lucide="eye" class="lucide" id="' + iconId + '"></i>';
       }
+      lucide.createIcons();
     });
   }
   makeToggle("toggleCalendlyClientId",  "calendlyClientId",     "eyeIconCalendlyId");

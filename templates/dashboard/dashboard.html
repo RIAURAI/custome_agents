@@ -5,177 +5,197 @@
 {% block content %}
 
 <!-- Greeting -->
-<div class="dash-greeting mb-4">
+<section class="dh-greeting">
   <div>
-    <h4 class="dash-greeting-title">Welcome back, {{ user.first_name|default:user.username }} 👋</h4>
-    <p class="dash-greeting-sub">Here’s your workspace summary for today</p>
+    <h1 class="dh-greeting-title">
+      Welcome back, {{ user.first_name|default:user.username }}
+      <span class="dh-wave">👋</span>
+    </h1>
+    <p class="dh-greeting-sub">Here's your workspace summary for today</p>
   </div>
-  <div class="dash-greeting-date">
-    <i data-lucide="calendar" class="lucide me-2"></i>{% now "N j, Y" %}
+  <div class="dh-date-chip">
+    <i data-lucide="calendar"></i>
+    {% now "N j, Y" %}
   </div>
-</div>
+</section>
 
-<!-- Connect Banner -->
+<!-- Connect banner -->
 {% if not ms_connected %}
-<div class="dash-connect-banner mb-4">
-  <div class="dash-connect-icon"><i class="bi bi-microsoft"></i></div>
-  <div class="flex-grow-1">
-    <div class="dash-connect-title">Connect your Microsoft 365 account</div>
-    <div class="dash-connect-sub">Unlock Outlook inbox, Teams meetings, and calendar sync directly in WorkHub.</div>
+<div class="dh-banner">
+  <div class="dh-banner-icon">
+    <svg viewBox="0 0 23 23" width="20" height="20">
+      <rect x="1" y="1" width="10" height="10" fill="#f25022"/>
+      <rect x="12" y="1" width="10" height="10" fill="#7fba00"/>
+      <rect x="1" y="12" width="10" height="10" fill="#00a4ef"/>
+      <rect x="12" y="12" width="10" height="10" fill="#ffb900"/>
+    </svg>
   </div>
-  <a href="{% url 'integrations:microsoft_connect' %}" class="btn dash-connect-btn flex-shrink-0">
-    <i data-lucide="log-in" class="lucide me-2"></i>Connect Now
+  <div class="dh-banner-body">
+    <div class="dh-banner-title">Connect your Microsoft 365 account</div>
+    <div class="dh-banner-sub">Unlock Outlook inbox, Teams meetings, and calendar sync.</div>
+  </div>
+  <a href="{% url 'integrations:microsoft_connect' %}" class="dh-banner-cta">
+    <i data-lucide="log-in"></i> Connect Now
   </a>
 </div>
 {% endif %}
 
 {% if graph_error %}
-<div class="alert alert-warning mb-4" style="font-size:.85rem;border-radius:12px;">
-  <i data-lucide="triangle-alert" class="lucide me-2"></i>{{ graph_error }}
+<div class="dh-error">
+  <i data-lucide="triangle-alert"></i> {{ graph_error }}
 </div>
 {% endif %}
 
-<!-- KPI Stat Cards -->
-<div class="row g-3 mb-4">
+<!-- KPI Stats Grid -->
+<section class="dh-stats-grid">
 
-  <div class="col-6 col-lg-3 d-flex flex-column">
-    <div class="dash-stat dash-stat--indigo flex-grow-1">
-      <div class="dash-stat-top">
-        <div class="dash-stat-icon"><i data-lucide="mail" class="lucide"></i></div>
-        {% if ms_connected %}<span class="dash-stat-trend"><i data-lucide="circle" class="lucide me-1"></i>Live</span>{% endif %}
-      </div>
-      <div class="dash-stat-num">{{ unread_count|default:"0" }}</div>
-      <div class="dash-stat-label">Unread Emails</div>
-      <a href="{% url 'email_hub:inbox' %}" class="dash-stat-link">Open Inbox <i data-lucide="arrow-right" class="lucide"></i></a>
+  <div class="dh-stat">
+    <div class="dh-stat-head">
+      <div class="dh-stat-icon dh-stat-icon--indigo"><i data-lucide="mail"></i></div>
+      {% if ms_connected %}
+      <span class="dh-pill dh-pill--success"><span class="dh-dot dh-dot--success"></span> Live</span>
+      {% else %}
+      <span class="dh-pill dh-pill--muted">Offline</span>
+      {% endif %}
     </div>
+    <div class="dh-stat-num">{{ unread_count|default:"0" }}</div>
+    <div class="dh-stat-label">Unread Emails</div>
+    <a href="{% url 'email_hub:inbox' %}" class="dh-stat-link">
+      Open Inbox <i data-lucide="arrow-right"></i>
+    </a>
   </div>
 
-  <div class="col-6 col-lg-3 d-flex flex-column">
-    <div class="dash-stat dash-stat--emerald flex-grow-1">
-      <div class="dash-stat-top">
-        <div class="dash-stat-icon"><i data-lucide="calendar-check" class="lucide"></i></div>
-        {% if ms_connected %}<span class="dash-stat-trend"><i data-lucide="circle" class="lucide me-1"></i>Live</span>{% endif %}
-      </div>
-      <div class="dash-stat-num">{{ upcoming_meetings|length|default:"0" }}</div>
-      <div class="dash-stat-label">Meetings Today</div>
-      <a href="{% url 'meetings:list' %}" class="dash-stat-link">View Schedule <i data-lucide="arrow-right" class="lucide"></i></a>
+  <div class="dh-stat">
+    <div class="dh-stat-head">
+      <div class="dh-stat-icon dh-stat-icon--emerald"><i data-lucide="calendar-check"></i></div>
+      {% if ms_connected %}
+      <span class="dh-pill dh-pill--success"><span class="dh-dot dh-dot--success"></span> Live</span>
+      {% endif %}
     </div>
+    <div class="dh-stat-num">{{ upcoming_meetings|length|default:"0" }}</div>
+    <div class="dh-stat-label">Meetings Today</div>
+    <a href="{% url 'meetings:list' %}" class="dh-stat-link">
+      View Schedule <i data-lucide="arrow-right"></i>
+    </a>
   </div>
 
-  <div class="col-6 col-lg-3 d-flex flex-column">
-    <div class="dash-stat dash-stat--violet flex-grow-1">
-      <div class="dash-stat-top">
-        <div class="dash-stat-icon"><i data-lucide="sparkles" class="lucide"></i></div>
-        <span class="dash-stat-trend">Ready</span>
-      </div>
-      <div class="dash-stat-num" style="font-size:2rem;">AI</div>
-      <div class="dash-stat-label">Assistant</div>
-      <a href="{% url 'ai_assistant:home' %}" class="dash-stat-link">Open Chat <i data-lucide="arrow-right" class="lucide"></i></a>
+  <div class="dh-stat">
+    <div class="dh-stat-head">
+      <div class="dh-stat-icon dh-stat-icon--violet"><i data-lucide="sparkles"></i></div>
+      <span class="dh-pill dh-pill--info">Ready</span>
     </div>
+    <div class="dh-stat-num">AI</div>
+    <div class="dh-stat-label">Assistant</div>
+    <a href="{% url 'ai_assistant:home' %}" class="dh-stat-link">
+      Open Chat <i data-lucide="arrow-right"></i>
+    </a>
   </div>
 
-  <div class="col-6 col-lg-3 d-flex flex-column">
-    <div class="dash-stat {% if ms_connected %}dash-stat--sky{% else %}dash-stat--slate{% endif %} flex-grow-1">
-      <div class="dash-stat-top">
-        {% if ms_connected %}
-        <div class="dash-stat-icon dash-stat-icon--sky"><i class="bi bi-microsoft"></i></div>
-        <span class="dash-stat-trend dash-stat-trend--connected"><i data-lucide="check-circle" class="lucide me-1"></i>Active</span>
-        {% else %}
-        <div class="dash-stat-icon dash-stat-icon--slate"><i data-lucide="plug" class="lucide"></i></div>
-        <span class="dash-stat-trend dash-stat-trend--off">Offline</span>
-        {% endif %}
+  <div class="dh-stat">
+    <div class="dh-stat-head">
+      <div class="dh-stat-icon dh-stat-icon--sky">
+        <svg viewBox="0 0 23 23" width="16" height="16">
+          <rect x="1" y="1" width="10" height="10" fill="#f25022"/>
+          <rect x="12" y="1" width="10" height="10" fill="#7fba00"/>
+          <rect x="1" y="12" width="10" height="10" fill="#00a4ef"/>
+          <rect x="12" y="12" width="10" height="10" fill="#ffb900"/>
+        </svg>
       </div>
-      <div class="dash-stat-num" style="font-size:1.4rem;margin-top:4px;">
-        {% if ms_connected %}365{% else %}—{% endif %}
-      </div>
-      <div class="dash-stat-label">Microsoft 365</div>
-      <a href="{% url 'integrations:connect' %}" class="dash-stat-link">Manage <i data-lucide="arrow-right" class="lucide"></i></a>
+      {% if ms_connected %}
+      <span class="dh-pill dh-pill--success"><i data-lucide="check"></i> Active</span>
+      {% else %}
+      <span class="dh-pill dh-pill--muted">Offline</span>
+      {% endif %}
     </div>
+    <div class="dh-stat-num">{% if ms_connected %}365{% else %}—{% endif %}</div>
+    <div class="dh-stat-label">Microsoft 365</div>
+    <a href="{% url 'integrations:connect' %}" class="dh-stat-link">
+      Manage <i data-lucide="arrow-right"></i>
+    </a>
   </div>
 
-</div>
+</section>
 
-<!-- Main Panels -->
-<div class="row g-4">
+<!-- Main panels -->
+<section class="dh-panels">
 
   <!-- Recent Emails -->
-  <div class="col-lg-7">
-    <div class="dash-panel h-100">
-      <div class="dash-panel-header">
-        <div class="d-flex align-items-center gap-2">
-          <div class="dash-panel-icon dash-panel-icon--indigo"><i data-lucide="mail" class="lucide"></i></div>
-          <span class="dash-panel-title">Recent Emails</span>
-        </div>
-        <a href="{% url 'email_hub:inbox' %}" class="dash-view-all">View All <i data-lucide="arrow-right" class="lucide"></i></a>
+  <div class="dh-panel">
+    <div class="dh-panel-head">
+      <div class="dh-panel-title">
+        <div class="dh-panel-icon dh-panel-icon--indigo"><i data-lucide="mail"></i></div>
+        Recent Emails
       </div>
-      <div class="dash-panel-body">
-        {% if recent_emails %}
-          {% for email in recent_emails %}
-          <a href="{% url 'email_hub:detail' email.id %}" class="dash-email-row {% if not email.isRead %}dash-email-row--unread{% endif %}">
-            <div class="dash-email-avatar">{{ email.from.emailAddress.name|first|upper|default:"?" }}</div>
-            <div class="dash-email-content">
-              <div class="dash-email-top">
-                <span class="dash-email-sender">{{ email.from.emailAddress.name|default:"Unknown" }}</span>
-                <span class="dash-email-time">{{ email.receivedDateTime|slice:":10" }}</span>
-              </div>
-              <div class="dash-email-subject {% if not email.isRead %}dash-email-subject--bold{% endif %}">
-                {% if not email.isRead %}<span class="dash-dot"></span>{% endif %}
-                {{ email.subject|default:"(no subject)" }}
-              </div>
-              <div class="dash-email-preview">{{ email.bodyPreview|truncatechars:70 }}</div>
+      <a href="{% url 'email_hub:inbox' %}" class="dh-panel-link">
+        View All <i data-lucide="arrow-right"></i>
+      </a>
+    </div>
+    <div class="dh-panel-body">
+      {% if recent_emails %}
+        {% for email in recent_emails %}
+        <a href="{% url 'email_hub:detail' email.id %}" class="dh-row {% if not email.isRead %}dh-row--unread{% endif %}">
+          <div class="dh-row-avatar">{{ email.from.emailAddress.name|first|upper|default:"?" }}</div>
+          <div class="dh-row-body">
+            <div class="dh-row-top">
+              <span class="dh-row-name">{{ email.from.emailAddress.name|default:"Unknown" }}</span>
+              <span class="dh-row-time">{{ email.receivedDateTime|slice:":10" }}</span>
             </div>
-          </a>
-          {% endfor %}
-        {% else %}
-          <div class="dash-empty">
-            <div class="dash-empty-icon"><i data-lucide="inbox" class="lucide"></i></div>
-            <div class="dash-empty-text">
-              {% if not ms_connected %}No emails yet — connect Microsoft to get started{% else %}Your inbox is empty{% endif %}
+            <div class="dh-row-subject {% if not email.isRead %}dh-row-subject--bold{% endif %}">
+              {% if not email.isRead %}<span class="dh-unread-dot"></span>{% endif %}
+              {{ email.subject|default:"(no subject)" }}
             </div>
-            {% if not ms_connected %}
-            <a href="{% url 'integrations:microsoft_connect' %}" class="btn dash-empty-btn">Connect Account</a>
-            {% endif %}
+            <div class="dh-row-preview">{{ email.bodyPreview|truncatechars:80 }}</div>
           </div>
-        {% endif %}
-      </div>
+        </a>
+        {% endfor %}
+      {% else %}
+        <div class="dh-empty">
+          <div class="dh-empty-icon"><i data-lucide="inbox"></i></div>
+          <div class="dh-empty-text">
+            {% if not ms_connected %}No emails yet — connect Microsoft to get started{% else %}Your inbox is empty{% endif %}
+          </div>
+          {% if not ms_connected %}
+          <a href="{% url 'integrations:microsoft_connect' %}" class="dh-empty-btn">Connect Account</a>
+          {% endif %}
+        </div>
+      {% endif %}
     </div>
   </div>
 
   <!-- Upcoming Meetings -->
-  <div class="col-lg-5">
-    <div class="dash-panel h-100">
-      <div class="dash-panel-header">
-        <div class="d-flex align-items-center gap-2">
-          <div class="dash-panel-icon dash-panel-icon--emerald"><i data-lucide="video" class="lucide"></i></div>
-          <span class="dash-panel-title">Upcoming Meetings</span>
+  <div class="dh-panel">
+    <div class="dh-panel-head">
+      <div class="dh-panel-title">
+        <div class="dh-panel-icon dh-panel-icon--emerald"><i data-lucide="video"></i></div>
+        Upcoming Meetings
+      </div>
+      <a href="{% url 'meetings:list' %}" class="dh-panel-link">
+        View All <i data-lucide="arrow-right"></i>
+      </a>
+    </div>
+    <div class="dh-panel-body">
+      {% if upcoming_meetings %}
+        {% for meeting in upcoming_meetings %}
+        <div class="dh-meeting">
+          <div class="dh-meeting-time">{{ meeting.start.dateTime|slice:"11:16" }}</div>
+          <div class="dh-meeting-body">
+            <div class="dh-meeting-title">{{ meeting.subject|default:"(no title)"|truncatechars:50 }}</div>
+            {% if meeting.onlineMeeting.joinUrl %}
+            <a href="{{ meeting.onlineMeeting.joinUrl }}" target="_blank" rel="noopener noreferrer" class="dh-join-btn">
+              <i data-lucide="video"></i> Join
+            </a>
+            {% endif %}
+          </div>
         </div>
-        <a href="{% url 'meetings:list' %}" class="dash-view-all">View All <i data-lucide="arrow-right" class="lucide"></i></a>
-      </div>
-      <div class="dash-panel-body">
-        {% if upcoming_meetings %}
-          {% for meeting in upcoming_meetings %}
-          <div class="dash-meeting-row">
-            <div class="dash-meeting-time">{{ meeting.start.dateTime|slice:"11:16" }}</div>
-            <div class="dash-meeting-info">
-              <div class="dash-meeting-title">{{ meeting.subject|default:"(no title)"|truncatechars:45 }}</div>
-              {% if meeting.onlineMeeting.joinUrl %}
-              <a href="{{ meeting.onlineMeeting.joinUrl }}" target="_blank" rel="noopener noreferrer" class="dash-join-btn">
-                <i data-lucide="video" class="lucide me-1"></i>Join
-              </a>
-              {% endif %}
-            </div>
-          </div>
-          {% endfor %}
-        {% else %}
-          <div class="dash-empty">
-            <div class="dash-empty-icon"><i data-lucide="calendar-check" class="lucide"></i></div>
-            <div class="dash-empty-text">No meetings scheduled today</div>
-          </div>
-        {% endif %}
-      </div>
+        {% endfor %}
+      {% else %}
+        <div class="dh-empty">
+          <div class="dh-empty-icon"><i data-lucide="calendar-check"></i></div>
+          <div class="dh-empty-text">No meetings scheduled today</div>
+        </div>
+      {% endif %}
     </div>
   </div>
 
-</div>
+</section>
 {% endblock %}
-

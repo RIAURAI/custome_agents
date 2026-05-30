@@ -356,6 +356,11 @@ LOGGING = {
             "handlers": ["console"],
             "level": "WARNING",
         },
+        "django.server": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
         "integrations": {
             "handlers": ["console"],
             "level": "INFO",

@@ -3,87 +3,121 @@
 {% block page_title %}AI Assistant{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-8">
+<div class="ai-wrap">
 
-    <!-- Hero banner -->
-    <div class="ai-hero mb-4">
-      <div class="ai-hero-glow"></div>
-      <div class="d-flex align-items-center gap-3 mb-3">
-        <div class="ai-hero-icon">
-          <i data-lucide="bot" class="lucide"></i>
-        </div>
-        <div>
-          <h5 class="ai-hero-title">AI Assistant</h5>
-          <p class="ai-hero-sub">Powered by GPT-4o-mini · Summarize &amp; draft professional replies instantly</p>
-        </div>
-      </div>
-      <div class="ai-hero-chips">
-        <span class="ai-chip"><i data-lucide="zap" class="lucide me-1"></i>Instant Results</span>
-        <span class="ai-chip"><i data-lucide="lock" class="lucide me-1"></i>Private &amp; Secure</span>
-        <span class="ai-chip"><i data-lucide="lightbulb" class="lucide me-1"></i>Context-Aware</span>
+  <!-- Hero -->
+  <section class="ai-hero">
+    <div class="ai-hero-glow"></div>
+    <div class="ai-hero-head">
+      <div class="ai-hero-icon"><i data-lucide="bot"></i></div>
+      <div>
+        <h1 class="ai-hero-title">AI Assistant</h1>
+        <p class="ai-hero-sub">Powered by GPT-4o-mini · Summarize &amp; draft professional replies instantly</p>
       </div>
     </div>
-
-    <!-- Input card -->
-    <div class="ai-input-card mb-4">
-      <div class="ai-input-header">
-        <i data-lucide="mail-open" class="lucide"></i>
-        <span>Paste email content</span>
-      </div>
-      <textarea id="email-input" class="ai-textarea" rows="9"
-        placeholder="Paste the email you want to summarize or reply to…"></textarea>
-      <div class="ai-actions">
-        <div class="d-flex gap-2 flex-wrap">
-          <button class="btn ai-btn-primary" onclick="triggerAI('summarize')">
-            <i data-lucide="file-text" class="lucide me-2"></i>Summarize
-          </button>
-          <button class="btn ai-btn-secondary" onclick="triggerAI('reply')">
-            <i data-lucide="send" class="lucide me-2"></i>Generate Reply
-          </button>
-        </div>
-        <span class="ai-hint"><i data-lucide="arrow-down-circle" class="lucide me-1"></i>Result appears below</span>
-      </div>
+    <div class="ai-chips">
+      <span class="ai-chip"><i data-lucide="zap"></i> Instant Results</span>
+      <span class="ai-chip"><i data-lucide="lock"></i> Private &amp; Secure</span>
+      <span class="ai-chip"><i data-lucide="lightbulb"></i> Context-Aware</span>
     </div>
+  </section>
 
-    <!-- Response card -->
-    <div id="ai-response-box" class="ai-response-card d-none">
-      <div class="ai-response-header">
-        <div class="d-flex align-items-center gap-2">
-          <div class="ai-response-icon"><i data-lucide="bot" class="lucide"></i></div>
-          <span class="ai-response-title">AI Response</span>
-        </div>
-        <button class="btn ai-copy-btn" onclick="copyResult()">
-          <i data-lucide="clipboard" class="lucide me-1"></i>Copy
+  <!-- Input card -->
+  <section class="ai-card">
+    <div class="ai-card-head">
+      <i data-lucide="mail-open"></i>
+      <span>Paste email content</span>
+    </div>
+    <textarea id="email-input" class="ai-textarea" rows="9"
+      placeholder="Paste the email you want to summarize or reply to…"></textarea>
+    <div class="ai-card-foot">
+      <div class="ai-btn-group">
+        <button id="ai-btn-summarize" class="ai-btn ai-btn--primary" onclick="triggerAI('summarize')">
+          <i data-lucide="file-text"></i> Summarize
+        </button>
+        <button id="ai-btn-reply" class="ai-btn ai-btn--secondary" onclick="triggerAI('reply')">
+          <i data-lucide="send"></i> Generate Reply
         </button>
       </div>
-      <div class="ai-response-body">
-        <p id="ai-content" class="ai-response-text mb-0"></p>
-      </div>
+      <span class="ai-hint">
+        <i data-lucide="arrow-down-circle"></i> Result appears below
+      </span>
     </div>
+  </section>
 
-  </div>
+  <!-- Response card -->
+  <section id="ai-response-box" class="ai-card ai-card--response" hidden>
+    <div class="ai-card-head ai-card-head--response">
+      <div class="ai-resp-title">
+        <div class="ai-resp-icon"><i data-lucide="bot"></i></div>
+        <span>AI Response</span>
+      </div>
+      <button class="ai-copy" onclick="copyResult()">
+        <i data-lucide="clipboard"></i> Copy
+      </button>
+    </div>
+    <div class="ai-response-body">
+      <p id="ai-content" class="ai-response-text"></p>
+    </div>
+  </section>
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+// Helper for AI triggers — uses runAI() in main.js
 function triggerAI(type) {
-  const text = document.getElementById("email-input").value.trim();
+  const ta = document.getElementById("email-input");
+  const text = ta.value.trim();
   if (!text) {
-    const ta = document.getElementById("email-input");
     ta.classList.add("ai-textarea--shake");
     setTimeout(() => ta.classList.remove("ai-textarea--shake"), 600);
+    ta.focus();
     return;
   }
-  runAI(type, text, "{{ csrf_token }}");
+  // Show response box and update button to use the right one
+  const btn = document.getElementById(type === "summarize" ? "ai-btn-summarize" : "ai-btn-reply");
+  const box = document.getElementById("ai-response-box");
+  const content = document.getElementById("ai-content");
+
+  btn.disabled = true;
+  const original = btn.innerHTML;
+  btn.innerHTML = '<span class="ai-spinner"></span> Thinking…';
+
+  fetch("/ai/ask/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" },
+    body: JSON.stringify({ type, text }),
+  })
+    .then(r => r.json())
+    .then(data => {
+      content.textContent = data.result || data.error || "No response";
+      box.hidden = false;
+      box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    })
+    .catch(() => {
+      content.textContent = "Something went wrong. Please try again.";
+      box.hidden = false;
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = original;
+      if (typeof lucide !== "undefined") lucide.createIcons();
+    });
 }
+
 function copyResult() {
   const text = document.getElementById("ai-content").textContent;
   navigator.clipboard.writeText(text).then(() => {
     const btn = event.target.closest("button");
-    btn.innerHTML = '<i data-lucide="check-circle-2" class="lucide me-1"></i>Copied!';
-    setTimeout(() => btn.innerHTML = '<i data-lucide="clipboard" class="lucide me-1"></i>Copy', 1500);
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="check"></i> Copied!';
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    setTimeout(() => {
+      btn.innerHTML = original;
+      if (typeof lucide !== "undefined") lucide.createIcons();
+    }, 1500);
   });
 }
 </script>

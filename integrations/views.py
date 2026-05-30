@@ -112,6 +112,8 @@ def microsoft_save_credentials(request):
     integration.ms_client_id_enc = encrypt_token(client_id)
     integration.ms_client_secret_enc = encrypt_token(client_secret)
     integration.ms_tenant_id = tenant_id
+    # Auto-enable all features — no manual selection required
+    integration.enabled_ms_features = list(settings.MS_FEATURE_SCOPES.keys())
     integration.save()
 
     log_activity(request, "integration_credentials_saved", "microsoft", "Azure App credentials saved")

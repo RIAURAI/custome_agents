@@ -1,181 +1,112 @@
 {% extends "base.html" %}
 {% block title %}Bot Analytics — Social Media — WorkHub{% endblock %}
 
-{% block extra_head %}
-<style>
-  .analytics-hero {
-    background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
-    border-radius: 16px; padding: 2rem 2.5rem; color: #fff; margin-bottom: 2rem;
-  }
-  .analytics-hero h2 { font-weight: 700; }
-  .analytics-hero p { opacity: .85; margin-bottom: 0; }
-
-  .stat-card {
-    border: none; border-radius: 16px; overflow: hidden;
-    box-shadow: 0 2px 16px rgba(0,0,0,.06); transition: transform .2s;
-  }
-  .stat-card:hover { transform: translateY(-3px); }
-  .stat-card .card-body { padding: 1.5rem; }
-  .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
-
-  .class-pill {
-    display: inline-flex; flex-direction: column; align-items: center;
-    padding: .75rem 1rem; border-radius: 12px; background: #f8fafc; min-width: 90px;
-    transition: transform .2s;
-  }
-  .class-pill:hover { transform: translateY(-2px); }
-  .class-pill .count { font-size: 1.5rem; font-weight: 700; }
-  .class-pill .label { font-size: .75rem; font-weight: 600; text-transform: capitalize; }
-
-  .activity-table { border-radius: 16px; overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,.06); }
-  .activity-table thead th { background: #f8fafc; border: none; padding: .75rem 1rem; font-weight: 600; font-size: .85rem; color: #64748b; text-transform: uppercase; letter-spacing: .05em; }
-  .activity-table tbody td { padding: .75rem 1rem; vertical-align: middle; border-color: #f1f5f9; }
-
-  .platform-badge {
-    display: inline-flex; align-items: center; gap: .3rem;
-    padding: .25rem .6rem; border-radius: 6px; font-size: .75rem; font-weight: 600; color: #fff;
-  }
-  .action-badge { border-radius: 6px; padding: .25rem .6rem; font-size: .75rem; font-weight: 600; }
-
-  .empty-state {
-    text-align: center; padding: 3rem 1rem;
-    background: linear-gradient(135deg, #f8fafc, #f0f4ff); border-radius: 16px;
-  }
-  .empty-state i { font-size: 3rem; color: #94a3b8; }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="container-fluid py-4">
-
-  <!-- Hero -->
-  <div class="analytics-hero d-flex flex-wrap justify-content-between align-items-center">
+<!-- Header -->
+<div class="hub-header">
+  <div class="d-flex align-items-center gap-3">
+    <div class="hub-icon" style="background:var(--gradient-brand)"><i data-lucide="bar-chart-3" class="lucide"></i></div>
     <div>
-      <h2 class="mb-1"><i data-lucide="trending-up" class="lucide me-2"></i>Bot Analytics</h2>
-      <p>Last 7 days of AI bot activity and performance.</p>
+      <h1 class="hub-title">Bot Analytics</h1>
+      <p class="hub-subtitle">7-day performance overview</p>
     </div>
-    <a href="{% url 'social_media:bot_settings' %}" class="btn btn-outline-light" style="border-radius:10px;">
-      <i data-lucide="settings-2" class="lucide me-1"></i>Bot Settings
-    </a>
   </div>
+  <div class="d-flex align-items-center gap-2">
+    <a href="{% url 'social_media:bot_settings' %}" class="hub-btn-secondary"><i data-lucide="arrow-left" class="lucide"></i> Bot Settings</a>
+  </div>
+</div>
 
-  <!-- Stats Cards -->
-  <div class="row g-3 mb-4">
-    <div class="col-sm-6 col-lg-3">
-      <div class="stat-card card">
-        <div class="card-body d-flex align-items-center gap-3">
-          <div class="stat-icon" style="background: #eff6ff; color: #3b82f6;"><i data-lucide="message-square-text" class="lucide"></i></div>
-          <div>
-            <div class="fs-3 fw-bold">{{ analytics.total_processed|default:"0" }}</div>
-            <div class="text-muted small">Messages Processed</div>
-          </div>
-        </div>
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="sm-stat-card">
+      <div class="sm-stat-icon" style="background:var(--signature-soft);color:var(--signature)">
+        <i data-lucide="message-square" class="lucide"></i>
       </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="stat-card card">
-        <div class="card-body d-flex align-items-center gap-3">
-          <div class="stat-icon" style="background: #f0fdf4; color: #22c55e;"><i data-lucide="bot" class="lucide"></i></div>
-          <div>
-            <div class="fs-3 fw-bold">{{ analytics.auto_replied|default:"0" }}</div>
-            <div class="text-muted small">Auto Replies</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="stat-card card">
-        <div class="card-body d-flex align-items-center gap-3">
-          <div class="stat-icon" style="background: #eff6ff; color: #06b6d4;"><i data-lucide="send-horizontal" class="lucide"></i></div>
-          <div>
-            <div class="fs-3 fw-bold">{{ analytics.actually_sent|default:"0" }}</div>
-            <div class="text-muted small">Replies Sent</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="stat-card card">
-        <div class="card-body d-flex align-items-center gap-3">
-          <div class="stat-icon" style="background: #fefce8; color: #eab308;"><i data-lucide="percent" class="lucide"></i></div>
-          <div>
-            <div class="fs-3 fw-bold">{{ analytics.reply_rate|floatformat:1|default:"0" }}%</div>
-            <div class="text-muted small">Reply Rate</div>
-          </div>
-        </div>
+      <div>
+        <div class="sm-stat-value">{{ analytics.messages_processed|default:"0" }}</div>
+        <div class="sm-stat-label">Processed</div>
       </div>
     </div>
   </div>
-
-  <!-- Classification Breakdown -->
-  {% if analytics.classification_breakdown %}
-  <div class="card border-0 shadow-sm mb-4" style="border-radius:16px; overflow:hidden;">
-    <div class="card-header bg-white py-3 px-4" style="border-bottom: 2px solid #f1f5f9;">
-      <h5 class="mb-0 fw-bold"><i data-lucide="tags" class="lucide me-2 text-muted"></i>Message Classifications</h5>
-    </div>
-    <div class="card-body p-4">
-      <div class="d-flex flex-wrap gap-3">
-        {% for item in analytics.classification_breakdown %}
-        <div class="class-pill">
-          <span class="count {% if item.ai_classification == 'question' %}text-info{% elif item.ai_classification == 'complaint' %}text-danger{% elif item.ai_classification == 'inquiry' %}text-primary{% elif item.ai_classification == 'feedback' %}text-success{% elif item.ai_classification == 'spam' %}text-dark{% else %}text-secondary{% endif %}">{{ item.count }}</span>
-          <span class="label text-muted">{{ item.ai_classification|default:"general" }}</span>
-        </div>
-        {% endfor %}
+  <div class="col-6 col-md-3">
+    <div class="sm-stat-card">
+      <div class="sm-stat-icon" style="background:rgba(16,185,129,0.1);color:var(--emerald)">
+        <i data-lucide="reply" class="lucide"></i>
+      </div>
+      <div>
+        <div class="sm-stat-value">{{ analytics.replies_sent|default:"0" }}</div>
+        <div class="sm-stat-label">Replies Sent</div>
       </div>
     </div>
   </div>
-  {% endif %}
-
-  <!-- Recent Bot Activity -->
-  <div class="card border-0 activity-table">
-    <div class="card-header bg-white py-3 px-4" style="border-bottom: 2px solid #f1f5f9;">
-      <h5 class="mb-0 fw-bold"><i data-lucide="history" class="lucide me-2 text-muted"></i>Recent Activity</h5>
+  <div class="col-6 col-md-3">
+    <div class="sm-stat-card">
+      <div class="sm-stat-icon" style="background:rgba(245,158,11,0.1);color:var(--amber)">
+        <i data-lucide="clock" class="lucide"></i>
+      </div>
+      <div>
+        <div class="sm-stat-value">{{ analytics.drafts_pending|default:"0" }}</div>
+        <div class="sm-stat-label">Pending Drafts</div>
+      </div>
     </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="sm-stat-card">
+      <div class="sm-stat-icon" style="background:rgba(59,130,246,0.1);color:var(--info)">
+        <i data-lucide="sparkles" class="lucide"></i>
+      </div>
+      <div>
+        <div class="sm-stat-value">{{ analytics.classified|default:"0" }}</div>
+        <div class="sm-stat-label">Classified</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent bot logs -->
+<div class="dash-panel">
+  <div class="dash-panel-header">
+    <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Recent Bot Activity</span>
+  </div>
+  <div class="dash-panel-body" style="padding:0">
     {% if logs %}
-    <div class="table-responsive">
-      <table class="table table-hover mb-0">
-        <thead>
-          <tr>
-            <th>Platform</th>
-            <th>Action</th>
-            <th>Classification</th>
-            <th>Summary</th>
-            <th>Sent</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for log in logs %}
-          <tr>
-            <td>
-              <span class="platform-badge" style="background: {% if log.account.platform == 'whatsapp' %}#25D366{% elif log.account.platform == 'linkedin' %}#0A66C2{% elif log.account.platform == 'facebook' %}#1877F2{% elif log.account.platform == 'instagram' %}#E4405F{% else %}#000{% endif %};">
-                <i class="bi bi-{% if log.account.platform == 'whatsapp' %}whatsapp{% elif log.account.platform == 'linkedin' %}linkedin{% elif log.account.platform == 'facebook' %}facebook{% elif log.account.platform == 'instagram' %}instagram{% else %}twitter-x{% endif %}"></i>
-                {{ log.account.get_platform_display }}
-              </span>
-            </td>
-            <td>
-              <span class="action-badge bg-{% if log.action == 'auto_replied' %}success{% elif log.action == 'classified' %}info{% elif log.action == 'escalated' %}warning{% else %}secondary{% endif %} bg-opacity-10 text-{% if log.action == 'auto_replied' %}success{% elif log.action == 'classified' %}info{% elif log.action == 'escalated' %}warning{% else %}secondary{% endif %}">
-                {{ log.get_action_display }}
-              </span>
-            </td>
-            <td><span class="text-muted">{{ log.ai_classification|default:"—" }}</span></td>
-            <td><span class="small">{{ log.ai_summary|truncatewords:10|default:"—" }}</span></td>
-            <td>
-              {% if log.was_sent %}<i data-lucide="check-circle" class="lucide text-success"></i>{% else %}<i data-lucide="x-circle" class="lucide text-muted"></i>{% endif %}
-            </td>
-            <td><span class="small text-muted">{{ log.created_at|timesince }} ago</span></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <table class="hub-table">
+      <thead>
+        <tr><th>Platform</th><th>Contact</th><th>Message</th><th>Reply</th><th>Status</th><th>Time</th></tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td><span class="hub-pill hub-pill--muted" style="text-transform:capitalize">{{ log.account.platform }}</span></td>
+          <td style="font-size:13px;font-weight:500">{{ log.message.sender_id|default:"—" }}</td>
+          <td style="font-size:12px;color:var(--gray-600);max-width:200px">{{ log.message.content|truncatewords:10 }}</td>
+          <td style="font-size:12px;color:var(--gray-600);max-width:200px">{{ log.reply_text|truncatewords:10|default:"—" }}</td>
+          <td>
+            {% if log.was_sent %}
+            <span class="hub-pill hub-pill--success">Sent</span>
+            {% elif log.reply_text %}
+            <span class="hub-pill hub-pill--warning">Draft</span>
+            {% else %}
+            <span class="hub-pill hub-pill--muted">Analyzed</span>
+            {% endif %}
+          </td>
+          <td style="font-size:12px;color:var(--gray-500);white-space:nowrap">{{ log.created_at|timesince }} ago</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
     {% else %}
-    <div class="empty-state m-4">
-      <i data-lucide="trending-up" class="lucide"></i>
-      <h5 class="mt-3 fw-bold">No bot activity yet</h5>
-      <p class="text-muted">Configure rules and connect webhook endpoints to see data here.</p>
+    <div class="ibx-empty">
+      <i data-lucide="bot" class="lucide" style="width:40px;height:40px;color:var(--gray-300)"></i>
+      <h3 style="font-size:15px;font-weight:700;color:var(--gray-800);margin:10px 0 4px">No bot activity yet</h3>
+      <p style="font-size:13px;color:var(--gray-500)">Bot conversation logs will appear here once auto-reply rules are active</p>
     </div>
     {% endif %}
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>lucide.createIcons();</script>
 {% endblock %}

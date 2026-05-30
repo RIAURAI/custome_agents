@@ -1,283 +1,298 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}WorkHub{% endblock %}</title>
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.454.0/dist/umd/lucide.min.js"></script>
-  {% load static %}
+
+  <!-- Bootstrap JS (modals/toasts in child templates) -->
+
+  <!-- Legacy styles (child templates depend on these — migrated per phase) -->
   <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+
+  <!-- New design system (overrides legacy) -->
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/components.css' %}" />
+
+  <!-- Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.454.0/dist/umd/lucide.min.js"></script>
+
   {% block extra_head %}{% endblock %}
 </head>
 <body>
 
-<!-- ── Sidebar Layout (authenticated) ─────────────────────────────────────── -->
-<div class="d-flex" id="wrapper">
+<div class="wh-layout">
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SIDEBAR — Collapsible dark dock
+       ═══════════════════════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
 
-  <nav id="sidebar" class="sidebar d-flex flex-column flex-shrink-0 p-3">
-    <a href="{% url 'dashboard:home' %}" class="sidebar-brand">
-      <div class="sidebar-brand-icon"><i data-lucide="layout-grid" class="lucide"></i></div>
-      <span class="sidebar-brand-name">WorkHub</span>
+    <!-- Brand -->
+    <a href="{% url 'dashboard:home' %}" class="sb-brand">
+      <div class="sb-brand-mark">W</div>
+      <span class="sb-brand-name">WorkHub</span>
     </a>
-    <hr class="border-secondary my-0 mb-3" />
-    <ul class="nav nav-pills flex-column mb-auto gap-1">
-      <li>
-        <a href="{% url 'dashboard:home' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
-          <i data-lucide="layout-dashboard" class="lucide me-2"></i>Dashboard
-        </a>
-      </li>
+
+    <!-- Navigation -->
+    <nav class="sb-nav">
+
+      <div class="sb-section-label">Main</div>
+
+      <a href="{% url 'dashboard:home' %}"
+         class="sb-item {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}"
+         data-tooltip="Dashboard">
+        <i data-lucide="layout-dashboard"></i>
+        <span class="sb-item-text">Dashboard</span>
+      </a>
+
+      <a href="{% url 'ai_assistant:home' %}"
+         class="sb-item {% if request.resolver_match.app_name == 'ai_assistant' %}active{% endif %}"
+         data-tooltip="AI Assistant">
+        <i data-lucide="bot"></i>
+        <span class="sb-item-text">AI Assistant</span>
+      </a>
 
       {% if has_ms_access %}
-      <!-- Microsoft 365 Dropdown -->
-      <li class="sb-section">
-        <a href="#msSidebarMenu" class="nav-link text-white sb-toggle {% if request.resolver_match.app_name == 'email_hub' or request.resolver_match.app_name == 'meetings' or request.resolver_match.app_name == 'microsoft' %}active{% endif %}"
-           data-bs-toggle="collapse" role="button"
-           aria-expanded="{% if request.resolver_match.app_name == 'email_hub' or request.resolver_match.app_name == 'meetings' or request.resolver_match.app_name == 'microsoft' %}true{% else %}false{% endif %}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 23 23" class="me-2" style="flex-shrink:0;">
+      <!-- Microsoft 365 -->
+      <div class="sb-group {% if request.resolver_match.app_name == 'email_hub' or request.resolver_match.app_name == 'meetings' or request.resolver_match.app_name == 'microsoft' %}expanded{% endif %}">
+        <button type="button" class="sb-item sb-group-toggle" data-tooltip="Microsoft 365">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 23 23" style="flex-shrink:0;">
             <rect x="1" y="1" width="10" height="10" fill="#f25022"/>
             <rect x="12" y="1" width="10" height="10" fill="#7fba00"/>
             <rect x="1" y="12" width="10" height="10" fill="#00a4ef"/>
             <rect x="12" y="12" width="10" height="10" fill="#ffb900"/>
           </svg>
-          Microsoft 365
-          <i data-lucide="chevron-down" class="lucide ms-auto sb-chevron"></i>
-        </a>
-        <div class="collapse {% if request.resolver_match.app_name == 'email_hub' or request.resolver_match.app_name == 'meetings' or request.resolver_match.app_name == 'microsoft' %}show{% endif %}" id="msSidebarMenu">
-          <ul class="nav flex-column sb-submenu">
-            <li>
-              <a href="{% url 'email_hub:inbox' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'email_hub' %}active{% endif %}">
-                <i data-lucide="mail" class="lucide me-2"></i>Email
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'meetings:list' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'meetings' %}active{% endif %}">
-                <i data-lucide="video" class="lucide me-2"></i>Meetings
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'microsoft:presence' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'presence' %}active{% endif %}">
-                <i data-lucide="circle" class="lucide me-2"></i>Presence
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'microsoft:chat' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'chat' %}active{% endif %}">
-                <i data-lucide="message-circle-more" class="lucide me-2"></i>Teams Chat
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'microsoft:onedrive' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'onedrive' %}active{% endif %}">
-                <i data-lucide="cloud" class="lucide me-2"></i>OneDrive
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'microsoft:todo' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'todo' %}active{% endif %}">
-                <i data-lucide="square-check" class="lucide me-2"></i>To Do
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'microsoft:planner' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'planner' %}active{% endif %}">
-                <i data-lucide="kanban" class="lucide me-2"></i>Planner
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'microsoft:contacts' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'contacts' %}active{% endif %}">
-                <i data-lucide="contact" class="lucide me-2"></i>Contacts
-              </a>
-            </li>
-          </ul>
+          <span class="sb-item-text">Microsoft 365</span>
+          <i data-lucide="chevron-down" class="sb-chevron"></i>
+        </button>
+        <div class="sb-group-items">
+          <a href="{% url 'email_hub:inbox' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'email_hub' %}active{% endif %}">
+            <i data-lucide="mail"></i>
+            <span class="sb-item-text">Email</span>
+          </a>
+          <a href="{% url 'meetings:list' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'meetings' %}active{% endif %}">
+            <i data-lucide="video"></i>
+            <span class="sb-item-text">Meetings</span>
+          </a>
+          <a href="{% url 'microsoft:presence' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'presence' %}active{% endif %}">
+            <i data-lucide="circle"></i>
+            <span class="sb-item-text">Presence</span>
+          </a>
+          <a href="{% url 'microsoft:chat' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'chat' %}active{% endif %}">
+            <i data-lucide="message-circle-more"></i>
+            <span class="sb-item-text">Teams Chat</span>
+          </a>
+          <a href="{% url 'microsoft:onedrive' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'onedrive' %}active{% endif %}">
+            <i data-lucide="cloud"></i>
+            <span class="sb-item-text">OneDrive</span>
+          </a>
+          <a href="{% url 'microsoft:todo' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'todo' %}active{% endif %}">
+            <i data-lucide="square-check"></i>
+            <span class="sb-item-text">To Do</span>
+          </a>
+          <a href="{% url 'microsoft:planner' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'planner' %}active{% endif %}">
+            <i data-lucide="kanban"></i>
+            <span class="sb-item-text">Planner</span>
+          </a>
+          <a href="{% url 'microsoft:contacts' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'microsoft' and request.resolver_match.url_name == 'contacts' %}active{% endif %}">
+            <i data-lucide="contact"></i>
+            <span class="sb-item-text">Contacts</span>
+          </a>
         </div>
-      </li>
+      </div>
       {% endif %}
 
       {% if has_google_access %}
-      <!-- Google Workspace Dropdown -->
-      <li class="sb-section">
-        <a href="#googleSidebarMenu" class="nav-link text-white sb-toggle {% if request.resolver_match.app_name == 'google_hub' %}active{% endif %}"
-           data-bs-toggle="collapse" role="button"
-           aria-expanded="{% if request.resolver_match.app_name == 'google_hub' %}true{% else %}false{% endif %}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 48 48" class="me-2" style="flex-shrink:0;">
+      <!-- Google Workspace -->
+      <div class="sb-group {% if request.resolver_match.app_name == 'google_hub' %}expanded{% endif %}">
+        <button type="button" class="sb-item sb-group-toggle" data-tooltip="Google">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0;">
             <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
             <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
             <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
             <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
           </svg>
-          Google
-          <i data-lucide="chevron-down" class="lucide ms-auto sb-chevron"></i>
-        </a>
-        <div class="collapse {% if request.resolver_match.app_name == 'google_hub' %}show{% endif %}" id="googleSidebarMenu">
-          <ul class="nav flex-column sb-submenu">
-            <li>
-              <a href="{% url 'google_hub:inbox' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name in 'inbox,sent,drafts,search,detail,compose' %}active{% endif %}">
-                <i data-lucide="mail" class="lucide me-2"></i>Gmail
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'google_hub:calendar' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'calendar' %}active{% endif %}">
-                <i data-lucide="calendar" class="lucide me-2"></i>Calendar
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'google_hub:meet' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'meet' %}active{% endif %}">
-                <i data-lucide="video" class="lucide me-2"></i>Meet
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'google_hub:drive' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'drive' %}active{% endif %}">
-                <i data-lucide="cloud" class="lucide me-2"></i>Drive
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'google_hub:docs' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'docs' %}active{% endif %}">
-                <i data-lucide="file-text" class="lucide me-2"></i>Docs
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'google_hub:sheets' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'sheets' %}active{% endif %}">
-                <i data-lucide="table" class="lucide me-2"></i>Sheets
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'google_hub:forms' %}"
-                 class="nav-link text-white {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'forms' %}active{% endif %}">
-                <i data-lucide="clipboard-list" class="lucide me-2"></i>Forms
-              </a>
-            </li>
-          </ul>
+          <span class="sb-item-text">Google</span>
+          <i data-lucide="chevron-down" class="sb-chevron"></i>
+        </button>
+        <div class="sb-group-items">
+          <a href="{% url 'google_hub:inbox' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name in 'inbox,sent,drafts,search,detail,compose' %}active{% endif %}">
+            <i data-lucide="mail"></i>
+            <span class="sb-item-text">Gmail</span>
+          </a>
+          <a href="{% url 'google_hub:calendar' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'calendar' %}active{% endif %}">
+            <i data-lucide="calendar"></i>
+            <span class="sb-item-text">Calendar</span>
+          </a>
+          <a href="{% url 'google_hub:meet' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'meet' %}active{% endif %}">
+            <i data-lucide="video"></i>
+            <span class="sb-item-text">Meet</span>
+          </a>
+          <a href="{% url 'google_hub:drive' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'drive' %}active{% endif %}">
+            <i data-lucide="cloud"></i>
+            <span class="sb-item-text">Drive</span>
+          </a>
+          <a href="{% url 'google_hub:docs' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'docs' %}active{% endif %}">
+            <i data-lucide="file-text"></i>
+            <span class="sb-item-text">Docs</span>
+          </a>
+          <a href="{% url 'google_hub:sheets' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'sheets' %}active{% endif %}">
+            <i data-lucide="table"></i>
+            <span class="sb-item-text">Sheets</span>
+          </a>
+          <a href="{% url 'google_hub:forms' %}"
+             class="sb-item sb-sub-item {% if request.resolver_match.app_name == 'google_hub' and request.resolver_match.url_name == 'forms' %}active{% endif %}">
+            <i data-lucide="clipboard-list"></i>
+            <span class="sb-item-text">Forms</span>
+          </a>
         </div>
-      </li>
+      </div>
       {% endif %}
 
-      <li>
-        <a href="{% url 'ai_assistant:home' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'ai_assistant' %}active{% endif %}">
-          <i data-lucide="bot" class="lucide me-2"></i>AI Assistant
-        </a>
-      </li>
+      <div class="sb-section-label">More</div>
+
       {% if has_slack_access %}
-      <li>
-        <a href="{% url 'slack_hub:channels' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'slack_hub' %}active{% endif %}">
-          <i class="bi bi-slack me-2"></i>Slack
-        </a>
-      </li>
-      {% endif %}
-      <li>
-        <a href="{% url 'social_media:dashboard' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'social_media' %}active{% endif %}">
-          <i data-lucide="share-2" class="lucide me-2"></i>Social Media
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'integrations:connect' %}"
-           class="nav-link text-white {% if request.resolver_match.app_name == 'integrations' %}active{% endif %}">
-          <i data-lucide="plug" class="lucide me-2"></i>Connections
-        </a>
-      </li>
-      {% if current_membership.is_admin or request.user.is_superuser %}
-      <li>
-        <a href="{% url 'companies:team' %}"
-           class="nav-link text-white {% if request.resolver_match.url_name == 'team' %}active{% endif %}">
-          <i data-lucide="users" class="lucide me-2"></i>Team
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'companies:activity_log' %}"
-           class="nav-link text-white {% if request.resolver_match.url_name == 'activity_log' %}active{% endif %}">
-          <i data-lucide="history" class="lucide me-2"></i>Activity Log
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'companies:admin_dashboard' %}"
-           class="nav-link text-white {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
-          <i data-lucide="bar-chart-3" class="lucide me-2"></i>Admin Stats
-        </a>
-      </li>
-      {% endif %}
-    </ul>
-    <hr class="border-secondary" />
-    <div class="dropdown">
-      <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
-         data-bs-toggle="dropdown" aria-expanded="false">
-        <div class="avatar-circle me-2">
-          {{ user.first_name|first|upper|default:user.username|first|upper }}
-        </div>
-        <small class="text-truncate" style="max-width:110px;">
-          {{ user.get_full_name|default:user.username }}
-        </small>
+      <a href="{% url 'slack_hub:channels' %}"
+         class="sb-item {% if request.resolver_match.app_name == 'slack_hub' %}active{% endif %}"
+         data-tooltip="Slack">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
+        <span class="sb-item-text">Slack</span>
       </a>
-      <ul class="dropdown-menu text-small shadow">
-        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i data-lucide="user" class="lucide me-2"></i>Profile</a></li>
-        <li><a class="dropdown-item" href="{% url 'integrations:connect' %}"><i data-lucide="plug" class="lucide me-2"></i>Connections</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li>
-          <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
-            <button type="submit" class="dropdown-item text-danger">
-              <i data-lucide="log-out" class="lucide me-2"></i>Sign Out
-            </button>
-          </form>
-        </li>
-      </ul>
-    </div>
-  </nav>
+      {% endif %}
 
-  <div id="page-content" class="flex-grow-1">
-    <nav class="navbar navbar-light bg-white border-bottom px-4" style="height:60px;box-shadow:0 1px 4px rgba(15,23,42,.06);position:sticky;top:0;z-index:100;">
-      <button class="btn btn-sm me-3" id="sidebarToggle"
-              style="border:1.5px solid #e2e8f0;border-radius:9px !important;color:#64748b;padding:6px 10px;">
-        <i data-lucide="menu" class="lucide" style="font-size:1.1rem;"></i>
+      <a href="{% url 'social_media:dashboard' %}"
+         class="sb-item {% if request.resolver_match.app_name == 'social_media' %}active{% endif %}"
+         data-tooltip="Social Media">
+        <i data-lucide="share-2"></i>
+        <span class="sb-item-text">Social Media</span>
+      </a>
+
+      <a href="{% url 'integrations:connect' %}"
+         class="sb-item {% if request.resolver_match.app_name == 'integrations' %}active{% endif %}"
+         data-tooltip="Connections">
+        <i data-lucide="plug"></i>
+        <span class="sb-item-text">Connections</span>
+      </a>
+
+      {% if current_membership.is_admin or request.user.is_superuser %}
+      <div class="sb-section-label">Admin</div>
+
+      <a href="{% url 'companies:team' %}"
+         class="sb-item {% if request.resolver_match.url_name == 'team' %}active{% endif %}"
+         data-tooltip="Team">
+        <i data-lucide="users"></i>
+        <span class="sb-item-text">Team</span>
+      </a>
+
+      <a href="{% url 'companies:activity_log' %}"
+         class="sb-item {% if request.resolver_match.url_name == 'activity_log' %}active{% endif %}"
+         data-tooltip="Activity Log">
+        <i data-lucide="history"></i>
+        <span class="sb-item-text">Activity Log</span>
+      </a>
+
+      <a href="{% url 'companies:admin_dashboard' %}"
+         class="sb-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"
+         data-tooltip="Admin Stats">
+        <i data-lucide="bar-chart-3"></i>
+        <span class="sb-item-text">Admin Stats</span>
+      </a>
+      {% endif %}
+    </nav>
+
+    <!-- User -->
+    <div class="sb-user">
+      <div class="sb-avatar">{{ user.first_name|first|upper|default:user.username|first|upper }}</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name">{{ user.get_full_name|default:user.username }}</div>
+        <div class="sb-user-email">{{ user.email|default:"" }}</div>
+      </div>
+    </div>
+
+    <!-- Sign out -->
+    <form method="post" action="{% url 'accounts:logout' %}" class="sb-signout">
+      {% csrf_token %}
+      <button type="submit" data-tooltip="Sign Out">
+        <i data-lucide="log-out"></i>
+        <span class="sb-signout-text">Sign Out</span>
       </button>
-      <span class="fw-semibold" style="font-size:.95rem;color:#1e293b;letter-spacing:-.01em;">{% block page_title %}{% endblock %}</span>
-      <div class="ms-auto">
-        <a href="{% url 'accounts:profile' %}"
-           class="d-flex align-items-center gap-2 text-decoration-none"
-           style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:30px;padding:6px 14px 6px 8px;transition:all .15s ease;"
-           class="topbar-user-pill">
-          <div class="avatar-circle-sm">
-            {{ user.first_name|first|upper|default:user.username|first|upper }}
-          </div>
-          <span style="font-size:.85rem;font-weight:600;color:#1e293b;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-            {{ user.get_full_name|default:user.username }}
-          </span>
+    </form>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="wh-content">
+
+    <!-- Topbar -->
+    <header class="wh-topbar">
+      <button type="button" class="wh-topbar-toggle" id="sidebarToggle">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <span class="wh-topbar-title">{% block page_title %}{% endblock %}</span>
+
+      <div class="wh-topbar-actions">
+        <a href="{% url 'accounts:profile' %}" class="wh-user-pill">
+          <div class="wh-user-pill-avatar">{{ user.first_name|first|upper|default:user.username|first|upper }}</div>
+          <span class="wh-user-pill-name">{{ user.get_full_name|default:user.username }}</span>
         </a>
       </div>
-    </nav>
-    <div class="px-4 pt-3">
+    </header>
+
+    <!-- Alerts -->
+    {% if messages %}
+    <div class="wh-alerts" style="position:fixed;top:72px;right:20px;z-index:9999;min-width:340px;display:flex;flex-direction:column;gap:8px">
       {% for message in messages %}
-        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-          {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+      <div class="wh-toast-item" role="alert" style="background:var(--surface-primary);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:14px 18px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-lg);font-size:13px;color:var(--ink-primary);animation:fadeIn .3s ease">
+        {% if 'success' in message.tags %}<i data-lucide="check-circle" class="lucide" style="color:var(--success);flex-shrink:0;width:16px;height:16px"></i>
+        {% elif 'error' in message.tags %}<i data-lucide="circle-alert" class="lucide" style="color:var(--danger);flex-shrink:0;width:16px;height:16px"></i>
+        {% elif 'warning' in message.tags %}<i data-lucide="triangle-alert" class="lucide" style="color:var(--warning);flex-shrink:0;width:16px;height:16px"></i>
+        {% else %}<i data-lucide="info" class="lucide" style="color:var(--signature);flex-shrink:0;width:16px;height:16px"></i>{% endif %}
+        <span style="flex:1">{{ message }}</span>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:0;font-size:16px;line-height:1">&times;</button>
+      </div>
       {% endfor %}
     </div>
-    <main class="p-4">
+    {% endif %}
+
+    <!-- Main content -->
+    <main class="wh-main">
       {% block content %}{% endblock %}
     </main>
   </div>
-
 </div>
 
+<!-- Backdrop for mobile sidebar -->
+<div class="sb-backdrop" id="sidebarBackdrop"></div>
+
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/main.js' %}"></script>
 {% block extra_js %}{% endblock %}
-<script>lucide.createIcons();</script>
+<script>
+lucide.createIcons();
+document.querySelectorAll('.wh-toast-item').forEach(el=>{setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300)},5000)});
+</script>
 </body>
 </html>
